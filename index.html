@@ -613,6 +613,8 @@
       transition: transform .15s;
     }
     .switcher button > span { display: inline-block; transform: skewX(12deg); }
+    /* phones: three buttons no longer fit beside the name tag, so they take their own row under it */
+    @media (max-width: 420px) { .hero-stack { margin-bottom: 52px; } .switcher { right: auto; left: 50%; translate: -50% 0; bottom: -52px; } }
     .switcher button:hover { transform: skewX(-12deg) translate(-2px, -2px); }
     .switcher button[aria-pressed="true"] { background: var(--ink); color: #0B0A0F; border-color: var(--black); box-shadow: 4px 4px 0 var(--shade); }
 
@@ -1004,6 +1006,7 @@
             <div class="switcher" role="group" aria-label="Product shown">
               <button type="button" aria-pressed="true"><span>Speaker</span></button>
               <button type="button" aria-pressed="false"><span>Amp</span></button>
+              <button type="button" aria-pressed="false"><span>Stand</span></button>
             </div>
           </div>
         </div>
@@ -1169,7 +1172,8 @@
     // bump ?v= when a model file changes, so browsers drop the cached one
     const slides = [
       { name: 'Speaker', photo: 'assets/speaker.jpg', alt: 'STATIX Speaker: a clear cube speaker with a knurled top dial', model: 'assets/statix_cube.glb?v=3', modelAlt: '3D model of the STATIX Speaker cube. Drag to rotate.' },
-      { name: 'Amp', photo: 'assets/amp.jpg', alt: 'STATIX Amp in a clear shell', model: 'assets/statix_amp.glb?v=1', modelAlt: '3D model of the STATIX Amp. Drag to rotate.' }
+      { name: 'Amp', photo: 'assets/amp.jpg', alt: 'STATIX Amp in a clear shell', model: 'assets/statix_amp.glb?v=1', modelAlt: '3D model of the STATIX Amp. Drag to rotate.' },
+      { name: 'Stand', photo: 'assets/stand.jpg', alt: 'STATIX Stand in violet acrylic', model: 'assets/statix_stand.glb?v=1', modelAlt: '3D model of the STATIX Stand. Drag to rotate.', distance: '140%' } // tall: the camera sits back so it fits a short screen
     ];
     const frame = document.querySelector('.frame-wrap');
     const photo = frame.querySelector('.hero-photo');
@@ -1191,7 +1195,7 @@
           src: slide.model, alt: slide.modelAlt,
           'camera-controls': '', 'disable-zoom': '', 'disable-pan': '', 'touch-action': 'pan-y',
           loading: 'eager', 'interaction-prompt': 'none', 'environment-image': 'neutral', exposure: '1.4',
-          'camera-orbit': '30deg 72deg auto', 'rotation-per-second': '40deg', 'auto-rotate-delay': '0'
+          'camera-orbit': '30deg 72deg ' + (slide.distance || 'auto'), 'max-camera-orbit': 'auto auto ' + (slide.distance || 'auto'), 'rotation-per-second': '40deg', 'auto-rotate-delay': '0'
         };
         for (const [name, value] of Object.entries(attrs)) viewer.setAttribute(name, value);
         viewer.addEventListener('load', () => { slide.ready = true; update(); });

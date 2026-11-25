@@ -150,11 +150,11 @@ Direction: bold cel shading, heavy black, sharp silhouettes, pop art, neo-noir, 
 | Grey shadows, starburst, watermark outline | `#46464E` |
 | Fourth logo tile, lower halftone, dim text | `#A6A5AD` |
 
-**Hero rotates between the Speaker and the Amp** every 6s: photo, name tag and 3D model change together. It holds while the frame is hovered, tapped or keyboard-focused, when motion is paused, under reduced motion and in a background tab. **Speaker / Amp** buttons (skewed, mono, white with a grey shadow when selected) sit under the frame's right side and switch at once, restarting the 6s turn; when paused or under reduced motion they swap with no animation. The moving card ignores the pointer, so it cannot trigger the 3D model. The Stand stays in the lineup.
+**Hero rotates through the Speaker, Amp and Stand** every 6s: photo, name tag and 3D model change together. It holds while the frame is hovered, tapped or keyboard-focused, when motion is paused, under reduced motion and in a background tab. **Speaker / Amp / Stand** buttons (skewed, mono, white with a grey shadow when selected) sit under the frame's right side and switch at once, restarting the 6s turn; when paused or under reduced motion they swap with no animation. The moving card ignores the pointer, so it cannot trigger the 3D model.
 
 ### 3D products
 
-The current product's model (`assets/statix_cube.glb` or `assets/statix_amp.glb`) bursts out of the hero frame (far larger than it; the frame tips back and dims behind) while the pointer is over the frame (tap on touch, or keyboard focus on the frame). Drag rotates, zoom is off. Uses `<model-viewer>` 4.0.0 from Google's CDN; viewer and both models preload once the page has loaded. Needs the page to be served over http(s); from `file://` the photo just stays.
+The current product's model (`assets/statix_cube.glb`, `assets/statix_amp.glb` or `assets/statix_stand.glb`) bursts out of the hero frame (far larger than it; the frame tips back and dims behind) while the pointer is over the frame (tap on touch, or keyboard focus on the frame). Drag rotates, zoom is off. Uses `<model-viewer>` 4.0.0 from Google's CDN; viewer and all three models preload once the page has loaded. Needs the page to be served over http(s); from `file://` the photo just stays.
 
 ### Lower-screen scale
 
