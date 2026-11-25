@@ -1,0 +1,59 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "hard-offset-shadow",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-11-25T09:35:03.796Z",
+        "reason": "agent triage: DESIGN.md section 4 requires zero-blur offset shadows"
+      },
+      {
+        "rule": "marquee",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-11-25T09:35:03.924Z",
+        "reason": "agent triage: DESIGN.md sections 5 and 7 specify scrolling tapes; reduced-motion stops them"
+      },
+      {
+        "rule": "wide-tracking",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-11-25T09:35:04.047Z",
+        "reason": "agent triage: DESIGN.md section 3 specifies .12-.14em on Doto tapes and uppercase mono labels"
+      },
+      {
+        "rule": "buried-raster",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-11-25T09:35:04.423Z",
+        "reason": "agent triage: false positive: hero slideshow slides sit at opacity 0 until their turn"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-11-25T09:35:04.555Z",
+        "reason": "agent triage: false positive: tapes are full-bleed by design; vote-panel has clamp(24px,4vw,56px) padding"
+      },
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-11-25T09:35:04.697Z",
+        "reason": "agent triage: DESIGN.md section 3 specifies Inter"
+      }
+    ]
+  }
+}
