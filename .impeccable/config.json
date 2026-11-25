@@ -44,6 +44,15 @@
         "value": "inter",
         "createdAt": "2026-11-25T09:35:04.697Z",
         "reason": "agent triage: DESIGN.md section 3 specifies Inter"
+      },
+      {
+        "rule": "buried-raster",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-11-25T15:18:17.773Z",
+        "reason": "agent triage: false positive: the three .panel-art imgs are hover/focus reveals that reach opacity 1; verified in headless Chrome"
       }
     ]
   }
