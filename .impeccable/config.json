@@ -31,15 +31,6 @@
         "reason": "agent triage: DESIGN.md section 3 specifies .12-.14em on Doto tapes and uppercase mono labels"
       },
       {
-        "rule": "buried-raster",
-        "value": "*",
-        "files": [
-          "index.html"
-        ],
-        "createdAt": "2026-11-25T09:35:04.423Z",
-        "reason": "agent triage: false positive: hero slideshow slides sit at opacity 0 until their turn"
-      },
-      {
         "rule": "cramped-padding",
         "value": "*",
         "files": [

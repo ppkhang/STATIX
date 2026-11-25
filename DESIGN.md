@@ -120,10 +120,10 @@ Doto tracking: .04em for headings, .08em for the logo, .02em for the footer wate
 
 All decorative layers sit behind content.
 
-- **Static:** one 160px random-pixel tile, drawn on a canvas, shown at 2x. Use it only for: page grain behind content (6%), the hero photo burst at slide cuts, the section strips and the footer wordmark. **Never a resting overlay on the hero or product photos** (tried; it was far too much).
+- **Static:** one 160px random-pixel tile, drawn on a canvas, shown at 2x. Use it only for: page grain behind content (6%), the section strips and the footer wordmark. **Never a resting overlay on the hero or product photos** (tried; it was far too much).
 - **Dot grid:** 1.6px accent dots on a 14px grid, 35% opacity, masked to fade leftward, right 55% of hero.
 - **Diagonal wedge:** `polygon(0 0, 100% 0, 62% 100%, 0 100%)`, left 34% of hero.
-- **Hero stack:** glow → spinning 24-point starburst (`#2A2540`) → accent quad `polygon(14% 0, 100% 6%, 86% 100%, 0 94%)` → same quad inset 6px in background colour → product → caption sticker.
+- **Hero stack:** glow → spinning 24-point starburst → accent quad filled with halftone (lavender with 2.5px black dots on a 12px grid) → the tilted Speaker photo with a 6px black edge and 14px black hard shadow → caption sticker. The halftone keeps the mostly black photo from blending in.
 - **Product art:** flat SVG line renders, lavender strokes, dot-pattern grilles, translucent gradient shells. No photography.
 - **Diamond:** not used on this page (it belonged to the removed hero status line).
 
@@ -131,7 +131,7 @@ All decorative layers sit behind content.
 
 Direction: bold cel shading, heavy black, sharp silhouettes, pop art, neo-noir, punk and graffiti, halftone and magazine cutouts. Where this conflicts with older lines above, this wins.
 
-- **No gold or red.** Lavender is the only highlight colour (hero slash, last cutout letter, graffiti tag, ink tape shadow).
+- **No gold or red.** Lavender is the only highlight colour (hero bar, last cutout letter, graffiti tag, ink tape shadow, hero frame backing). The hero bar runs along the edge of the black wedge, away from the frame (it clashed when beside it); hidden at 700px and below.
 - **No chromatic aberration** anywhere: no red/cyan splits on type, edges or hovers.
 - **Cutout letters:** solid fills (ink, accent, black, grey, ink, accent) with uneven `clip-path` edges. No outlined letters.
 - **Cel keyline:** black border or outline, then the hard colour shadow. Product photos get `contrast(1.18) saturate(1.25)`.
@@ -151,9 +151,11 @@ Direction: bold cel shading, heavy black, sharp silhouettes, pop art, neo-noir, 
 | Grey shadows, starburst, watermark outline | `#46464E` |
 | Fourth logo tile, lower halftone, dim text | `#A6A5AD` |
 
+**Hero shows the Speaker only, for now** (no slideshow; the Amp and Stand stay in the lineup).
+
 ### 3D speaker
 
-`assets/statix_cube.glb` bursts out of the hero frame (far larger than it; the frame tips back and dims behind) while the pointer is over the Speaker slide (tap on touch, or keyboard focus on the frame). The slideshow holds while it is open; drag rotates, zoom is off. Uses `<model-viewer>` 4.0.0 from Google's CDN, loaded on first use. Needs the page to be served over http(s); from `file://` the photo just stays.
+`assets/statix_cube.glb` bursts out of the hero frame (far larger than it; the frame tips back and dims behind) while the pointer is over the frame (tap on touch, or keyboard focus on the frame). Drag rotates, zoom is off. Uses `<model-viewer>` 4.0.0 from Google's CDN, loaded on first use. Needs the page to be served over http(s); from `file://` the photo just stays.
 
 ### Lower-screen scale
 
@@ -165,12 +167,40 @@ Lineup, vote and drop use the same wide column as the hero (up to 1440px) and si
 - **No star stickers** (tried and removed).
 - **Lineup:** a torn tape strip holds each card.
 - **Vote:** marker "pick one!" arrow; a "MY PICK" stamp slams onto the selected swatch.
-- **Drop stays calm:** two aligned columns, a level signup card with no header bar, and one decoration, the equalizer, in its own band at the bottom. No outline word, rings, glow, halftone or barcode there (tried; too messy).
+- **Drop stays calm:** two aligned columns, a level signup card with no header bar, and **no background decoration**. Outline word, rings, glow, halftone, barcode and a fake equalizer were all tried there and removed as messy.
 - All of it is decorative and `aria-hidden`; none adds product claims. The doodle hides at 700px and below.
 
 ### Vote backdrop
 
 The vote section's background follows the picked shell: Lavender `#B9A4FF` (default), Smoke `#44414F`, Bone `#E4E1EA`. The panel stays dark; its shadow, outline, doodle, outline lettering and halftone switch for contrast.
+
+### Copy
+
+**No descriptive paragraphs** under headings, on product cards or in the signup card (removed as clutter). Headings, names, numbers, labels and form messages carry the page. This overrides the descriptions mentioned elsewhere in this file.
+
+In the vote section, the picked name takes the picked colour (Lavender `#B9A4FF`, Smoke `#8F8B9E` so it reads on the dark panel, Bone `#F4F2F8`). With Lavender picked, the panel shadow is grey `#5E5C66`.
+
+### Hero to tapes
+
+The tapes sit right below the first screen. The hero background (wedge, bar, halftone dots) extends down into them and is cut along the upper side of the tape X, so nothing shows beneath a tape. Hero content stays sized and centred for one screen.
+
+
+### Tune in (current layout; overrides every older note on this screen, including countdown tiles and the signup card)
+
+One centred stack, max 1200px:
+
+1. **Head:** `TUNE IN.` slab on the left; `DROP 001 OPENS 20.12 / 20:00 GMT+7` on the right (20 December 2026, 20:00, +07:00 assumed).
+2. **Console:** one box with a 2px ink border and 14px accent shadow, holding three rows.
+   - Countdown: four equal cells split by hairlines, large Doto digits. No skewed tiles.
+   - Stock: `500 UNITS / 500 LEFT` beside an LED dot-matrix bar. Hard-coded, not live data.
+   - Signup on a light surface: `GET THE FIRST SIGNAL.` and the head-start line on the left; email and button side by side on the right, `One email. No spam.` below. 4px lavender focus border with a dark ring. On success the button reads `SIGNAL RECEIVED`.
+
+No background decoration. The section is `100svh` minus footer and wordmark, so all three share the last desktop view. Footer sits above the wordmark, which is 30% opacity, still, and shown in full (cropping it was tried and looked broken).
+Headings and product names are uppercase site-wide. The pause control is a 48px icon button fixed under the sticky logo, following it and matching its size, edge, shadow and colours (pause icon, play icon when paused).
+
+### Sticky logo
+
+The wordmark is a fixed link back to the top. At the top it looks like plain nav text. Once scrolled it becomes a chip that shrinks to a lone **S** (top left corner) while scrolling down and opens to **STATIX** when scrolling up. It reads the surface behind it: light chip with a lavender shadow over dark areas, dark chip with lavender letters over light or lavender areas. No transitions under reduced motion.
 
 ## 7. Motion
 
@@ -180,7 +210,6 @@ The vote section's background follows the picked shell: Lavender `#B9A4FF` (defa
 | Tapes | `translateX(0 → -50%)`, linear infinite: 28s, and 22s reversed |
 | `spin` (starburst) | 360deg, 60s linear infinite |
 | `jitter` / `tune` (static) | .5s `steps(1)` infinite |
-| `burst` (hero photo) | static flashes to 35% at each 5s slide cut, otherwise 0 |
 | Slab hover | `skewX(-12deg) translate(-3px,-3px)`, .15s |
 | Card hover | straightens to 0deg, rises 8px, shadow turns accent, .15s |
 | Swatch select | transform transition .15s |
