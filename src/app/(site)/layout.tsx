@@ -15,7 +15,7 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
       <header className={styles.header}>
         {/* Plain <a>: the landing script only runs on a full page load. */}
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-        <a className={styles.logo} href="/" aria-label={t("home")}>STATIX</a>
+        <a className={styles.logo} href="/" aria-label={t("home")} data-home="">STATIX</a>
         <nav className={styles.links} aria-label={t("menu")}>
           <Link href="/shop">{t("shop")}</Link>
           <Link href="/drop/001">{t("drop")}</Link>

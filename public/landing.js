@@ -371,6 +371,19 @@ async function pollDrop() {
 }
 pollDrop();
 
+/** Uncovers the word from left to right, like a marker writing it. Skipped when motion should be still. */
+function writeIn(word) {
+  word.getAnimations().forEach(animation => animation.cancel());
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.classList.contains('paused')) return;
+  const letters = word.textContent.length;
+  // the spare room above, below and to the sides keeps the marker's tails from being shaved off
+  word.animate(
+    [{ clipPath: 'inset(-30% 100% -40% -8%)' }, { clipPath: 'inset(-30% -8% -40% -8%)' }],
+    // one small hitch per letter, so it reads as strokes rather than a wipe
+    { duration: 130 * letters, easing: 'steps(' + letters * 4 + ', end)' },
+  );
+}
+
 const swatches = Array.from(document.querySelectorAll('.swatch'));
 const pickName = document.querySelector('.pick-name');
 swatches.forEach(button => {
@@ -378,6 +391,7 @@ swatches.forEach(button => {
     swatches.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
     pickName.textContent = button.dataset.name;
     button.closest('.vote').dataset.pick = button.dataset.name;
+    writeIn(pickName);
   });
 });
 
