@@ -16,6 +16,8 @@
 
 .main { position: relative; isolation: isolate; flex: 1; overflow: hidden; padding: 64px var(--pad) 96px; display: flex; flex-direction: column; gap: 24px; }
 .main h1 { font-family: var(--font-main); font-weight: 900; font-size: clamp(48px, 8vw, 104px); line-height: 1; }
+/* pages that run edge to edge, like the product page */
+.main:has(> [data-bleed]) { padding: 0; gap: 0; }
 .main p { color: var(--muted); max-width: 460px; line-height: 1.6; }
 
 .consent {
