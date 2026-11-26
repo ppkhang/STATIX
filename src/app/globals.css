@@ -71,7 +71,6 @@ button, input { font: inherit; }
   background: var(--static, none) 0 0 / 320px 320px;
   image-rendering: pixelated;
   pointer-events: none;
-  animation: jitter .5s steps(1) infinite;
 }
 
 .motion-toggle svg { width: 16px; height: 16px; fill: currentColor; }
@@ -79,6 +78,8 @@ button, input { font: inherit; }
 .motion-toggle[aria-pressed="true"] .icon-play { display: block; }
 .paused *, .paused *::before, .paused *::after { animation-play-state: paused !important; }
 .paused .hero-frame::after { animation: none !important; }
+/* endless animations rest while out of view (landing.js): they would be redrawn all the same */
+.offscreen .tape-track, .offscreen .starburst, .section.offscreen::before { animation-play-state: paused; }
 
 .nav-shell {
   position: relative;
@@ -259,7 +260,8 @@ button, input { font: inherit; }
   pointer-events: none;
 }
 /* a pane of frosted glass cut to a 24-point burst, as on the product page: it blurs what runs behind it */
-.starburst { width: 100%; height: 100%; animation: spin 60s linear infinite;
+/* it turns in 20 small steps a second: each one blurs again, and at 60 a second that was most of the page's GPU time */
+.starburst { width: 100%; height: 100%; animation: spin 60s steps(1200) infinite;
   clip-path: polygon(50.00% 2.00%,54.96% 12.33%,62.42% 3.64%,64.54% 14.89%,74.00% 8.43%,73.13% 19.85%,83.94% 16.06%,80.15% 26.87%,91.57% 26.00%,85.11% 35.46%,96.36% 37.58%,87.67% 45.04%,98.00% 50.00%,87.67% 54.96%,96.36% 62.42%,85.11% 64.54%,91.57% 74.00%,80.15% 73.13%,83.94% 83.94%,73.13% 80.15%,74.00% 91.57%,64.54% 85.11%,62.42% 96.36%,54.96% 87.67%,50.00% 98.00%,45.04% 87.67%,37.58% 96.36%,35.46% 85.11%,26.00% 91.57%,26.87% 80.15%,16.06% 83.94%,19.85% 73.13%,8.43% 74.00%,14.89% 64.54%,3.64% 62.42%,12.33% 54.96%,2.00% 50.00%,12.33% 45.04%,3.64% 37.58%,14.89% 35.46%,8.43% 26.00%,19.85% 26.87%,16.06% 16.06%,26.87% 19.85%,26.00% 8.43%,35.46% 14.89%,37.58% 3.64%,45.04% 12.33%);
   background: linear-gradient(145deg, rgba(255, 255, 255, .22), rgba(185, 164, 255, .1) 48%, rgba(255, 255, 255, .05));
   -webkit-backdrop-filter: blur(18px) saturate(1.5); backdrop-filter: blur(18px) saturate(1.5); }
@@ -357,6 +359,11 @@ button, input { font: inherit; }
   image-rendering: pixelated;
   animation: tune .5s steps(1) infinite;
 }
+
+/* thrown off when a shell is picked (landing.js) */
+.shard { position: fixed; z-index: 40; width: 14px; height: 40px; margin: -20px 0 0 -7px; pointer-events: none; clip-path: polygon(50% 0, 100% 100%, 0 78%); }
+/* the lineup's panels fly in from beyond its edges: no sideways scrollbar meanwhile */
+.section.lineup { overflow-x: clip; }
 
 /* halftone corners, behind content */
 .vote::after {
@@ -522,7 +529,7 @@ footer {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 32px var(--pad) 76px; /* room for the fixed pause button */
+  padding: 32px var(--pad);
   border-top: 1px solid var(--rule);
 }
 .footer-logo { font-family: var(--font-logo); font-weight: 900; font-size: 22px; letter-spacing: .08em; }
@@ -804,28 +811,30 @@ footer {
   .wordmark-wrap { --wm: clamp(64px, min(24vw, 25svh), 380px); padding: 6px 0 10px; }
 }
 
-/* sticky menu: at rest only the logo (a lone "S" once scrolled). Open, STATIX is the biggest card and the menu cards
-   cascade down and to the right like a staircase along an arc. Flat colour only, no gradients */
+/* sticky menu: at rest only the logo (a lone "S" once scrolled). Open, the menu cards fly out one after another into
+   a column under STATIX, with gaps between them, and float there. Flat colour only, no gradients */
 .nav-shell .nav-logo { visibility: hidden; }
+/* the box itself ignores the pointer while closed: the hidden cards keep their places, and only the logo may open the menu */
 .dockbar {
   --pad: max(clamp(20px, 4vw, 56px), calc(50% - 720px));
-  --tall: 48px; --lean: 19px; /* the lean is the height times tan(22deg), like every other cut on the site */
+  --wide: 168px;
   position: fixed;
   z-index: 30;
   left: calc(var(--pad) - 14px);
   top: 28px;
   display: flex;
-  align-items: stretch;
+  flex-direction: column;
+  align-items: flex-start;
+  pointer-events: none;
   transition: left .25s, top .25s;
 }
-/* stuck: one outline and one shadow round whatever shape is showing, so it reads on light and dark alike */
-.dockbar.is-stuck { left: 12px; top: 12px; height: var(--tall);
-  filter: drop-shadow(2px 0 0 #000) drop-shadow(-2px 0 0 #000) drop-shadow(0 2px 0 #000) drop-shadow(0 -2px 0 #000) drop-shadow(5px 5px 0 var(--accent)); }
-/* open, it is one strip with straight outer edges and leaning cuts. --a and --b are each piece's left and right lean */
-.dock, .fan-item, .motion-toggle { --a: var(--lean); --b: var(--lean); border: 0; clip-path: polygon(var(--a) 0, 100% 0, calc(100% - var(--b)) 100%, 0 100%); }
+.dockbar.is-stuck { left: 12px; top: 12px; }
+/* open, the whole column holds the pointer, so crossing a gap does not close it */
+.dockbar.is-stuck:is(.is-hover, .is-open, :has(:focus-visible)) { pointer-events: auto; }
+.dock, .fan-item { border: 0; }
+/* each card has its own outline and shadow, so it reads on light and dark alike. Box shadows, not filters: the cards never stop moving */
+.dock.is-stuck, .fan-item { box-shadow: 0 0 0 2px var(--ring), 5px 5px 0 2px var(--drop); }
 .dock {
-  --a: 0px;
-  --b: 0px;
   position: relative;
   z-index: 2;
   display: inline-flex;
@@ -834,67 +843,62 @@ footer {
   min-width: 48px;
   min-height: 48px;
   padding: 0 6px 0 12px;
-  clip-path: none;
   color: var(--ink);
   font: 900 clamp(30px, 2.8vw, 42px)/1 var(--font-logo);
   letter-spacing: .08em;
   white-space: nowrap;
+  pointer-events: auto;
   transition: background-color .2s, color .2s, padding .2s, font-size .2s;
 }
 .dock-rest { display: inline-block; max-width: 6em; overflow: hidden; transition: max-width .3s ease; }
-.dock.is-stuck { font-size: 26px; background: var(--card); color: var(--card-ink); clip-path: polygon(var(--a) 0, 100% 0, calc(100% - var(--b)) 100%, 0 100%); }
+.dock.is-stuck { font-size: 26px; background: var(--card); color: var(--card-ink); }
+/* no shadow until the chip has formed (landing.js). Not a delayed transition: that would also hold back its change of colour */
+.dock.is-stuck.forming:not(:focus-visible) { box-shadow: none; }
 .dock.is-stuck .dock-rest { max-width: 0; }
-.dockbar.is-stuck:is(.is-hover, .is-open, :has(:focus-visible)) .dock { --b: var(--lean); padding: 0 calc(var(--lean) + 12px) 0 16px; }
+.dockbar.is-stuck:is(.is-hover, .is-open, :has(:focus-visible)) .dock { min-width: var(--wide); justify-content: flex-start; padding: 0 18px; }
 .dockbar.is-stuck:is(.is-hover, .is-open, :has(:focus-visible)) .dock-rest { max-width: 6em; }
 
-.fan { display: flex; order: 1; }
+.fan { display: flex; flex-direction: column; }
 /* closed pieces are invisible and ignore the pointer but stay focusable, so keyboard users can always reach them */
-.fan-item, .motion-toggle {
+.fan-item {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
-  height: var(--tall);
-  /* each starts where the one before it ends: 4px between two parallel edges */
-  margin-left: calc(4px - var(--lean));
+  width: var(--wide);
+  height: 44px;
+  margin-top: 14px;
+  padding: 0 18px;
   background: var(--card);
   color: var(--card-ink);
   white-space: nowrap;
   cursor: pointer;
   opacity: 0;
-  pointer-events: none;
-  translate: -22px 0;
-  transition: translate .26s cubic-bezier(.2, 1.35, .4, 1), opacity .1s, background-color .12s;
+  translate: -200px 0; /* off the left edge of the window */
+  transition: translate .38s cubic-bezier(.2, 1.3, .4, 1), opacity .1s, background-color .12s;
 }
-/* off the page altogether while closed, so the empty row can't catch the pointer */
-.fan-item { padding: 0 calc(var(--lean) + 6px); }
 .fan-label { font: 900 13px/1 var(--font-main); letter-spacing: .08em; text-transform: uppercase; }
-.motion-toggle { --b: 0px; order: 2; width: calc(44px + var(--lean)); padding: 0 0 0 var(--lean); }
-.dockbar.is-stuck:is(.is-hover, .is-open, :has(:focus-visible)) :is(.fan-item, .motion-toggle) { opacity: 1; pointer-events: auto; translate: 0 0; transition-delay: calc(var(--i, 4) * .03s), calc(var(--i, 4) * .03s), 0s; }
-.dockbar:not(.is-stuck:is(.is-hover, .is-open, :has(:focus-visible))) :is(.fan, .motion-toggle) { position: absolute; left: 100%; top: 0; }
-.fan-item:is(:hover, :focus-visible), .motion-toggle:is(:hover, :focus-visible, [aria-pressed="true"]) { background: var(--card-hover); }
-/* one colour for the whole menu, from what is behind the STATIX chip (landing.js sets data-tone): white over dark, black over light */
-.dock, .fan-item, .motion-toggle { --card: #F4F2F8; --card-ink: #0B0A0F; --card-hover: #d9cdff; }
-.dock[data-tone="light"], .fan-item[data-tone="light"], .motion-toggle[data-tone="light"] { --card: #0B0A0F; --card-ink: #F4F2F8; --card-hover: #3a2f63; }
-/* over light it is the mirror image: black pieces, so the outline (which also fills the cuts) turns white to show them,
-   and the shadow black: a lavender one disappears into a lavender or white page */
-.dockbar.is-stuck:has(.dock[data-tone="light"]) { filter: drop-shadow(2px 0 0 #F4F2F8) drop-shadow(-2px 0 0 #F4F2F8) drop-shadow(0 2px 0 #F4F2F8) drop-shadow(0 -2px 0 #F4F2F8) drop-shadow(5px 5px 0 #000); }
-/* the clip would cut an outline off, so keyboard focus is a bar under the word */
-.fan-item:focus-visible, .motion-toggle:focus-visible { outline: 0; box-shadow: inset 0 -5px 0 currentColor; }
-.dock.is-stuck:focus-visible { outline: 0; box-shadow: inset 0 -5px 0 var(--accent); }
+/* the float is on transform, so it never fights the fly-out, which is on translate */
+.dockbar.is-stuck:is(.is-hover, .is-open, :has(:focus-visible)) .fan-item { opacity: 1; pointer-events: auto; translate: 0 0; transition-delay: calc(var(--i) * .09s), calc(var(--i) * .09s), 0s;
+  animation: hover-float 2.4s ease-in-out calc(var(--i) * -.45s) infinite alternate; }
+@keyframes hover-float { from { transform: translateY(-3px); } to { transform: translateY(3px); } }
+.fan-item:is(:hover, :focus-visible) { background: var(--card-hover); }
+/* one colour for the whole menu, from what is behind the STATIX chip (landing.js sets data-tone): white over dark, black over light.
+   Over light the outline and shadow swap too: a lavender shadow disappears into a lavender or white page */
+.dock, .fan-item { --card: #F4F2F8; --card-ink: #0B0A0F; --card-hover: #d9cdff; --ring: #000; --drop: var(--accent); }
+.dock[data-tone="light"], .fan-item[data-tone="light"] { --card: #0B0A0F; --card-ink: #F4F2F8; --card-hover: #3a2f63; --ring: #F4F2F8; --drop: #000; }
+/* Log in is the one lavender card, on light and dark alike */
+.fan-item.fan-item--login { --card: var(--accent); --card-ink: #0B0A0F; --card-hover: #d9cdff; }
+.fan-item--login[data-tone="dark"] { --drop: #F4F2F8; }
+/* keyboard focus is a bar inside the card, on top of its own shadow */
+.fan-item:focus-visible { outline: 0; box-shadow: inset 0 -5px 0 currentColor, 0 0 0 2px var(--ring), 5px 5px 0 2px var(--drop); }
+.dock.is-stuck:focus-visible { outline: 0; box-shadow: inset 0 -5px 0 var(--accent), 0 0 0 2px var(--ring), 5px 5px 0 2px var(--drop); }
 /* at the top the page's own nav is on screen, so there is no menu there: hidden from the keyboard too */
 .dockbar:not(.is-stuck) .fan { visibility: hidden; }
-/* no pause control at the top (by request): it lives in the strip once scrolled. Hidden from the keyboard there too, so focus never lands on something invisible */
-.dockbar:not(.is-stuck) .motion-toggle { visibility: hidden; }
-/* too narrow for a row: the same pieces stacked under the logo, edges straight */
-@media (max-width: 760px) {
-  .dockbar.is-stuck { flex-direction: column; align-items: flex-start; height: auto; }
-  .dockbar .fan { flex-direction: column; }
-  .dockbar :is(.dock, .fan-item, .motion-toggle) { --a: 0px; --b: 0px; }
-  .dockbar :is(.fan-item, .motion-toggle) { margin: 4px 0 0; width: 168px; justify-content: flex-start; padding: 0 18px; height: 44px; }
-}
-@media (prefers-reduced-motion: reduce) { .dockbar, .dock, .dock-rest, .fan-item, .motion-toggle { transition: none; } }
-html.paused .dockbar, html.paused :is(.dock, .dock-rest, .fan-item, .motion-toggle) { transition: none; }
+/* the pause control, at the end of the landing's footer */
+footer .motion-toggle { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--rule); background: none; color: var(--muted); cursor: pointer; }
+footer .motion-toggle:is(:hover, :focus-visible, [aria-pressed="true"]) { color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { .dockbar, .dock, .dock-rest, .fan-item { transition: none; } }
+html.paused .dockbar, html.paused :is(.dock, .dock-rest, .fan-item) { transition: none; }
 
 .swatch-name { font: 900 clamp(15px, min(1.3vw, 2.4svh), 20px)/1.2 var(--font-main); } /* plain text, by request */
 
@@ -903,15 +907,8 @@ html.paused .dockbar, html.paused :is(.dock, .dock-rest, .fan-item, .motion-togg
   to { transform: translateY(var(--nudge)) rotate(var(--tilt)); }
 }
 @keyframes tape { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-@keyframes jitter {
-  0% { transform: translate(0, 0); }
-  20% { transform: translate(-37px, 23px); }
-  40% { transform: translate(29px, -41px); }
-  60% { transform: translate(-19px, -31px); }
-  80% { transform: translate(43px, 17px); }
-}
-@keyframes tune { 0% { background-position: 0 0; } 25% { background-position: 90px 40px; } 50% { background-position: 30px 170px; } 75% { background-position: 210px 110px; } }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes tune { 0% { background-position: 0 0; } 25% { background-position: 90px 40px; } 50% { background-position: 30px 170px; } 75% { background-position: 210px 110px; } }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; }

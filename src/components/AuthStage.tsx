@@ -14,7 +14,7 @@ export default function AuthStage({ title, children, below }: Props) {
   return (
     <>
       <SignalBackdrop />
-      <div className={styles.stage}>
+      <div className={styles.stage} data-entry="">
         <h1 className={`slab ${styles.title}`}>{title}</h1>
         <div className={styles.console}>
           <div className={styles.surface}>{children}</div>

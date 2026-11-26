@@ -57,6 +57,7 @@ function loadModels() {
 const picks = [...document.querySelectorAll('.switcher button')];
 
 function nextSlide() {
+  if (showing) return;
   // hold while someone is looking at it, when motion is paused or reduced, and in a background tab
   if (wanted || document.hidden || still() || frame.matches(':focus-visible') || picks.some(pick => pick.matches(':focus-visible'))) return;
   showSlide((current + 1) % slides.length);
@@ -78,52 +79,67 @@ function showSlide(index) {
   frame.setAttribute('aria-label', 'STATIX ' + slide.name + '. Focus to view it in 3D; press Escape to close.');
   for (const other of slides) other.viewer?.classList.toggle('is-current', other === slide);
   if (wanted && slide.viewer) fetchModel(slide);
-  throwCard(slide);
+  switchedAt = performance.now();
+  throwCard();
 }
 
-// card throw: the old photo is flung off left, the new one slams in from the right, then the tag stamps down
-async function throwCard(slide) {
+// card throw: the old photo is flung off left, the new one slams in from the right, then the tag stamps down.
+// One throw at a time: picking again does not restart it, or quick picks would yank the card back to the middle over
+// and over. The throw under way brings in the latest pick, and one more follows if the pick changed after that.
+let thrown = null; // the slide on the card, or on its way there
+let throwing = false;
+async function throwCard() {
   const card = photo.parentElement;
-  // a click can arrive mid-throw: drop whatever is still running
-  for (const running of [...card.getAnimations(), ...tag.getAnimations()]) running.cancel();
   const swap = () => {
-    photo.src = slide.photo;
-    photo.alt = slide.alt;
-    tag.textContent = slide.name;
+    thrown = slides[current];
+    photo.src = thrown.photo;
+    photo.alt = thrown.alt;
+    tag.textContent = thrown.name;
   };
+  const stop = () => { for (const running of [...card.getAnimations(), ...tag.getAnimations()]) running.cancel(); };
   // paused or reduced motion: a hand-picked product swaps with no animation
-  if (still()) { frame.classList.remove('throwing'); swap(); return; }
+  if (still()) { stop(); frame.classList.remove('throwing'); swap(); return; }
+  if (throwing) return;
+  throwing = true;
   frame.classList.add('throwing');
-  const out = card.animate(
-    // solid for most of the flight, so the backing does not show through
-    [{ transform: 'rotate(-4deg)', opacity: 1 }, { opacity: 1, offset: .75 }, { transform: 'translateX(-85%) rotate(-30deg) scale(.7)', opacity: 0 }],
-    { duration: 280, easing: 'cubic-bezier(.5, 0, 1, .6)', fill: 'forwards' });
-  const tagOut = tag.animate({ opacity: [1, 0] }, { duration: 120, fill: 'forwards' });
-  try { await out.finished; } catch { return; } // cancelled by a newer throw
-  swap();
-  await photo.decode().catch(() => {}); // a photo that fails to decode must not leave the card off screen
-  if (slide !== slides[current]) return;
-  out.cancel();
-  const landing = card.animate([
-    { transform: 'translateX(90%) rotate(24deg) scale(1.3)', opacity: 0 },
-    { opacity: 1, offset: .15 },
-    { transform: 'translateX(-5%) rotate(-9deg) scale(1.05)', offset: .65 },
-    { transform: 'rotate(-4deg)' }
-  ], { duration: 480, easing: 'ease-out' });
-  landing.finished.then(() => frame.classList.remove('throwing'), () => {});
-  // the lavender backing takes the hit
-  document.querySelector('.quad').animate(
-    { rotate: ['0deg', '-7deg', '4deg', '0deg'], scale: ['1', '1.08', '.97', '1'] },
-    { duration: 380, delay: 280, easing: 'ease-out' });
-  tagOut.cancel();
-  // 'backwards' keeps the tag hidden until its turn to land
-  tag.animate(
-    [{ transform: 'rotate(28deg) scale(2.4)', opacity: 0 }, { transform: 'rotate(6deg) scale(1)', opacity: 1 }],
-    { duration: 320, delay: 360, easing: 'cubic-bezier(.2, 1.5, .4, 1)', fill: 'backwards' });
+  try {
+    do {
+      stop();
+      const out = card.animate(
+        // solid for most of the flight, so the backing does not show through
+        [{ transform: 'rotate(-4deg)', opacity: 1 }, { opacity: 1, offset: .75 }, { transform: 'translateX(-85%) rotate(-30deg) scale(.7)', opacity: 0 }],
+        { duration: 280, easing: 'cubic-bezier(.5, 0, 1, .6)', fill: 'forwards' });
+      const tagOut = tag.animate({ opacity: [1, 0] }, { duration: 120, fill: 'forwards' });
+      await out.finished;
+      do {
+        swap();
+        await photo.decode().catch(() => {}); // a photo that fails to decode must not leave the card off screen
+      } while (thrown !== slides[current]);
+      out.cancel();
+      const landing = card.animate([
+        { transform: 'translateX(90%) rotate(24deg) scale(1.3)', opacity: 0 },
+        { opacity: 1, offset: .15 },
+        { transform: 'translateX(-5%) rotate(-9deg) scale(1.05)', offset: .65 },
+        { transform: 'rotate(-4deg)' }
+      ], { duration: 480, easing: 'ease-out' });
+      // the lavender backing takes the hit
+      document.querySelector('.quad').animate(
+        { rotate: ['0deg', '-7deg', '4deg', '0deg'], scale: ['1', '1.08', '.97', '1'] },
+        { duration: 380, delay: 280, easing: 'ease-out' });
+      tagOut.cancel();
+      // 'backwards' keeps the tag hidden until its turn to land
+      tag.animate(
+        [{ transform: 'rotate(28deg) scale(2.4)', opacity: 0 }, { transform: 'rotate(6deg) scale(1)', opacity: 1 }],
+        { duration: 320, delay: 360, easing: 'cubic-bezier(.2, 1.5, .4, 1)', fill: 'backwards' });
+      await landing.finished;
+    } while (thrown !== slides[current]);
+  } catch { /* stopped: the motion setting changed under it */ }
+  throwing = false;
+  frame.classList.remove('throwing');
 }
 let turn = setInterval(nextSlide, 6000);
 picks.forEach((pick, i) => pick.addEventListener('click', () => {
-  if (i === current) return;
+  if (showing || i === current) return;
   release();
   restartTurn(); // the picked product gets a full turn
   showSlide(i);
@@ -142,7 +158,7 @@ window.addEventListener('pointercancel', endDrag);
 function update() {
   const { ready, viewer } = slides[current];
   const show = Boolean(wanted && ready);
-  if (show) viewer.toggleAttribute('auto-rotate', !reduceMotion.matches && !document.documentElement.classList.contains('paused'));
+  if (show) viewer.toggleAttribute('auto-rotate', !showing && !reduceMotion.matches && !document.documentElement.classList.contains('paused'));
   frame.classList.toggle('popped', show);
 }
 
@@ -152,6 +168,8 @@ function fetchModel(slide) {
 }
 
 function reach() {
+  clearTimeout(hovering);
+  if (showing) return;
   loadModels();
   fetchModel(slides[current]);
   wanted = true;
@@ -159,6 +177,8 @@ function reach() {
 }
 
 function release() {
+  clearTimeout(hovering);
+  if (showing) return;
   // a full turn again after looking, so the product does not change the moment the pointer leaves
   if (wanted) restartTurn();
   wanted = false;
@@ -166,11 +186,101 @@ function release() {
   frame.classList.remove('popped');
 }
 
+// after the intro (art-flight.js) the product shows itself off: it whirls out of the frame, slows to a gentle turn,
+// then whirls faster and faster as it dives back in. Once out it plays to the end, whatever the visitor does.
+let showing = false;
+const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
+const OUT = 900, SLOW = 2000, DIVE = 950, SLOW_SPEED = 35; // ms, ms, ms, degrees a second
+const SWALLOWED = .85; // how far through the dive the model is all but inside the picture
+const OUT_TURN = 360, END_TURN = 1080; // degrees turned once it is out, and at the end: whole turns, so facing front again
+
+/** Degrees turned, t ms into the show. Both whirls meet the slow turn at its own speed, so nothing jerks. */
+function turned(t) {
+  const per = SLOW_SPEED / 1000;
+  if (t <= OUT) {
+    const p = t / OUT, carry = per * OUT;
+    return carry * p + (OUT_TURN - carry) * (1 - (1 - p) ** 3);
+  }
+  if (t <= OUT + SLOW) return OUT_TURN + per * (t - OUT);
+  const p = Math.min(1, (t - OUT - SLOW) / DIVE), from = OUT_TURN + per * SLOW, carry = per * DIVE;
+  return from + carry * p + (END_TURN - from - carry) * p ** 3;
+}
+console.assert([[0, 0], [OUT, OUT_TURN], [OUT + SLOW + DIVE, END_TURN]].every(([t, degrees]) => Math.abs(turned(t) - degrees) < 1e-6), 'turned self-check');
+
+// a hop, a moment in the air while the spin builds, then down into the picture
+const dive = viewer => viewer.animate([
+  { transform: 'none', opacity: 1, visibility: 'visible' },
+  { transform: 'translateY(-9%) scale(1.12) rotate(6deg)', opacity: 1, visibility: 'visible', offset: .3 },
+  { transform: 'translateY(-7%) scale(1.06) rotate(3deg)', opacity: 1, visibility: 'visible', offset: .6 },
+  { transform: 'scale(.45) rotate(-8deg)', opacity: 1, visibility: 'visible', offset: .9 },
+  { transform: 'scale(.3) rotate(-12deg)', opacity: 0, visibility: 'visible' }
+], { duration: DIVE, easing: 'ease-in-out' });
+
+async function showOff() {
+  const slide = slides[0];
+  // a slow connection skips it, rather than have the model leap out long after the page has settled
+  for (const until = Date.now() + 6000; !slide.ready && Date.now() < until;) await pause(50);
+  // not if another product has been picked meanwhile, or the frame has been scrolled past
+  if (!slide.ready || slide !== slides[current] || still() || scrollY > 24) return;
+  const viewer = slide.viewer;
+  wanted = true;
+  showing = true;
+  viewer.removeAttribute('auto-rotate'); // the visitor may have it popped already
+  viewer.style.pointerEvents = 'none'; // no dragging it round meanwhile
+  frame.classList.add('popped');
+  let started = null, falling = null;
+  const finish = () => {
+    showing = false;
+    viewer.style.pointerEvents = '';
+    viewer.resetTurntableRotation(0);
+  };
+  // the picture stays small and dim until the model is going into it; the name tag stamps on once it has grown back
+  const putBack = () => {
+    if (!frame.classList.contains('popped')) return;
+    frame.classList.remove('popped');
+    restartTurn();
+    if (!still()) tag.animate(
+      [{ transform: 'rotate(28deg) scale(2.4)', opacity: 0 }, { transform: 'rotate(6deg) scale(1)', opacity: 1 }],
+      { duration: 320, delay: 360, easing: 'cubic-bezier(.2, 1.5, .4, 1)', fill: 'backwards' }); // 'backwards' hides it until then
+  };
+  // the angle is set frame by frame: auto-rotate has only one speed
+  const step = now => {
+    started ??= now;
+    const t = now - started;
+    // only the motion setting ends it early
+    if (still()) { falling?.cancel(); wanted = false; putBack(); finish(); return; }
+    if (!falling && t >= OUT + SLOW) {
+      wanted = false;
+      falling = dive(viewer);
+      document.querySelector('.quad').animate({ scale: ['1', '1.08', '.97', '1'] }, { duration: 320, delay: DIVE * SWALLOWED, easing: 'ease-out' });
+    }
+    if (falling && t >= OUT + SLOW + DIVE * SWALLOWED) putBack();
+    viewer.resetTurntableRotation(turned(t) * Math.PI / 180);
+    if (t < OUT + SLOW + DIVE) requestAnimationFrame(step); else { putBack(); finish(); }
+  };
+  requestAnimationFrame(step);
+}
+
+// the model is set up under the intro's cover, so it can leap out as soon as that has gone
+if (window.statixIntro) {
+  loadModels();
+  fetchModel(slides[0]);
+  window.statixIntro.then(showOff);
+}
+
 // waits for load so the models do not slow the first paint; reach() below still covers an early hover
 // Next.js runs this script after the window load event, so check readyState too.
 if (document.readyState === 'complete') loadModels(); else addEventListener('load', loadModels);
 
-frame.addEventListener('pointerenter',event => { if (event.pointerType === 'mouse') reach(); });
+// a hover has to rest a moment before the model leaps out, and longer just after a switch, so the new card is seen to
+// land: the pointer crosses the frame on its way to and from the buttons
+const HOVER_REST = 150, SWITCH_REST = 800; // ms; a throw takes 760
+let hovering, switchedAt = -SWITCH_REST;
+frame.addEventListener('pointerenter', event => {
+  if (event.pointerType !== 'mouse') return;
+  clearTimeout(hovering);
+  hovering = setTimeout(reach, Math.max(HOVER_REST, switchedAt + SWITCH_REST - performance.now()));
+});
 frame.addEventListener('pointerleave', event => { if (event.pointerType === 'mouse' && !dragging) release(); });
 frame.addEventListener('pointerup', event => { if (event.pointerType !== 'mouse' && !wanted) reach(); });
 document.addEventListener('pointerdown', event => { if (!frame.contains(event.target)) release(); });
@@ -180,6 +290,112 @@ frame.addEventListener('keydown', event => { if (event.key === 'Escape') release
 
 const tapes = document.querySelector('.tape-wrap');
 new ResizeObserver(() => document.documentElement.style.setProperty('--tapes', tapes.offsetHeight + 'px')).observe(tapes);
+
+// the hero's starburst, the tapes and the two speckled strips only move while on screen
+const onScreen = new IntersectionObserver(entries => {
+  for (const entry of entries) entry.target.classList.toggle('offscreen', !entry.isIntersecting);
+});
+for (const part of [document.querySelector('.starburst-wrap'), tapes, ...document.querySelectorAll('.section.vote, .section.drop')]) onScreen.observe(part);
+
+// below the lineup, each section makes its entrance once, as it is scrolled to. Every piece is held on its first
+// frame until then and ends on its own styles, so without the script, or with motion still, it is simply there.
+// section: [piece, where it comes from, delay in ms (each further match comes 110 ms later)]
+const ENTRANCES = {
+  // the manga page is laid out: each panel flies in from its own corner
+  '.section.lineup': [
+    ['.section-head', { opacity: 0, translate: '0 -70px', scale: '1.12' }, 0],
+    ['.panel--amp', { opacity: 0, translate: '-55% -25%', rotate: '-12deg', scale: '1.2' }, 160],
+    ['.panel--speaker', { opacity: 0, translate: '60% -35%', rotate: '14deg', scale: '1.2' }, 270],
+    ['.panel--stand', { opacity: 0, translate: '-45% 55%', rotate: '10deg', scale: '1.2' }, 380],
+    ['.panel--wire', { opacity: 0, translate: '50% 55%', rotate: '-11deg', scale: '1.2' }, 490],
+  ],
+  '.section.vote': [
+    ['.ghost', { opacity: 0, translate: '-35% 0' }, 0],
+    ['.vote-panel', { opacity: 0, translate: '0 110px', rotate: '-2.5deg' }, 0],
+    ['.title--vote', { opacity: 0, translate: '-110px 0' }, 180],
+    ['.status-line', { opacity: 0, translate: '-60px 0' }, 300],
+    ['.swatch', { opacity: 0, translate: '0 150px', rotate: '10deg', scale: '1.15' }, 300],
+    ['.doodle', { opacity: 0, scale: '2.6', rotate: '24deg' }, 820],
+  ],
+  '.section.drop': [
+    ['.drop-head', { opacity: 0, translate: '-160px 0' }, 0],
+    ['.console', { opacity: 0, translate: '0 120px' }, 160],
+    ['.countdown .tile', { opacity: 0, scale: '1.7' }, 430],
+    ['.stock-bar span', { scale: '0 1', transformOrigin: 'left' }, 850],
+    ['.signup', { opacity: 0, translate: '0 50px' }, 720],
+  ],
+  '.wordmark-wrap': [['.wordmark', { opacity: 0, translate: '0 100%' }, 0]],
+};
+if (!still()) {
+  const waiting = new Map();
+  const arrive = new IntersectionObserver(entries => {
+    for (const { target, isIntersecting } of entries) {
+      if (!isIntersecting) continue;
+      waiting.get(target).forEach(animation => animation.play());
+      waiting.delete(target);
+      const title = target.querySelector('.title--lineup, .title--drop');
+      if (title && !still()) tuneIn(title);
+      arrive.unobserve(target);
+    }
+  }, { rootMargin: '0px 0px -30% 0px' });
+  // the wordmark ends the page, so it can never climb that far up the window
+  const arriveLast = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) return;
+    waiting.get(entry.target)?.forEach(animation => animation.play());
+    waiting.delete(entry.target);
+    arriveLast.disconnect();
+  }, { threshold: .4 });
+  for (const [selector, pieces] of Object.entries(ENTRANCES)) {
+    const section = document.querySelector(selector);
+    waiting.set(section, pieces.flatMap(([piece, from, delay]) => [...section.querySelectorAll(piece)].map((element, i) => {
+      const animation = element.animate([from, { offset: 1, ...(from.transformOrigin && { transformOrigin: from.transformOrigin }) }],
+        { duration: 640, delay: delay + i * 110, easing: 'cubic-bezier(.2, 1.3, .4, 1)', fill: 'backwards' });
+      animation.pause();
+      return animation;
+    })));
+    (selector === '.wordmark-wrap' ? arriveLast : arrive).observe(section);
+  }
+  // pausing motion shows everything at once
+  motionToggle.addEventListener('click', () => {
+    if (!still()) return;
+    for (const animations of waiting.values()) animations.forEach(animation => animation.finish());
+  });
+}
+
+/** The title comes in as static and settles into its word from left to right, like a radio finding the station. */
+function tuneIn(title) {
+  const word = title.textContent, noise = '#%&/<>*+=?!01', started = performance.now();
+  title.setAttribute('aria-label', word); // read as the word throughout
+  // held at its own width, so the scramble moves nothing around it
+  Object.assign(title.style, { width: title.offsetWidth + 'px', whiteSpace: 'nowrap', overflow: 'clip', overflowClipMargin: '20px' });
+  const timer = setInterval(() => {
+    const settled = Math.floor((performance.now() - started - 260) / 75);
+    if (settled >= word.length || still()) {
+      clearInterval(timer);
+      title.textContent = word;
+      title.removeAttribute('aria-label');
+      Object.assign(title.style, { width: '', whiteSpace: '', overflow: '', overflowClipMargin: '' });
+      return;
+    }
+    title.textContent = [...word].map((letter, i) => i < settled || letter === ' ' ? letter : noise[Math.floor(Math.random() * noise.length)]).join('');
+  }, 50);
+}
+
+// the tapes run faster while the page is scrolled, and ease back once it rests
+let surge = 0, lastY = scrollY, surging = false;
+function runTapes() {
+  surge *= .93;
+  surging = surge > .05;
+  for (const animation of tapes.getAnimations({ subtree: true })) animation.playbackRate = surging ? 1 + surge : 1;
+  if (surging) requestAnimationFrame(runTapes);
+}
+addEventListener('scroll', () => {
+  const moved = Math.abs(scrollY - lastY);
+  lastY = scrollY;
+  if (still() || tapes.classList.contains('offscreen')) return;
+  surge = Math.min(9, surge + moved / 22);
+  if (!surging) { surging = true; requestAnimationFrame(runTapes); }
+}, { passive: true });
 
 const tailParts = [document.querySelector('.wordmark-wrap'), document.querySelector('.page > footer')];
 const tailSize = new ResizeObserver(() => {
@@ -219,7 +435,7 @@ function toneAt(x, y) {
   return colour && (colour[0] * .299 + colour[1] * .587 + colour[2] * .114) > 130 ? 'light' : 'dark';
 }
 
-const pieces = [dock, ...dockbar.querySelectorAll('a.fan-item, .motion-toggle')];
+const pieces = [dock, ...dockbar.querySelectorAll('a.fan-item')];
 /** The whole menu wears one colour, picked from what is behind the STATIX chip. */
 function paintTones() {
   // the chip's closed middle, so opening the menu (which widens the logo) never changes the answer
@@ -230,18 +446,23 @@ function paintTones() {
 
 const headerNav = document.querySelector('.nav-links');
 const headerLinks = [...headerNav.children];
-let merged = null, flights = [];
+let merged = null, flights = [], formed;
 
 function mergeNav(stuck) {
   if (stuck === merged) return;
   const first = merged === null;
   merged = stuck;
+  clearTimeout(formed);
+  // no shadow while the chip is still taking shape
+  dock.classList.toggle('forming', stuck);
   flights.forEach(ghost => ghost.remove());
   flights = [];
   const show = visible => headerLinks.forEach(link => { link.style.visibility = visible ? '' : 'hidden'; });
   // no flight on page load, with motion paused or reduced, or when the links are already out of view
   if (first || still() || headerNav.getBoundingClientRect().bottom + (stuck ? 0 : scrollY) <= 0) {
     show(!stuck);
+    // nothing flies in: the chip is formed once the rest of the word has folded away
+    formed = setTimeout(() => dock.classList.remove('forming'), still() ? 0 : 300);
     return;
   }
   show(false);
@@ -266,6 +487,8 @@ function mergeNav(stuck) {
       { duration: 460, delay: (stuck ? i : headerLinks.length - 1 - i) * 55, easing: 'cubic-bezier(.5, 0, .25, 1)', fill: 'both' });
     flight.onfinish = () => {
       if (!stuck) link.style.visibility = ''; // same frame as the copy leaves, so nothing blinks
+      // Log in leaves last: with it merged in, the chip is whole. A copy already called off says nothing
+      if (stuck && i === headerLinks.length - 1 && flights.includes(ghost)) dock.classList.remove('forming');
       ghost.remove();
       flights = flights.filter(other => other !== ghost);
     };
@@ -325,10 +548,11 @@ const dSec = document.getElementById('d-sec');
 
 function renderCountdown() {
   const parts = timeParts(target - (Date.now() + clockOffset));
-  dDays.textContent = parts[0];
-  dHours.textContent = parts[1];
-  dMin.textContent = parts[2];
-  dSec.textContent = parts[3];
+  [dDays, dHours, dMin, dSec].forEach((digit, i) => {
+    if (digit.textContent === parts[i]) return;
+    digit.textContent = parts[i];
+    if (!still() && !digit.closest('.offscreen')) digit.animate([{ translate: '0 -42%', opacity: 0 }, { offset: 1 }], { duration: 280, easing: 'cubic-bezier(.2, 1.6, .4, 1)' });
+  });
 }
 
 renderCountdown();
@@ -381,10 +605,35 @@ function writeIn(word) {
   );
 }
 
+/** Shards fly from where the shell was picked, the card squashes and the panel takes the blow. */
+function hit(swatch, event) {
+  const box = swatch.getBoundingClientRect();
+  // a keyboard pick has no pointer position: burst from the middle of the card
+  const x = event.detail ? event.clientX : box.left + box.width / 2;
+  const y = event.detail ? event.clientY : box.top + box.height / 2;
+  for (let i = 0; i < 14; i++) {
+    const shard = document.createElement('i');
+    shard.className = 'shard';
+    shard.setAttribute('aria-hidden', 'true');
+    shard.style.cssText = 'left:' + x + 'px;top:' + y + 'px;background:' + ['#B9A4FF', '#F4F2F8', '#0B0A0F'][i % 3];
+    document.body.append(shard);
+    const turn = i * (360 / 14) + (i * 47) % 19, far = 130 + (i * 53) % 140;
+    const gone = () => shard.remove();
+    shard.animate(
+      [{ transform: 'rotate(' + turn + 'deg) translateY(-10px) scale(.5)', opacity: 1 },
+        { transform: 'rotate(' + turn + 'deg) translateY(-' + far + 'px) scale(' + (1 + (i % 3) * .35) + ')', opacity: 0 }],
+      { duration: 520, easing: 'cubic-bezier(.1, .8, .3, 1)', fill: 'forwards' },
+    ).finished.then(gone, gone);
+  }
+  swatch.animate({ scale: ['1', '.9', '1.08', '1'] }, { duration: 360, easing: 'ease-out' });
+  swatch.closest('.vote-panel').animate({ translate: ['0 0', '-7px 8px', '6px -5px', '-3px 2px', '0 0'] }, { duration: 300, easing: 'ease-out' });
+}
+
 const swatches = Array.from(document.querySelectorAll('.swatch'));
 const pickName = document.querySelector('.pick-name');
 swatches.forEach(button => {
-  button.addEventListener('click', () => {
+  button.addEventListener('click', event => {
+    if (button.getAttribute('aria-pressed') !== 'true' && !still()) hit(button, event);
     swatches.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
     pickName.textContent = button.dataset.name;
     button.closest('.vote').dataset.pick = button.dataset.name;

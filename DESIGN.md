@@ -100,7 +100,7 @@ Reworked 26/11/2026: a heavy face for main text, the same face at regular weight
 - **Signup form:** inverted ink card, level, max 560px, no header strip. States: pending, error, joined.
 - **Tapes:** two full-width bands at 104% width (accent, then ink), tilted opposite ways, scrolling opposite ways. Text is `/`-separated and repeated for a seamless `-50%` loop.
 - **Nav / footer:** Doto wordmark plus uppercase muted links. Footer follows a giant wordmark filled with static.
-- **Pause button:** only inside the right end of the open STATIX card, so only once the page is scrolled: an icon past a slanted divider. **None at the top** (a separate button there was removed by request), which leaves the moving tapes and hero rotation without a pause control on the first screen. Pauses all CSS motion and the hero rotation. Hidden under reduced motion.
+- **Pause button:** at the end of the landing footer (moved there when Log in took its place in the sticky menu). That leaves the moving tapes and hero rotation without a pause control until the page is scrolled to its foot. Pauses all CSS motion and the hero rotation.
 - **Section break:** the vote band uses the panel colour (its panel uses the background colour). Vote and drop open with a straight 8px speckled accent strip over a 2px ink line. No zigzags or scalloped edges.
 
 ## 6. Texture and decoration
@@ -110,7 +110,7 @@ All decorative layers sit behind content.
 - **Static:** one 160px random-pixel tile, drawn on a canvas, shown at 2x. Use it only for: page grain behind content (6%), the section strips and the footer wordmark. **Never a resting overlay on the hero or product photos** (tried; it was far too much).
 - **Dot grid:** 1.6px accent dots on a 14px grid, 35% opacity, masked to fade leftward, right 55% of hero.
 - **Diagonal wedge:** `polygon(0 0, 100% 0, 62% 100%, 0 100%)`, left 34% of hero.
-- **Hero stack:** glow → spinning 24-point starburst → accent quad filled with halftone (lavender with 2.5px black dots on a 12px grid) → the tilted Speaker photo with a 6px black edge and 14px black hard shadow → name tag (an ink paper card with a black edge and Doto name, tilted 6deg (clockwise) over the frame's bottom-left corner, with a 6px hard grey `#46464E` shadow; no tape). The halftone keeps the mostly black photo from blending in.
+- **Hero stack:** glow → frosted 24-point starburst, turning in 20 steps a second → accent quad filled with halftone (lavender with 2.5px black dots on a 12px grid) → the tilted Speaker photo with a 6px black edge and 14px black hard shadow → name tag (an ink paper card with a black edge and Doto name, tilted 6deg (clockwise) over the frame's bottom-left corner, with a 6px hard grey `#46464E` shadow; no tape). The halftone keeps the mostly black photo from blending in.
 - **Product art:** product photos, plus one comic-style illustration per product (violet burst, halftone, thick black outline) shown on lineup hover. The page uses `assets/*_art.webp`, cut out from the `*_2d.png` files, whose checkerboard is painted in rather than transparent.
 - **Diamond:** not used on this page (it belonged to the removed hero status line).
 
@@ -183,7 +183,7 @@ One centred stack, max 1200px:
    - Signup on a light surface: `GET THE FIRST SIGNAL.` and the head-start line on the left; email and button side by side on the right, `One email. No spam.` below. 4px lavender focus border with a dark ring. On success the button reads `SIGNAL RECEIVED`.
 
 No background decoration. The section is `100svh` minus footer and wordmark, so all three share the last desktop view. Footer sits above the wordmark, which is 30% opacity, still, and shown in full (cropping it was tried and looked broken).
-Headings and product names are uppercase site-wide. The pause control sits inside the STATIX card of the sticky menu (pause icon, play icon when paused).
+Headings and product names are uppercase site-wide. The pause control sits in the footer (pause icon, play icon when paused).
 
 ### Sticky logo
 
@@ -191,12 +191,12 @@ Headings and product names are uppercase site-wide. The pause control sits insid
 
 The wordmark is a fixed link back to the top. At rest it looks like plain nav text at the top, and a lone **S** chip in the corner once scrolled. Mouse hover, keyboard focus or a first tap opens the menu (on touch a second tap on the logo goes to the top; a tap elsewhere or Escape closes it):
 
-- **STATIX is always the biggest card**: Doto up to 44px on a level right-slanted rectangle (skew -12deg, no tilt) with a 5px deep violet offset.
-- **Cards** LINEUP, VOTE, DROP, WAITLIST **fan out only once the page is scrolled** (at the top nothing opens: the logo stays plain text and the page nav is on screen). They are **level** (tilts were tried and removed to match the level STATIX card), 10px apart below it against the left edge, left ends bowing gently out and back (6, 20, 26, 20px), and slide out from under the logo. 176x38px right-slanted rectangle (skew -12deg), 3px deep violet offset. Jagged cut-paper edges were tried on these and on the swatches, console and signup, and were removed as tiring, one label in the site nav font (JetBrains Mono 700, 15px, uppercase). **No icons and no subtitles** (both removed). A staircase and a wide circular arc were tried and replaced.
-- **Content-aware colours:** each card, and the STATIX card, reads the surface behind it: off-white card with black text over dark areas, black card with off-white text over light or lavender areas. The deep violet offset stays on both.
-- **Highlight** inverts the hovered or focused card only. No highlight for the section on screen (tried and removed).
-- **No backing graphic** behind the cards (long spikes and a toothed ring were both tried and removed). No gradients.
-- **Exceptions to the rules above, requested for this menu only:** deep violet `#8A6CFF` and the pause icon.
+- **One column, 168px wide:** STATIX on top, then LINEUP, VOTE, TUNE IN, DROP 001 and LOG IN, with 14px gaps. Level rectangles, each with its own 2px outline and 5px hard shadow. Only once the page is scrolled.
+- **Motion:** the cards fly in from the left edge one after another (.09s apart), then float 3px up and down (2.4s each way, out of step). No float when closed, paused or under reduced motion.
+- **Colours:** each card reads the surface behind it: off-white with black text over dark areas, black with off-white text over light or lavender areas. **Log in is always lavender.**
+- **Highlight** only on the hovered or focused card. No highlight for the section on screen (tried and removed). No gradients.
+- Closed, only the S chip opens the menu: the hidden cards ignore the pointer.
+- The chip's shadow appears only once it has formed (.3s after scrolling away from the top).
 
 The resting chip reads the surface behind it: light chip with a lavender shadow over dark areas, dark chip with lavender letters over light or lavender areas. No transitions under reduced motion.
 
@@ -207,15 +207,28 @@ The resting chip reads the surface behind it: light chip with a lavender shadow 
 | Card throw (hero rotation) | old photo flies off left in .28s; new one slams in from the right in .48s with an overshoot; the lavender backing jolts; the name tag stamps down last. Runs only when the rotation does, so never when paused or under reduced motion |
 | `slam` (hero letters) | .55s `cubic-bezier(.2,1.5,.4,1)`, `both`; drops from -160px at 1.7x scale and 4x tilt; delays .05s then +.07s per letter |
 | Tapes | `translateX(0 → -50%)`, linear infinite: 28s, and 22s reversed |
-| `spin` (starburst) | 360deg, 60s linear infinite |
-| `jitter` / `tune` (static) | .5s `steps(1)` infinite |
+| `spin` (starburst) | 360deg in 60s, infinite. Hero: `steps(1200)`, because a smooth turn re-blurs the frost every frame, and it rests off screen. The product page burst names `spin` too, but does not move (CSS modules rename it to a missing keyframe) |
+| `tune` (static strips and footer wordmark) | .5s `steps(1)` infinite; the strips and tapes rest off screen. The page grain is still |
+| Intro (entering or reloading the landing) | plain black cover; STATIX slams in, then shrinks into the corner logo as the cover wipes left. Skipped for Back/Forward, links to a section and reduced motion |
+| Hero show-off (after the intro) | the Speaker model whirls out of the frame, turns at 35deg/s for 2s, then whirls faster as it dives back in; the frame grows back as it goes in, then the name tag stamps on. Once out, nothing the visitor does stops it |
+| Hero hover | the model pops out after the pointer rests 150ms, or once a just-picked card has landed. Quick picks never restart a card throw part way |
 | Slab hover | `skewX(-12deg) translate(-3px,-3px)`, .15s |
 | Panel hover / keyboard focus | straightens, rises 8px, shadow turns accent; a comic backdrop covers the photo (speed lines that snap in, halftone corners, a lavender and ink slash, a tilted ink tape strip behind the illustration repeating the name and number; giant lettering was tried and was unreadable) and the illustration slams in over it (.4s overshoot), registered to the photo: same size, position, crop and zoom, with the excess cut off at the frame edge (spilling past the frame and shrinking the art to fit inside were both rejected). Each `*_art.webp` is therefore drawn on a 1344x768 canvas like its photo; new art must be placed the same way; a plain fade under reduced motion |
+| Entrances below the lineup | once, as Vote, Tune in and the footer wordmark are scrolled to: pieces slide, slam or stamp in (.64s, overshoot, .11s apart). Skipped under reduced motion or when paused |
+| Landing to Drop 001 / Log in (900px and up) | STATIX travels to the middle of the top bar while the destination header is drawn left to right behind a lavender blade (.72s); then TV static fades in under it. The next page starts with the same header and static, then fades the static out |
+| Header links elsewhere (Drop 001, Log in, Account) | TV static fades in under the real header, the page changes without a reload, the static fades out. Reduced motion or paused: plain link |
+| TV static | one 192x108 noise canvas scaled up with hard pixels, redrawn about 30 times a second and only while on screen; dark rolling bars, one lit band, scanlines; fades in .26s, out .34s. Dim, no brightness flicker |
+| Tapes while scrolling | speed up with the scroll (to about 10x) and ease back |
+| Vote pick | 14 shards from the picked card, which squashes; the panel jolts |
+| Countdown | a digit drops into place when it changes |
+| Titles `Lineup` and `Tune in.` | arrive as scrambled characters that settle left to right; read as the word throughout |
 | Swatch select | transform transition .15s |
 
 Hero letters each get their own tilt (-8, 5, -4, 9, -6, 5deg), vertical nudge (0, 14, 0, -6, 12, 0px), and fill, in this order: ink, accent, outlined ink, ink, accent, outlined accent (outline = 5px inset shadow).
 
 Under `prefers-reduced-motion` all keyframe animations stop. Hover transitions remain.
+
+**Header of the other pages:** the current page's link is lavender and bold, with no slab behind it. Log in and sign up leave the wordmark and Drop 001 out of the footer.
 
 ## 8. Layout and spacing
 

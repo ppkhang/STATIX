@@ -3,6 +3,7 @@ import Link from "next/link";
 import { currentAccount } from "@/auth";
 import { logout } from "@/lib/auth-actions";
 import NavLink from "@/components/NavLink";
+import { HeaderSwitch } from "@/components/ProductSwitch";
 import authStyles from "@/components/auth.module.css";
 import styles from "@/components/shell.module.css";
 
@@ -13,6 +14,7 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
 
   return (
     <div className={styles.page}>
+      <HeaderSwitch />
       <header className={styles.header}>
         {/* Plain <a>: the landing script only runs on a full page load. */}
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
@@ -39,9 +41,10 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
       <main className={styles.main}>{children}</main>
 
       <footer className={styles.footer}>
-        <span className={styles.logo}>STATIX</span>
+        {/* data-not-on-entry: log in and sign up leave these out (shell.module.css) */}
+        <span className={styles.logo} data-not-on-entry="">STATIX</span>
         <nav className={styles.links} aria-label={t("footerNav")}>
-          <Link href="/drop/001">{t("drop")}</Link>
+          <Link href="/drop/001" data-not-on-entry="">{t("drop")}</Link>
           {/* the policies are only down here, so this is where they show you're on them */}
           <NavLink href="/terms">{t("terms")}</NavLink>
           <NavLink href="/returns">{t("returns")}</NavLink>

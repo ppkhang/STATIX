@@ -7,7 +7,19 @@ declare global {
   interface Window {
     /** Set while a product page is up, so art-flight.js can change product without reloading the page. */
     statixSwitch?: (href: string) => void;
+    /** Set on every page with the header, so art-flight.js can fade between pages without reloading. */
+    statixGo?: (href: string) => void;
   }
+}
+
+export function HeaderSwitch() {
+  const router = useRouter();
+  useEffect(() => {
+    const go = (href: string) => router.push(href);
+    window.statixGo = go;
+    return () => { if (window.statixGo === go) delete window.statixGo; };
+  }, [router]);
+  return null;
 }
 
 export default function ProductSwitch() {
