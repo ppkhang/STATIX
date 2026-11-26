@@ -45,3 +45,9 @@ p.notice.notice { color: var(--ink); border-left: 4px solid var(--accent); paddi
 .stage .links { column-gap: 28px; font-weight: 400; letter-spacing: .08em; text-transform: uppercase; }
 .stage .links a { color: var(--muted); text-decoration: none; }
 .stage .links a:hover { color: var(--accent); }
+
+/* one card: the title is a straight header joined to the form, as on the product page and the landing's Tune in.
+   `.slab`'s tilt, hover lean and shadow are all put down. */
+.stage .title, .stage .title:hover { margin: 0 0 -28px; /* takes back the stage's gap */ padding: 18px clamp(20px, 5vw, 40px) 16px; transform: none; line-height: 1; border: 2px solid var(--ink); border-bottom: 3px solid var(--bg); box-shadow: 14px 14px 0 var(--accent); }
+/* positioned, so it covers the header's shadow where the two meet: one shadow round the pair */
+.console { position: relative; border-top: 0; }

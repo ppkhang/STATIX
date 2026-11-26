@@ -205,7 +205,7 @@ for (const link of dockbar.querySelectorAll('a.fan-item')) link.addEventListener
 document.addEventListener('pointerdown', event => { if (!dockbar.contains(event.target)) closeMenu(); });
 dockbar.addEventListener('keydown', event => { if (event.key === 'Escape') { document.activeElement.blur(); closeMenu(); } });
 // listed from back to front: the last match under the logo wins
-const surfaces = [...document.querySelectorAll('.section.vote, .vote-panel, .tape-a, .tape-b, .slab, .panel h3, .console, .signup')];
+const surfaces = [...document.querySelectorAll('.section.vote, .vote-panel, .tape-a, .tape-b, .slab, .lineup .section-head, .panel h3, .drop-head, .console, .signup')];
 let queued = false;
 
 function toneAt(x, y) {
@@ -219,16 +219,13 @@ function toneAt(x, y) {
   return colour && (colour[0] * .299 + colour[1] * .587 + colour[2] * .114) > 130 ? 'light' : 'dark';
 }
 
-const cards = [...dockbar.querySelectorAll('a.fan-item')];
+const pieces = [dock, ...dockbar.querySelectorAll('a.fan-item, .motion-toggle')];
+/** The whole menu wears one colour, picked from what is behind the STATIX chip. */
 function paintTones() {
-  const box = dock.getBoundingClientRect();
-  dock.dataset.tone = toneAt(box.left + box.width / 2, box.top + box.height / 2);
-  // worked out from each card's open position, so the colour is right before it has finished swinging out
-  const root = dockbar.getBoundingClientRect();
-  for (const card of cards) {
-    const value = name => parseFloat(card.style.getPropertyValue(name));
-    card.dataset.tone = toneAt(root.left + value('--x') + 70, root.top + value('--y'));
-  }
+  // the chip's closed middle, so opening the menu (which widens the logo) never changes the answer
+  const bar = dockbar.getBoundingClientRect();
+  const tone = toneAt(bar.left + 24, bar.top + 24);
+  for (const piece of pieces) piece.dataset.tone = tone;
 }
 
 const headerNav = document.querySelector('.nav-links');

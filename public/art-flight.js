@@ -6,8 +6,8 @@
 // Cards opt in with data-art-fly. The product page's frame is marked data-art-frame, and its root data-product.
 // A card marked data-switch (the other products, on a product page) changes product without a reload: everything
 // slides off to the left, a slanted cover passes behind it, and the next product follows it in.
-// The header's home link (data-home), on a product page, has its own: the cover brings a big white STATIX, and on
-// the landing it shrinks into the logo in the top left corner.
+// The header's home link (data-home), on every page that has it, gets its own: the cover brings a big white STATIX,
+// and on the landing it shrinks into the logo in the top left corner.
 (() => {
   const KEY = 'statix-art-flight';
   const CSS_ESCAPE = (value) => window.CSS.escape(value); // `CSS` below is this script's own stylesheet
@@ -465,7 +465,7 @@
     clear();
   }
 
-  // ---- from a product to home: the wordmark takes over, then settles into the landing's logo ----
+  // ---- from any page to home: the wordmark takes over, then settles into the landing's logo ----
   const HOME_KEY = 'statix-wipe-home';
   let ridden = []; // what the outgoing page has moved, to put back if the Back button restores it
 
@@ -489,7 +489,8 @@
     root.setAttribute('data-wipe', 'out');
     root.append(sheet);
     document.body.append(cover);
-    const old = [document.querySelector('header'), stageOf(document.querySelector('[data-product]'))].filter(Boolean);
+    // the page's bar, content and foot all leave together
+    const old = [...document.querySelectorAll('header, main, footer')];
     const gone = old.map((element) => ride(element, '0 0', '-110vw 0', 240, 'cubic-bezier(.45, 0, .75, .55)'));
     const across = ride(cover, '100vw 0', -SLANT + 'vw 0', 340, 'cubic-bezier(.5, 0, .2, 1)');
     ridden = [...gone, across];
@@ -579,7 +580,6 @@
     const card = event.target.closest?.('a[data-art-fly], a[data-switch], a[data-home]');
     if (!card || calm() || root.classList.contains('paused') || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     if (card.hasAttribute('data-home')) {
-      if (!document.querySelector('[data-product] > section')) return; // from other pages, home just opens
       event.preventDefault();
       if (!leaving) { leaving = true; wipeHome(new URL(card.href)); }
       return;

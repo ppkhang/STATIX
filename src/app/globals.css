@@ -809,93 +809,92 @@ footer {
 .nav-shell .nav-logo { visibility: hidden; }
 .dockbar {
   --pad: max(clamp(20px, 4vw, 56px), calc(50% - 720px));
-  --violet: #8A6CFF;
+  --tall: 48px; --lean: 19px; /* the lean is the height times tan(22deg), like every other cut on the site */
   position: fixed;
   z-index: 30;
   left: calc(var(--pad) - 14px);
   top: 28px;
+  display: flex;
+  align-items: stretch;
   transition: left .25s, top .25s;
 }
-.dockbar.is-stuck { left: 10px; top: 10px; }
+/* stuck: one outline and one shadow round whatever shape is showing, so it reads on light and dark alike */
+.dockbar.is-stuck { left: 12px; top: 12px; height: var(--tall);
+  filter: drop-shadow(2px 0 0 #000) drop-shadow(-2px 0 0 #000) drop-shadow(0 2px 0 #000) drop-shadow(0 -2px 0 #000) drop-shadow(5px 5px 0 var(--accent)); }
+/* open, it is one strip with straight outer edges and leaning cuts. --a and --b are each piece's left and right lean */
+.dock, .fan-item, .motion-toggle { --a: var(--lean); --b: var(--lean); border: 0; clip-path: polygon(var(--a) 0, 100% 0, calc(100% - var(--b)) 100%, 0 100%); }
 .dock {
+  --a: 0px;
+  --b: 0px;
   position: relative;
   z-index: 2;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-width: 48px;
   min-height: 48px;
   padding: 0 6px 0 12px;
+  clip-path: none;
   color: var(--ink);
-  border: 2px solid transparent;
   font: 900 clamp(30px, 2.8vw, 42px)/1 var(--font-logo);
   letter-spacing: .08em;
   white-space: nowrap;
-  transition: background-color .2s, color .2s, border-color .2s, box-shadow .2s, min-height .2s, font-size .2s;
+  transition: background-color .2s, color .2s, padding .2s, font-size .2s;
 }
 .dock-rest { display: inline-block; max-width: 6em; overflow: hidden; transition: max-width .3s ease; }
-.dock.is-stuck { font-size: 28px; }
+.dock.is-stuck { font-size: 26px; background: var(--card); color: var(--card-ink); clip-path: polygon(var(--a) 0, 100% 0, calc(100% - var(--b)) 100%, 0 100%); }
 .dock.is-stuck .dock-rest { max-width: 0; }
-/* what is behind decides the chip's colours */
-.dock.is-stuck[data-tone="dark"] { background: var(--ink); color: #0B0A0F; border-color: #0B0A0F; box-shadow: 4px 4px 0 var(--accent); }
-.dock.is-stuck[data-tone="light"] { background: #0B0A0F; color: var(--accent); border-color: var(--ink); box-shadow: 4px 4px 0 var(--ink); }
-
-/* open: STATIX becomes the big card, on its own cut-paper slab */
-.dockbar.is-stuck:is(.is-hover, .is-open, :has(:focus-visible)) .dock { min-height: 58px; padding: 0 66px 0 20px; font-size: clamp(36px, 10vw, 44px); background: none; border-color: transparent; box-shadow: none; color: var(--card-ink); isolation: isolate; filter: drop-shadow(5px 5px 0 var(--violet)); }
-.dockbar.is-stuck:is(.is-hover, .is-open, :has(:focus-visible)) .dock::before { content: ''; position: absolute; inset: -2px; z-index: -1; background: var(--card); transform: skewX(-12deg); }
+.dockbar.is-stuck:is(.is-hover, .is-open, :has(:focus-visible)) .dock { --b: var(--lean); padding: 0 calc(var(--lean) + 12px) 0 16px; }
 .dockbar.is-stuck:is(.is-hover, .is-open, :has(:focus-visible)) .dock-rest { max-width: 6em; }
 
-
-/* closed cards are invisible and ignore the pointer but stay focusable, so keyboard users can always reach them */
-.fan-item {
-  position: absolute;
-  z-index: 1;
-  left: 0;
-  top: -19px;
+.fan { display: flex; order: 1; }
+/* closed pieces are invisible and ignore the pointer but stay focusable, so keyboard users can always reach them */
+.fan-item, .motion-toggle {
+  position: relative;
   display: flex;
   align-items: center;
-  width: 176px;
-  height: 38px;
-  padding: 0 22px;
-  border: 0;
-  background: none;
+  justify-content: center;
+  height: var(--tall);
+  /* each starts where the one before it ends: 4px between two parallel edges */
+  margin-left: calc(4px - var(--lean));
+  background: var(--card);
   color: var(--card-ink);
-  text-align: left;
   white-space: nowrap;
   cursor: pointer;
-  isolation: isolate;
-  filter: drop-shadow(3px 3px 0 var(--violet));
   opacity: 0;
   pointer-events: none;
-  /* closed, the cards are stacked under the logo; opening slides each one out to its place on the curve */
-  transform-origin: 0 50%;
-  transform: translate(0px, 29px) skewX(-12deg);
-  transition: transform .38s cubic-bezier(.2, 1.3, .4, 1), opacity .12s;
+  translate: -22px 0;
+  transition: translate .26s cubic-bezier(.2, 1.35, .4, 1), opacity .1s, background-color .12s;
 }
-.fan-item::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--card); }
-.dockbar.is-stuck:is(.is-hover, .is-open, :has(:focus-visible)) .fan-item { opacity: 1; pointer-events: auto; transform: translate(var(--x), var(--y)) skewX(-12deg); transition-delay: calc(var(--i) * .035s); }
-.fan-label { font: 900 15px/1 var(--font-main); letter-spacing: .08em; text-transform: uppercase; }
-/* pause control: part of the STATIX card, past a slanted divider at its right end. Hidden while closed but still focusable */
-.motion-toggle { position: absolute; z-index: 3; left: calc(100% - 58px); top: 7px; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; background: none; color: var(--card-mark); cursor: pointer; isolation: isolate; opacity: 0; pointer-events: none; transition: color .15s; }
-.motion-toggle::before { content: ''; position: absolute; left: -7px; top: 8px; bottom: 8px; width: 3px; background: var(--card-mark); transform: skewX(-16deg); }
-.motion-toggle::after { content: ''; position: absolute; inset: 7px 5px; z-index: -1; transform: skewX(-12deg); }
-.dockbar.is-stuck:is(.is-hover, .is-open, :has(:focus-visible)) .motion-toggle { opacity: 1; pointer-events: auto; transition: opacity .15s, color .15s; } /* fades in only: closing, it must vanish with its card, not float over the plain logo */
-.motion-toggle:is(:hover, :focus-visible, [aria-pressed="true"]) { color: var(--card); }
-.motion-toggle:is(:hover, :focus-visible)::after { background: var(--card-ink); }
-.motion-toggle[aria-pressed="true"]::after { background: var(--card-mark); }
-/* content-aware colours: over something dark a card is off-white, over something light it is black (data-tone is set by the script) */
-.dockbar { --card: #0B0A0F; --card-ink: #F4F2F8; --card-mark: #B9A4FF; }
-.fan-item[data-tone="dark"], .dock[data-tone="dark"], .dock[data-tone="dark"] + .motion-toggle { --card: #F4F2F8; --card-ink: #0B0A0F; --card-mark: #5B3FD1; }
+/* off the page altogether while closed, so the empty row can't catch the pointer */
+.fan-item { padding: 0 calc(var(--lean) + 6px); }
+.fan-label { font: 900 13px/1 var(--font-main); letter-spacing: .08em; text-transform: uppercase; }
+.motion-toggle { --b: 0px; order: 2; width: calc(44px + var(--lean)); padding: 0 0 0 var(--lean); }
+.dockbar.is-stuck:is(.is-hover, .is-open, :has(:focus-visible)) :is(.fan-item, .motion-toggle) { opacity: 1; pointer-events: auto; translate: 0 0; transition-delay: calc(var(--i, 4) * .03s), calc(var(--i, 4) * .03s), 0s; }
+.dockbar:not(.is-stuck:is(.is-hover, .is-open, :has(:focus-visible))) :is(.fan, .motion-toggle) { position: absolute; left: 100%; top: 0; }
+.fan-item:is(:hover, :focus-visible), .motion-toggle:is(:hover, :focus-visible, [aria-pressed="true"]) { background: var(--card-hover); }
+/* one colour for the whole menu, from what is behind the STATIX chip (landing.js sets data-tone): white over dark, black over light */
+.dock, .fan-item, .motion-toggle { --card: #F4F2F8; --card-ink: #0B0A0F; --card-hover: #d9cdff; }
+.dock[data-tone="light"], .fan-item[data-tone="light"], .motion-toggle[data-tone="light"] { --card: #0B0A0F; --card-ink: #F4F2F8; --card-hover: #3a2f63; }
+/* over light it is the mirror image: black pieces, so the outline (which also fills the cuts) turns white to show them,
+   and the shadow black: a lavender one disappears into a lavender or white page */
+.dockbar.is-stuck:has(.dock[data-tone="light"]) { filter: drop-shadow(2px 0 0 #F4F2F8) drop-shadow(-2px 0 0 #F4F2F8) drop-shadow(0 2px 0 #F4F2F8) drop-shadow(0 -2px 0 #F4F2F8) drop-shadow(5px 5px 0 #000); }
+/* the clip would cut an outline off, so keyboard focus is a bar under the word */
+.fan-item:focus-visible, .motion-toggle:focus-visible { outline: 0; box-shadow: inset 0 -5px 0 currentColor; }
+.dock.is-stuck:focus-visible { outline: 0; box-shadow: inset 0 -5px 0 var(--accent); }
 /* at the top the page's own nav is on screen, so there is no menu there: hidden from the keyboard too */
 .dockbar:not(.is-stuck) .fan { visibility: hidden; }
-/* no pause control at the top (by request): it lives in the STATIX card once scrolled. Hidden from the keyboard there too, so focus never lands on something invisible */
+/* no pause control at the top (by request): it lives in the strip once scrolled. Hidden from the keyboard there too, so focus never lands on something invisible */
 .dockbar:not(.is-stuck) .motion-toggle { visibility: hidden; }
-/* the hovered or focused card is inverted */
-.fan-item:is(:hover, :focus-visible) { color: var(--card); }
-.fan-item:is(:hover, :focus-visible)::before { background: var(--card-ink); }
-.fan-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-/* covers the gaps between the cards so the menu does not close while the mouse crosses them (mouse only) */
-.dockbar.is-stuck.is-hover::before { content: ''; position: absolute; left: 0; top: 0; width: 270px; height: 260px; }
+/* too narrow for a row: the same pieces stacked under the logo, edges straight */
+@media (max-width: 760px) {
+  .dockbar.is-stuck { flex-direction: column; align-items: flex-start; height: auto; }
+  .dockbar .fan { flex-direction: column; }
+  .dockbar :is(.dock, .fan-item, .motion-toggle) { --a: 0px; --b: 0px; }
+  .dockbar :is(.fan-item, .motion-toggle) { margin: 4px 0 0; width: 168px; justify-content: flex-start; padding: 0 18px; height: 44px; }
+}
 @media (prefers-reduced-motion: reduce) { .dockbar, .dock, .dock-rest, .fan-item, .motion-toggle { transition: none; } }
+html.paused .dockbar, html.paused :is(.dock, .dock-rest, .fan-item, .motion-toggle) { transition: none; }
 
 .swatch-name { font: 900 clamp(15px, min(1.3vw, 2.4svh), 20px)/1.2 var(--font-main); } /* plain text, by request */
 
