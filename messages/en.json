@@ -181,7 +181,19 @@
       "subject": "You already have a STATIX account",
       "body": "Someone tried to create an account with this address, but you already have one. Log in here:\n{url}\n\nIf it wasn't you, you don't need to do anything."
     },
-    "otp": "Your STATIX code is {code}. It works for 5 minutes."
+    "otp": "Your STATIX code is {code}. It works for 5 minutes.",
+    "waitlistConfirm": {
+      "subject": "Confirm your spot on the {drop} waitlist",
+      "body": "Confirm your email to join the {drop} waitlist:\n{url}\n\nThe link works for {days} days. If you didn't ask for it, ignore this email and nothing happens."
+    },
+    "waitlistOn": {
+      "subject": "You're on the {drop} waitlist",
+      "body": "Your spot on the {drop} waitlist is confirmed.\n\nWhat happens next: your early access invite arrives by email. Early access for members opens {opens} (Vietnam time)."
+    },
+    "waitlistAlready": {
+      "subject": "You're already on the {drop} waitlist",
+      "body": "Someone signed this address up for the {drop} waitlist, and it's already on it. There's nothing you need to do."
+    }
   },
   "signup": {
     "title": "Tune in.",
@@ -192,9 +204,40 @@
     "placeholder": "you@domain.com",
     "send": "Send my signal",
     "sending": "Tuning in…",
-    "fine": "One email. No spam.",
+    "fine": "We email you to confirm, then with your invite. No spam.",
     "empty": "Enter your email to tune in.",
     "invalid": "That address doesn't look right. Check it.",
-    "done": "You're tuned in. Watch your inbox."
+    "done": "Check your inbox to confirm your spot.",
+    "consent": "Email me about Drop 001. I've read the <policy>privacy policy</policy>.",
+    "marketing": "Send me other STATIX news too.",
+    "needConsent": "Tick the box so we can email you about the drop.",
+    "rateLimited": "Too many tries. Wait an hour, then try again.",
+    "unavailable": "Signups are down for a moment. Try again soon.",
+    "network": "Couldn't reach us. Check your connection and try again."
+  },
+  "waitlist": {
+    "confirmingTitle": "One second",
+    "confirming": "Confirming your spot…",
+    "confirmButton": "Confirm my spot",
+    "onTitle": "You're on the {drop} waitlist",
+    "next": "Next: your early access invite arrives by email when early access opens.",
+    "which": "Which are you after? (optional)",
+    "phone": "Phone or Zalo (optional)",
+    "save": "Save",
+    "saved": "Saved.",
+    "badPhone": "That doesn't look like a Vietnamese mobile number.",
+    "gone": "This link can't change your entry any more.",
+    "createAccount": "Create an account",
+    "toDrop": "See the drop",
+    "expiredTitle": "That link has expired",
+    "expiredBody": "Confirmation links last 7 days. We can send you a new one.",
+    "sendNew": "Send a new link",
+    "sentAgain": "Sent. Check your inbox.",
+    "limited": "Too many tries. Wait an hour, then try again.",
+    "badTitle": "That link doesn't work",
+    "badBody": "It may be incomplete, or a newer one replaced it. Use the latest email, or sign up again.",
+    "usedTitle": "That link was already used",
+    "usedBody": "There's nothing more to confirm with it.",
+    "signUpAgain": "Sign up again"
   }
 }

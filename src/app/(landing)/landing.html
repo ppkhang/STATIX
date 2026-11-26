@@ -179,10 +179,12 @@
                   <input id="email" name="email" type="email" autocomplete="email" placeholder="you@domain.com" required aria-describedby="form-error">
                   <button class="submit" id="submit-signal" type="submit">Send my signal</button>
                 </div>
+                <label class="consent-line"><input type="checkbox" id="consent" required><span>Email me about Drop 001. I've read the <a href="/privacy-policy" target="_blank">privacy policy</a>.</span></label>
+                <label class="consent-line"><input type="checkbox" id="marketing"><span>Send me other STATIX news too.</span></label>
                 <p class="form-error" id="form-error" role="alert"></p>
               </form>
-              <p class="fine" id="signup-fine">One email. No spam.</p>
-              <p class="success" id="signup-success" tabindex="-1" hidden>You're tuned in. Watch your inbox on 20 December.</p>
+              <p class="fine" id="signup-fine">We email you to confirm, then with your invite. No spam.</p>
+              <p class="success" id="signup-success" tabindex="-1" hidden>Check your inbox to confirm your spot.</p>
               <p class="sr-only" aria-live="polite" id="form-status"></p>
             </div>
           </div>

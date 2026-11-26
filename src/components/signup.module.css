@@ -28,3 +28,8 @@
 
 @media (prefers-reduced-motion: reduce) { .dialog[open] { animation: none; } }
 :global(html.paused) .dialog[open] { animation: none; }
+
+.body .check { display: flex; align-items: flex-start; gap: 10px; min-height: 28px; font-size: 14px; letter-spacing: 0; line-height: 1.45; text-transform: none; cursor: pointer; }
+.body .check input { flex: none; width: 20px; height: 20px; min-height: 0; margin: 0; padding: 0; accent-color: var(--bg); }
+.check a { text-decoration: underline; text-underline-offset: 3px; }
+.dialog { max-height: calc(100svh - 24px); overflow: auto; }

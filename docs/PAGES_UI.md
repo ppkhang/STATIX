@@ -78,6 +78,11 @@ The landing page exists (see `INTERACTABLES.md`). Its "Worth knowing" section ma
 
 ## 1. Waitlist confirmed
 
+> **Built 2026-11-26** at `/waitlist/confirm/:token`. The page confirms by submitting a form once it has loaded, so a mail
+> scanner opening the link confirms nothing. For US-022, a repeat signup gets the same on-screen answer as a new one; the
+> "already on the list" message goes by email, so the form can't be used to find out who is listed. Links last 7 days;
+> there is no reminder or lapse job yet (PRC-02). The optional phone/Zalo and product picks are on this page.
+
 Reached from the double opt-in email. Flow: PRC-02.
 
 | Element | How you use it | What happens | Reqs |

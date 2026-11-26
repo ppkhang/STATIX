@@ -1,0 +1,30 @@
+/* Waitlist pages: one card, a straight header joined to its body, like Tune in and the auth cards. */
+.card { width: 100%; max-width: 620px; margin-inline: auto; border: 2px solid var(--ink); background: var(--ink); color: var(--bg); box-shadow: 14px 14px 0 var(--accent); }
+/* two classes, to outrank the page shell's heading and paragraph styles */
+.card h1:first-child { margin: 0; padding: 20px 28px 18px; border-bottom: 3px solid var(--bg); color: var(--bg); font-size: clamp(30px, 4.6vw, 48px); line-height: 1.05; text-transform: uppercase; }
+.body { display: flex; flex-direction: column; gap: 18px; padding: 24px 28px 28px; }
+.card .line, .card .lead { max-width: none; color: var(--bg); }
+.card .lead { font: 900 18px/1.4 var(--font-main); }
+.card .line:empty { display: none; }
+.card .notice { max-width: none; padding: 12px 16px; background: var(--bg); color: var(--ink); font-weight: 900; }
+.card .error { max-width: none; margin-top: 8px; color: #A4123F; }
+
+.primary, .secondary { align-self: flex-start; min-height: 52px; padding: 0 26px; border: 2px solid var(--bg); font: 900 14px/1 var(--font-main); letter-spacing: .1em; text-transform: uppercase; cursor: pointer; }
+.primary { background: var(--bg); color: var(--accent); }
+.secondary { background: transparent; color: var(--bg); }
+.primary:hover, .secondary:hover { background: var(--accent); border-color: var(--bg); color: var(--bg); }
+.secondary:disabled { opacity: .6; cursor: default; }
+
+.details { display: flex; flex-direction: column; gap: 14px; }
+.details fieldset { margin: 0; padding: 0; border: 0; }
+.details legend, .field span { margin-bottom: 8px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips label { position: relative; display: inline-flex; cursor: pointer; }
+.chips input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+.chips span { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border: 2px solid var(--bg); font: 900 13px/1 var(--font-main); text-transform: uppercase; }
+.chips input:checked + span { background: var(--bg); color: var(--accent); }
+.chips input:focus-visible + span { outline: 3px solid #5B3FD1; outline-offset: 2px; }
+.field { display: flex; flex-direction: column; }
+.field input { min-height: 50px; max-width: 320px; padding: 0 14px; border: 2px solid var(--bg); background: #fff; color: var(--bg); font: inherit; }
+.links { display: flex; flex-wrap: wrap; gap: 8px 24px; padding-top: 14px; border-top: 1px solid rgba(11, 10, 15, .25); }
+.links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--bg); text-decoration: underline; text-underline-offset: 4px; }

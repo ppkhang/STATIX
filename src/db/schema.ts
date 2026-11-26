@@ -150,12 +150,22 @@ export const waitlistEntry = pgTable("waitlist_entry", {
   createdAt: createdAt(),
 }, (t) => [unique().on(t.emailNorm, t.dropId)]);
 
-export const invite = pgTable("invite", {
+// One-time double opt-in links (FR-021). Only the hash is stored.
+export const waitlistLink = pgTable("waitlist_link", {
   id: id(),
-  entryId: uuid("entry_id").notNull().references(() => waitlistEntry.id),
+  entryId: uuid("entry_id").notNull().references(() => waitlistEntry.id, { onDelete: "cascade" }),
   tokenHash: text("token_hash").notNull().unique(),
   expiresAt: ts("expires_at").notNull(),
   usedAt: ts("used_at"),
+});
+
+export const invite = pgTable("invite", {
+  id: id(),
+  entryId: uuid("entry_id").notNull().references(() => waitlistEntry.id, { onDelete: "cascade" }), // goes with "delete my data"
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: ts("expires_at").notNull(),
+  usedAt: ts("used_at"),
+  accountId: uuid("account_id").references(() => account.id, { onDelete: "set null" }), // who used it (US-025)
 });
 
 export const customerOrder = pgTable("customer_order", {

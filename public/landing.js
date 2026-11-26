@@ -399,19 +399,18 @@ const submit = document.getElementById('submit-signal');
 const success = document.getElementById('signup-success');
 const formStatus = document.getElementById('form-status');
 const fine = document.getElementById('signup-fine');
+const consent = document.getElementById('consent');
 let busy = false;
 let joined = false;
 
-function setError(message) {
+function setError(message, field = email) {
   formError.textContent = message;
-  if (message) {
-    email.setAttribute('aria-invalid', 'true');
-  } else {
-    email.removeAttribute('aria-invalid');
-  }
+  email.removeAttribute('aria-invalid');
+  if (message && field === email) email.setAttribute('aria-invalid', 'true');
 }
 
 email.addEventListener('input', () => setError(''));
+consent.addEventListener('change', () => setError(''));
 
 form.addEventListener('submit', event => {
   event.preventDefault();
@@ -429,6 +428,12 @@ form.addEventListener('submit', event => {
     return;
   }
 
+  if (!consent.checked) {
+    setError('Tick the box so we can email you about the drop.', consent);
+    consent.focus();
+    return;
+  }
+
   setError('');
   busy = true;
   submit.disabled = true;
@@ -436,16 +441,42 @@ form.addEventListener('submit', event => {
   submit.textContent = 'Tuning in…';
   form.setAttribute('aria-busy', 'true');
   formStatus.textContent = 'Tuning in…';
-
-  // shortcut: simulated signup, nothing is sent or stored; wire a real endpoint (with an error path) before launch
-  setTimeout(() => {
-    busy = false;
-    joined = true;
-    submit.textContent = 'Signal received';
-    form.removeAttribute('aria-busy');
-    fine.hidden = true;
-    success.hidden = false;
-    success.focus();
-    formStatus.textContent = 'Signal received.';
-  }, 1200);
+  send(value);
 });
+
+const PROBLEMS = {
+  invalid: "That address doesn't look right. Check it.",
+  needConsent: 'Tick the box so we can email you about the drop.',
+  rateLimited: 'Too many tries. Wait an hour, then try again.',
+  unavailable: "Signups are down for a moment. Try again soon.",
+};
+
+async function send(value) {
+  let problem = "Couldn't reach us. Check your connection and try again.";
+  try {
+    const response = await fetch('/api/waitlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      // the campaign tags on this address, if any, are the signup's source
+      body: JSON.stringify({ email: value, consent: consent.checked, marketing: document.getElementById('marketing').checked, source: Object.fromEntries(new URLSearchParams(location.search)) }),
+    });
+    if (response.ok) problem = '';
+    else problem = PROBLEMS[(await response.json().catch(() => ({}))).error] || PROBLEMS.unavailable;
+  } catch {}
+  busy = false;
+  form.removeAttribute('aria-busy');
+  if (problem) {
+    submit.disabled = false;
+    email.readOnly = false;
+    submit.textContent = 'Send my signal';
+    formStatus.textContent = '';
+    setError(problem);
+    return;
+  }
+  joined = true;
+  submit.textContent = 'Signal sent';
+  fine.hidden = true;
+  success.hidden = false;
+  success.focus();
+  formStatus.textContent = 'Check your inbox to confirm.';
+}
