@@ -1,0 +1,27 @@
+{
+  "shell": {
+    "home": "STATIX, home",
+    "menu": "Main menu",
+    "shop": "Shop",
+    "drop": "Drop",
+    "signIn": "Sign in",
+    "cart": "Cart ({count})",
+    "language": "Language",
+    "footerNav": "Footer",
+    "support": "Support",
+    "terms": "Terms",
+    "returns": "Returns and warranty",
+    "privacy": "Privacy",
+    "copyright": "2026 STATIX. Soft signal."
+  },
+  "consent": {
+    "label": "Cookies",
+    "text": "We only load analytics cookies if you accept.",
+    "accept": "Accept",
+    "decline": "Decline"
+  },
+  "shop": {
+    "title": "Shop",
+    "soon": "Being built. The four Drop 001 products will live here."
+  }
+}

@@ -1,0 +1,36 @@
+/* Shared shell for non-landing pages. Tokens come from globals.css (DESIGN.md). */
+.page { min-height: 100vh; display: flex; flex-direction: column; }
+
+.header, .footer {
+  display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: center;
+  padding: 24px var(--pad);
+}
+.header { justify-content: space-between; border-bottom: 1px solid var(--rule); }
+.footer { margin-top: auto; border-top: 1px solid var(--rule); color: var(--dim); font-size: 13px; }
+
+.logo { font-family: Doto, 'JetBrains Mono', monospace; font-weight: 900; font-size: 28px; letter-spacing: .08em; color: var(--ink); }
+
+.links { display: flex; flex-wrap: wrap; gap: 8px 28px; font-size: 14px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.links a, .lang a { color: var(--muted); min-height: 44px; display: inline-flex; align-items: center; }
+.links a:hover, .lang a:hover { color: var(--accent); }
+
+.lang { display: flex; gap: 12px; font-size: 13px; letter-spacing: .12em; }
+.lang a[aria-current] { color: var(--bg); background: var(--accent); padding: 0 10px; }
+
+.main { padding: 64px var(--pad) 96px; display: flex; flex-direction: column; gap: 24px; }
+.main h1 { font-family: Doto, 'JetBrains Mono', monospace; font-weight: 900; font-size: clamp(48px, 8vw, 104px); line-height: 1; }
+.main p { color: var(--muted); max-width: 460px; line-height: 1.6; }
+
+.consent {
+  position: fixed; left: 16px; bottom: 16px; z-index: 50; max-width: 420px;
+  display: flex; flex-direction: column; gap: 16px; padding: 20px;
+  background: var(--ink); color: var(--bg); box-shadow: 8px 8px 0 var(--accent);
+  font-size: 14px; line-height: 1.5;
+}
+.consentActions { display: flex; gap: 12px; }
+.btn {
+  flex: 1; min-height: 44px; border: 2px solid var(--bg); background: var(--ink); color: var(--bg);
+  font: inherit; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; cursor: pointer;
+}
+.btn:hover { background: var(--bg); color: var(--accent); }
+.btn:focus-visible { outline: 2px solid var(--bg); outline-offset: 3px; }

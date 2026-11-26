@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "statix-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3000
+    },
+    {
+      "name": "statix-original",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--yes", "http-server", "-p", "3100", "-c-1", "C:/Users/coolm/AppData/Local/Temp/claude/8a92f6a29cb775fd/3c099eb8-217e-4c30-a619-a08ad08dc8d3/scratchpad/orig"],
+      "port": 3100
+    }
+  ]
+}

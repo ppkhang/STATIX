@@ -1,0 +1,27 @@
+{
+  "shell": {
+    "home": "STATIX, về trang chủ",
+    "menu": "Menu chính",
+    "shop": "Cửa hàng",
+    "drop": "Drop",
+    "signIn": "Đăng nhập",
+    "cart": "Giỏ hàng ({count})",
+    "language": "Ngôn ngữ",
+    "footerNav": "Chân trang",
+    "support": "Hỗ trợ",
+    "terms": "Điều khoản",
+    "returns": "Đổi trả và bảo hành",
+    "privacy": "Quyền riêng tư",
+    "copyright": "2026 STATIX. Soft signal."
+  },
+  "consent": {
+    "label": "Cookie",
+    "text": "Chúng tôi chỉ dùng cookie phân tích khi bạn đồng ý.",
+    "accept": "Đồng ý",
+    "decline": "Từ chối"
+  },
+  "shop": {
+    "title": "Cửa hàng",
+    "soon": "Đang xây dựng. Bốn sản phẩm của Drop 001 sẽ có ở đây."
+  }
+}
