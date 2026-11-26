@@ -42,10 +42,13 @@
 .links a[aria-current], .links a[aria-current]:hover { color: var(--bg); font-weight: 900; }
 .links a[aria-current]::before { content: ""; position: absolute; z-index: -1; inset: 8px -14px; background: var(--accent); clip-path: polygon(11px 0, 100% 0, calc(100% - 11px) 100%, 0 100%); }
 
-/* the product page: the wordmark takes the middle of the bar, the places sit left of it and you on the right */
+/* the header: the wordmark in the middle of the bar, the places left of it and you on the right.
+   Narrow screens keep the wordmark first and the links after it, so nothing can collide. */
 @media (min-width: 900px) {
-  .page:has(.main > [data-product]) .header { position: relative; }
-  .page:has(.main > [data-product]) .header .logo { position: absolute; left: 50%; top: 50%; translate: -50% -50%; font-size: 36px; }
-  .page:has(.main > [data-product]) .header .links { flex: 1; }
-  .page:has(.main > [data-product]) .header .you { margin-left: auto; }
+  /* measured from the window, not the page: a scrollbar must not nudge anything, or the logo jumps between pages
+     that scroll and pages that don't. --side is where the links start; on the right the scrollbar's width comes out. */
+  .header { position: relative; --side: max(clamp(20px, 4vw, 56px), calc(50vw - 720px)); padding-left: var(--side); padding-right: calc(var(--side) - (100vw - 100%)); }
+  .header .logo { position: absolute; left: 50vw; top: 50%; translate: -50% -50%; font-size: 36px; }
+  .header .links { flex: 1; }
+  .header .you { margin-left: auto; }
 }
