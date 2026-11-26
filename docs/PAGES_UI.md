@@ -153,6 +153,11 @@ The heart of the store. Flow: PRC-01 and PRC-03.
 
 ## 7. Invite link
 
+> **Built 2026-11-26** at `/invite/:token`. Until the admin pages (M6), invites are released with
+> `npm run invites:release -- --drop 1`. A link lasts until the public opening, works once, and only for the account
+> with the invited, verified address; accepting it makes the account a Member. Blocking early purchases for everyone
+> else is part of buying (M4).
+
 | Element | How you use it | What happens | Reqs |
 |---|---|---|---|
 | **Token check** | Automatic | Valid: sign in or register, then open the drop page in Early access. Used or expired: an explanation and **Send me a new link**. | FR-025 |

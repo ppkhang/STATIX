@@ -194,6 +194,10 @@
     "waitlistAlready": {
       "subject": "You're already on the {drop} waitlist",
       "body": "Someone signed this address up for the {drop} waitlist, and it's already on it. There's nothing you need to do.\n\nLeave the list, change what we send you or delete your data:\n{manage}"
+    },
+    "invite": {
+      "subject": "Your early access to {drop}",
+      "body": "You're invited into {drop} early:\n{url}\n\nThe link is yours alone, works once, and lasts until {expires} (Vietnam time). Open it and log in with this email address.\n\nLeave the list, change what we send you or delete your data:\n{manage}"
     }
   },
   "signup": {
@@ -270,6 +274,35 @@
     "deletedBody": "Your waitlist entries for that address are gone.",
     "goneTitle": "Nothing to manage",
     "goneBody": "This link doesn't match any waitlist entry. The data may already be deleted, or the link is incomplete.",
+    "toDrop": "See the drop"
+  },
+  "invite": {
+    "title": "Your {drop} early access",
+    "inTitle": "You're in for {drop}",
+    "inBody": "Your early access is set up on this account. Buying opens with the early access time on the drop page.",
+    "until": "This link is yours alone, works once, and lasts until {time} (Vietnam time).",
+    "signInFirst": "Log in with the address this invite was sent to, or sign up with it.",
+    "logIn": "Log in",
+    "signUp": "Sign up",
+    "afterSignUp": "New here? Verify your email after signing up, log in, then open this link again.",
+    "wrongAccount": "This invite was sent to a different address than {email}. Log out, then log in with the invited one.",
+    "signOut": "Log out",
+    "unverified": "Verify your email first, then open this link again.",
+    "toAccount": "Go to your account",
+    "ready": "Accept this invite for {email}.",
+    "accept": "Accept my invite",
+    "usedTitle": "This invite was already used",
+    "usedBody": "Each invite works once, for one account. If you accepted it, log in with that account and open the link again.",
+    "leftTitle": "This invite is no longer active",
+    "leftBody": "The waitlist entry it belonged to has left the list.",
+    "expiredTitle": "This invite has expired",
+    "expiredOpen": "The head start is still on, so we can send you a new one.",
+    "expiredOver": "The head start is over. The drop is open to everyone from its public opening.",
+    "sendNew": "Send me a new link",
+    "sentAgain": "Sent. Check your inbox.",
+    "limited": "Too many tries. Wait an hour, then try again.",
+    "badTitle": "That link doesn't work",
+    "badBody": "It may be incomplete, or a newer one replaced it. Use the latest email.",
     "toDrop": "See the drop"
   }
 }
