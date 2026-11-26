@@ -25,8 +25,8 @@ export async function getDrop(number?: number): Promise<DropSnapshot | null> {
   const editions = await db.select({
     id: edition.id, slug: product.slug, name: product.name,
     colour: variant.colour, size: edition.size, priceVnd: edition.priceVnd,
-    // No holds exist until M4; M4 must also count expired holds as left.
-    left: sql<number>`count(${editionUnit.id}) filter (where ${editionUnit.status} = 'available')::int`,
+    // a hold that has run out counts as left straight away: nothing has to sweep it (holds.ts takes it over)
+    left: sql<number>`count(${editionUnit.id}) filter (where ${editionUnit.status} = 'available' or (${editionUnit.status} = 'held' and ${editionUnit.heldUntil} <= now()))::int`,
   }).from(edition)
     .innerJoin(variant, eq(edition.variantId, variant.id))
     .innerJoin(product, eq(variant.productId, product.id))

@@ -185,6 +185,12 @@ All rate limited and kept out of search results (NFR-013, NFR-022).
 
 ## 10. Checkout (one page)
 
+> **Holds built 2026-11-26** (`src/lib/holds.ts`, proof: `npm run check:holds`). Working assumptions: the number is picked
+> when the hold is made, one per person per edition, 10 minutes with one 10 minute extension. Early access is decided by
+> an accepted invite for the drop (founders excepted), **not** by tier: verifying an email already makes anyone a
+> Member, so the tier gate described for page 5 would let everyone in. US-032 AC2 also says Member comes from joining a
+> drop's member list, so the tier given at verification wants revisiting.
+
 Everything is on one screen. Flow: PRC-03.
 
 | Element | How you use it | What happens | Reqs |
