@@ -34,8 +34,35 @@ export const account = pgTable("account", {
   phoneVerified: boolean("phone_verified").notNull().default(false),
   passwordHash: text("password_hash"),
   tierId: uuid("tier_id").notNull().references(() => tier.id),
-  locale: text("locale").notNull().default("vi"),
+  passwordChangedAt: ts("password_changed_at"), // sessions issued before a change stop working
   createdAt: createdAt(),
+});
+
+// One-time email links. Only the hash is stored.
+export const authToken = pgTable("auth_token", {
+  id: id(),
+  accountId: uuid("account_id").notNull().references(() => account.id, { onDelete: "cascade" }),
+  purpose: text("purpose").notNull(), // verify | reset
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: ts("expires_at").notNull(),
+  usedAt: ts("used_at"),
+});
+
+export const phoneOtp = pgTable("phone_otp", {
+  id: id(),
+  accountId: uuid("account_id").notNull().references(() => account.id, { onDelete: "cascade" }),
+  phone: text("phone").notNull(),
+  codeHash: text("code_hash").notNull(),
+  expiresAt: ts("expires_at").notNull(),
+  attempts: integer("attempts").notNull().default(0),
+  usedAt: ts("used_at"),
+});
+
+// NFR-013 counters, kept in the database so every server instance shares them.
+export const rateLimit = pgTable("rate_limit", {
+  key: text("key").primaryKey(),
+  windowStart: ts("window_start").notNull(),
+  count: integer("count").notNull(),
 });
 
 export const address = pgTable("address", {
@@ -53,8 +80,7 @@ export const product = pgTable("product", {
   id: id(),
   slug: text("slug").notNull().unique(),
   skuFamily: text("sku_family").notNull(),
-  nameVi: text("name_vi").notNull(),
-  nameEn: text("name_en").notNull(),
+  name: text("name_en").notNull(),
   sort: integer("sort").notNull().default(0),
 });
 
@@ -118,7 +144,6 @@ export const waitlistEntry = pgTable("waitlist_entry", {
   interests: text("interests").array().notNull().default(sql`'{}'::text[]`),
   phone: text("phone"),
   source: jsonb("source"), // UTM params
-  locale: text("locale").notNull().default("vi"),
   marketingConsent: boolean("marketing_consent").notNull().default(false),
   consentAt: ts("consent_at").notNull(),
   confirmedAt: ts("confirmed_at"),

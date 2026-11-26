@@ -7,10 +7,10 @@ import { dropRun, edition, editionUnit, product, setting, tier, variant } from "
 // [ASSUMPTION] prices: USD list prices from the business analysis at 26,000 VND/USD, rounded. VAT included.
 // [ASSUMPTION] one colour per product until the variant list is decided.
 const PRODUCTS = [
-  { slug: "static-one", skuFamily: "ONE", nameVi: "Static One", nameEn: "Static One", colour: "Clear", price: 5_190_000 },
-  { slug: "signal", skuFamily: "SIGNAL", nameVi: "Static Signal", nameEn: "Static Signal", colour: "Clear", price: 3_350_000 },
-  { slug: "stand", skuFamily: "STAND", nameVi: "Static Stand", nameEn: "Static Stand", colour: "Violet", price: 1_530_000 },
-  { slug: "wire", skuFamily: "WIRE", nameVi: "Static Wire", nameEn: "Static Wire", colour: "Black", price: 910_000 },
+  { slug: "static-one", skuFamily: "ONE", name: "Static One", colour: "Clear", price: 5_190_000 },
+  { slug: "signal", skuFamily: "SIGNAL", name: "Static Signal", colour: "Clear", price: 3_350_000 },
+  { slug: "stand", skuFamily: "STAND", name: "Static Stand", colour: "Violet", price: 1_530_000 },
+  { slug: "wire", skuFamily: "WIRE", name: "Static Wire", colour: "Black", price: 910_000 },
 ];
 const EDITION_SIZE = 500;
 
@@ -39,7 +39,7 @@ async function main() {
   const [drop] = await db.select().from(dropRun).where(sql`${dropRun.number} = 1`);
 
   for (const [i, p] of PRODUCTS.entries()) {
-    await db.insert(product).values({ slug: p.slug, skuFamily: p.skuFamily, nameVi: p.nameVi, nameEn: p.nameEn, sort: i })
+    await db.insert(product).values({ slug: p.slug, skuFamily: p.skuFamily, name: p.name, sort: i })
       .onConflictDoNothing();
     const [prod] = await db.select().from(product).where(sql`${product.slug} = ${p.slug}`);
 

@@ -10,18 +10,20 @@
     "db:up": "docker compose up -d db",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "node --env-file-if-exists=.env.local node_modules/drizzle-kit/bin.cjs migrate",
-    "db:seed": "node --env-file-if-exists=.env.local --import tsx scripts/seed.ts"
+    "db:seed": "node --env-file-if-exists=.env.local --import tsx scripts/seed.ts",
+    "test": "node --import tsx --test src/lib/drop-status.test.ts src/lib/auth-rules.test.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.4",
     "next": "16.4.6",
+    "next-auth": "5.0.0-beta.32",
     "next-intl": "^4.16.2",
     "pg": "^8.23.1",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@types/node": "^24.19.4",
     "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -30,5 +32,8 @@
     "eslint-config-next": "16.4.6",
     "tsx": "^4.23.15",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=24.7"
   }
 }

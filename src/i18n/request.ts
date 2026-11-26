@@ -1,13 +1,8 @@
-import { hasLocale } from "next-intl";
 import { getRequestConfig } from "next-intl/server";
-import { routing } from "./routing";
 
-export default getRequestConfig(async ({ requestLocale }) => {
-  const requested = await requestLocale;
-  const locale = hasLocale(routing.locales, requested) ? requested : routing.defaultLocale;
-  return {
-    locale,
-    timeZone: "Asia/Ho_Chi_Minh", // NFR-024: times in Vietnam time
-    messages: (await import(`../../messages/${locale}.json`)).default,
-  };
-});
+// English only. The page text stays in one message file.
+export default getRequestConfig(async () => ({
+  locale: "en",
+  timeZone: "Asia/Ho_Chi_Minh", // NFR-024: times in Vietnam time
+  messages: (await import("../../messages/en.json")).default,
+}));

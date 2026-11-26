@@ -43,3 +43,6 @@ next-env.d.ts
 
 # local progress notes (never commit)
 PROGRESS.md
+
+# requirement notes: kept on disk, not in the public repo
+docs/STATIX*

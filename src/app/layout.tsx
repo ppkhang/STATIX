@@ -1,27 +1,16 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { NextIntlClientProvider, hasLocale } from "next-intl";
-import { setRequestLocale } from "next-intl/server";
-import { routing } from "@/i18n/routing";
+import { NextIntlClientProvider } from "next-intl";
 import ConsentBanner from "@/components/ConsentBanner";
-import "../globals.css";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "STATIX — Soft signal.",
   description: "Four products. One system. Drop 001, numbered run.",
 };
 
-export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale }));
-}
-
-export default async function LocaleLayout({ children, params }: LayoutProps<"/[locale]">) {
-  const { locale } = await params;
-  if (!hasLocale(routing.locales, locale)) notFound();
-  setRequestLocale(locale);
-
+export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang={locale}>
+    <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />

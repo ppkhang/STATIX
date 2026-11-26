@@ -1,6 +1,6 @@
 # STATIX
 
-Store for STATIX numbered desk-audio drops. Next.js 16, TypeScript, Postgres with Drizzle, next-intl (Vietnamese default, English under `/en`).
+Store for STATIX numbered desk-audio drops. Next.js 16, TypeScript, Postgres with Drizzle, next-intl (English only).
 
 Plan: [docs/BUILD.md](docs/BUILD.md) · Pages: [docs/PAGES_UI.md](docs/PAGES_UI.md) · Look: [DESIGN.md](DESIGN.md)
 
@@ -23,9 +23,9 @@ Schema changes: edit `src/db/schema.ts`, then `npm run db:generate` and `npm run
 
 | Path | What |
 |---|---|
-| `src/app/[locale]/(landing)/` | Landing page: the original `index.html` markup; script in `public/landing.js` |
-| `src/app/[locale]/(site)/` | Every other customer page, inside the shared menu and footer |
+| `src/app/(landing)/` | Landing page: the original `index.html` markup; script in `public/landing.js` |
+| `src/app/(site)/` | Every other customer page, inside the shared menu and footer |
 | `src/app/globals.css` | Design tokens and the landing styles |
 | `src/db/` | Schema and client |
-| `messages/` | VI and EN strings |
+| `messages/` | Page text (English) |
 | `index.html` | Original standalone landing, kept as the reference for `docs/INTERACTABLES.md` |

@@ -293,7 +293,9 @@ document.addEventListener('transitionend', event => {
 });
 updateDock();
 
-const TARGET = Date.parse('2026-12-20T20:00:00+07:00');
+// the opening time and the server clock come from the API below; these are the fallback until it answers
+let target = Date.parse('2026-12-20T20:00:00+07:00');
+let clockOffset = 0;
 
 function timeParts(ms) {
   const t = Math.max(0, ms);
@@ -318,7 +320,7 @@ const dMin = document.getElementById('d-min');
 const dSec = document.getElementById('d-sec');
 
 function renderCountdown() {
-  const parts = timeParts(TARGET - Date.now());
+  const parts = timeParts(target - (Date.now() + clockOffset));
   dDays.textContent = parts[0];
   dHours.textContent = parts[1];
   dMin.textContent = parts[2];
@@ -327,6 +329,40 @@ function renderCountdown() {
 
 renderCountdown();
 setInterval(renderCountdown, 1000);
+
+// live drop state and stock (FR-014, FR-016). If the server can't be reached, the page keeps what it shows.
+const countLabel = document.querySelector('.count-label');
+const scheduledLabel = countLabel.innerHTML;
+const stockText = document.getElementById('stock-text');
+const stockFill = document.querySelector('.stock-bar span');
+const liveLabels = { early_access: 'Drop 001 early access is on. Public opening soon', public: 'Drop 001 is live', sold_out: 'Drop 001 is sold out', closed: 'Drop 001 is closed' };
+let shownState = 'scheduled';
+
+async function pollDrop() {
+  try {
+    const response = await fetch('/api/drops/1', { cache: 'no-store', signal: AbortSignal.timeout(5000) });
+    if (!response.ok) throw new Error(response.status);
+    const drop = await response.json();
+    clockOffset = Date.parse(drop.serverNow) - Date.now();
+    if (drop.publicAt) target = Date.parse(drop.publicAt);
+    renderCountdown();
+    // the whole drop: every edition added together
+    const size = drop.editions.reduce((sum, edition) => sum + edition.size, 0);
+    const left = drop.editions.reduce((sum, edition) => sum + edition.left, 0);
+    const text = size + ' units / ' + left + ' left';
+    if (stockText.textContent !== text) stockText.textContent = text;
+    stockFill.style.width = (size ? left / size * 100 : 0) + '%';
+    if (drop.state !== shownState) { // only on a change, so screen readers are left alone otherwise
+      shownState = drop.state;
+      if (liveLabels[shownState]) countLabel.textContent = liveLabels[shownState];
+      else countLabel.innerHTML = scheduledLabel;
+    }
+  } catch (error) {
+    console.warn('Live drop data unavailable', error);
+  }
+  setTimeout(pollDrop, 3000);
+}
+pollDrop();
 
 const swatches = Array.from(document.querySelectorAll('.swatch'));
 const pickName = document.querySelector('.pick-name');

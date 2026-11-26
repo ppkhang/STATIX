@@ -15,11 +15,11 @@ Status: draft, 26/11/2026. Items marked **[DECIDE]** need an answer before the s
 
 | Need | Pick | Why |
 |---|---|---|
-| App + API | **Next.js (App Router) + TypeScript** | One codebase for pages, API routes and payment webhooks; SSR helps SEO and `hreflang` |
+| App + API | **Next.js (App Router) + TypeScript** | One codebase for pages, API routes and payment webhooks; SSR helps SEO |
 | Styling | **Plain CSS** with the `:root` tokens from `index.html` moved to `app/globals.css`, plus CSS modules | Keeps the landing's CSS as-is; no Tailwind rewrite |
 | Database | **Postgres** (Neon or Supabase) + **Drizzle** | Holds and unit numbers need real transactions and row locks |
 | Auth | **Auth.js**: email + password, Google | FR-031 |
-| i18n | **next-intl**, `vi` default, `/en` prefix | FR-091, NFR-023 |
+| Text | **next-intl**, English only (decided 26/11/2026; drops the Vietnamese default in FR-091 and NFR-023) | One message file |
 | Email | **Resend** (or any SMTP) | Opt-in, verify, reset, order mails |
 | Payments | **VNPay** and **MoMo** sandbox first; COD | FR-047–FR-049 |
 | Shipping | **GHN** API with a fallback table | FR-046 |
@@ -41,7 +41,7 @@ Order follows `PAGES_UI.md`: R1 first, "Should" items last, R2/R3 left out.
 
 | # | Milestone | Pages | Done when |
 |---|---|---|---|
-| **M0** | Scaffold *(today)* | 0 | Next.js app runs; landing renders at `/` and looks the same as `index.html`; tokens in `globals.css`; shared shell (menu, footer, VI/EN switch, consent banner); DB schema migrated; seed Drop 001 with 4 products |
+| **M0** | Scaffold *(today)* | 0 | Next.js app runs; landing renders at `/` and looks the same as `index.html`; tokens in `globals.css`; shared shell (menu, footer, consent banner); DB schema migrated; seed Drop 001 with 4 products |
 | **M1** | Catalogue, read only | 2, 3, 5 (no buying), 19 | Shop, product template, drop page with server-synced countdown and live "left" count; landing stock bar and countdown wired to the server |
 | **M2** | Accounts | 8 | Register, sign in, Google, verify, reset (enumeration-safe), phone OTP (stub sender first); rate limits |
 | **M3** | Waitlist | 1, 7, 17 | Real "Send my signal" with double opt-in; confirm page; invite tokens; preferences page with leave / delete |
@@ -56,7 +56,7 @@ Order follows `PAGES_UI.md`: R1 first, "Should" items last, R2/R3 left out.
 2. `npx create-next-app` in the repo root (TypeScript, App Router, ESLint, no Tailwind, `src/` dir).
 3. Move `index.html` into `src/app/page.tsx` mostly as-is: CSS into `globals.css` / a module, the inline script into a client component. Keep `index.html` until the port matches it side by side.
 4. Move `assets/` to `public/assets/`.
-5. Shared layout: sticky menu (+ Shop, Account/Sign in, Cart count), footer, VI/EN switch, consent banner.
+5. Shared layout: sticky menu (+ Shop, Account/Sign in, Cart count), footer, consent banner.
 6. Postgres + Drizzle: schema above, first migration, seed script for Drop 001.
 7. `.env.example` with every key the stack needs (DB, Auth, Resend, VNPay, MoMo, GHN, Turnstile). Real values never get committed.
 8. Commit.

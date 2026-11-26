@@ -47,10 +47,9 @@ Release tags: **R1** is the MVP store (Drop 001, all 4 products), **R2** comes n
 | Element | How you use it | What happens | Reqs |
 |---|---|---|---|
 | **Sticky menu** | Same as the landing page | Adds **Shop**, plus **Account** or **Sign in**, and a **Cart** count. | FR-001 |
-| **Language switch** VI / EN | Click | Swaps every string. Vietnamese is the default. The choice is remembered and URLs keep `hreflang`. | FR-091, NFR-023 |
 | **Drop status strip** | Read only; click goes to the drop | Shows the live state of the current drop (Scheduled, Early access, Public, Sold out) and its countdown. Hidden when no drop is scheduled. | FR-009, FR-016 |
 | **Cookie and analytics consent** | Accept or Decline | Analytics loads only after Accept. Decline is as easy as Accept. | NFR-019 |
-| **Footer** | Click | Shop, Drop, Support, the three policies, and a language switch. | FR-053, FR-078 |
+| **Footer** | Click | Shop, Drop, Support and the three policies. | FR-053, FR-078 |
 
 Formats everywhere: prices as `5.190.000 ₫` with VAT included, dates `dd/MM/yyyy`, times in Vietnam time (NFR-024, NFR-025).
 
