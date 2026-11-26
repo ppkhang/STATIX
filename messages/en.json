@@ -1,0 +1,169 @@
+{
+  "shell": {
+    "home": "STATIX, home",
+    "menu": "Main menu",
+    "shop": "Shop",
+    "drop": "Drop",
+    "signIn": "Log in",
+    "cart": "Cart ({count})",
+    "footerNav": "Footer",
+    "support": "Support",
+    "terms": "Terms",
+    "returns": "Returns and warranty",
+    "privacy": "Privacy",
+    "copyright": "2026 STATIX. Soft signal.",
+    "account": "Account",
+    "signOut": "Log out"
+  },
+  "consent": {
+    "label": "Cookies",
+    "text": "We only load analytics cookies if you accept.",
+    "accept": "Accept",
+    "decline": "Decline"
+  },
+  "shop": {
+    "title": "Shop",
+    "empty": "No products yet.",
+    "noPhoto": "Photo coming soon",
+    "editionSize": "Edition of {size, number}"
+  },
+  "drop": {
+    "state": {
+      "scheduled": "Coming",
+      "early_access": "Early access",
+      "public": "Live",
+      "sold_out": "Sold out",
+      "closed": "Archived"
+    },
+    "next": {
+      "scheduled": "Opens {time} (Vietnam time)",
+      "early_access": "Public opening {time} (Vietnam time)",
+      "public": "Closes {time} (Vietnam time)"
+    },
+    "countdown": "Time until the next change",
+    "days": "Days",
+    "hours": "Hours",
+    "minutes": "Min",
+    "seconds": "Sec",
+    "joinWaitlist": "Join the waitlist",
+    "notifyNext": "Get the next drop",
+    "checkoutSoon": "Checkout opens soon",
+    "membersFirst": "Members get {minutes} minutes first.",
+    "allFound": "All {total, number} found a desk.",
+    "numberRange": "No. {from}–{to}",
+    "editionLeft": "Edition of {size, number} · {left, number} left",
+    "stale": "Can't reach the server. These numbers may be out of date.",
+    "membersOpen": "Early access for members opens {time} (Vietnam time)",
+    "publicOpen": "Public opening {time} (Vietnam time)"
+  },
+  "product": {
+    "colour": "Colour",
+    "vat": "VAT included. It is itemised on your invoice.",
+    "pairsWith": "Pairs with",
+    "noPhoto": "Photo coming soon",
+    "views": "Product views",
+    "view": {
+      "photo": "Photo",
+      "art": "Illustration",
+      "model": "3D"
+    },
+    "photoAlt": "{name}, photo",
+    "artAlt": "{name}, illustration",
+    "modelAlt": "3D model of {name}. Drag to rotate.",
+    "modelFailed": "The 3D view didn't load. Showing the photo."
+  },
+  "policy": {
+    "draft": "Placeholder, not final",
+    "updated": "Last updated {date}",
+    "terms": {
+      "title": "Terms",
+      "body": "The terms of sale are still being written. Nothing can be bought yet."
+    },
+    "returns": {
+      "title": "Returns and warranty",
+      "body": "The return and warranty policy is still being written. Nothing can be bought yet."
+    },
+    "privacy": {
+      "title": "Privacy",
+      "body": "The privacy policy is still being written."
+    }
+  },
+  "auth": {
+    "loginTitle": "Log in",
+    "loginSubmit": "Log in",
+    "google": "Continue with Google",
+    "registerTitle": "Create account",
+    "registerSubmit": "Create account",
+    "verifyTitle": "Verify email",
+    "verifySubmit": "Verify my email",
+    "resend": "Send a new link",
+    "resetTitle": "Reset password",
+    "resetSubmit": "Save new password",
+    "sendLink": "Send reset link",
+    "accountTitle": "Account",
+    "toRegister": "Create an account",
+    "toLogin": "Log in",
+    "toReset": "Forgot your password?",
+    "toVerify": "Didn't get the verification email?",
+    "toAccount": "Go to your account",
+    "checkInbox": "Check your inbox. If that address needs a step from you, we sent an email.",
+    "resetSent": "If that email exists, we sent a link.",
+    "passwordChanged": "Password changed. Log in with the new one.",
+    "verified": "Your email is verified.",
+    "confirmSignedIn": "Confirm that this is your email address.",
+    "confirmWithPassword": "Enter the password for this account to confirm the address is yours. If you didn't create the account, close this page.",
+    "passwordRule": "At least {min} characters.",
+    "field": {
+      "email": "Email",
+      "password": "Password",
+      "newPassword": "New password",
+      "phone": "Phone",
+      "code": "6-digit code"
+    },
+    "isVerified": "verified",
+    "notVerified": "not verified",
+    "noPhone": "not added",
+    "tier": "Tier",
+    "tiers": {
+      "visitor": "Visitor",
+      "waitlist": "Waitlist",
+      "member": "Member",
+      "founder": "Founder"
+    },
+    "verifyBeforeBuying": "Verify your email before you can buy.",
+    "phoneTitle": "Phone check",
+    "sendCode": "Send code",
+    "codeSent": "We sent a code to {phone}. It works for 5 minutes.",
+    "checkCode": "Verify phone",
+    "error": {
+      "badLogin": "That email and password don't match.",
+      "badEmail": "That address doesn't look right.",
+      "badPassword": "Use 12 to 128 characters.",
+      "badPasswordForLink": "That password doesn't match this account.",
+      "badLink": "This link has expired or was already used.",
+      "rateLimited": "Too many tries. Wait a while, then try again.",
+      "noEmail": "We can't send email right now. Try again later.",
+      "noSms": "We can't send text messages right now. Try again later.",
+      "badPhone": "Enter a Vietnamese mobile number.",
+      "wrongCode": "That code isn't right.",
+      "expiredCode": "That code no longer works. Send a new one.",
+      "phoneTaken": "That number can't be used on this account.",
+      "generic": "Something went wrong. Try again."
+    }
+  },
+  "mail": {
+    "verify": {
+      "subject": "Verify your STATIX email",
+      "body": "Verify your email to finish creating your STATIX account:\n{url}\n\nThe link works once, for 24 hours. If you didn't ask for it, ignore this email."
+    },
+    "reset": {
+      "subject": "Reset your STATIX password",
+      "body": "Set a new password:\n{url}\n\nThe link works once, for 1 hour. If you didn't ask for it, ignore this email."
+    },
+    "exists": {
+      "subject": "You already have a STATIX account",
+      "body": "Someone tried to create an account with this address, but you already have one. Log in here:\n{url}\n\nIf it wasn't you, you don't need to do anything."
+    },
+    "otp": "Your STATIX code is {code}. It works for 5 minutes."
+  }
+}
