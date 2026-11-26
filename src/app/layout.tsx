@@ -4,7 +4,7 @@ import ConsentBanner from "@/components/ConsentBanner";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "STATIX — Soft signal.",
+  title: "STATIX",
   description: "Four products. One system. Drop 001, numbered run.",
 };
 

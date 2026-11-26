@@ -14,7 +14,7 @@
 .links a { color: var(--muted); min-height: 44px; display: inline-flex; align-items: center; }
 .links a:hover { color: var(--accent); }
 
-.main { padding: 64px var(--pad) 96px; display: flex; flex-direction: column; gap: 24px; }
+.main { position: relative; isolation: isolate; flex: 1; overflow: hidden; padding: 64px var(--pad) 96px; display: flex; flex-direction: column; gap: 24px; }
 .main h1 { font-family: Doto, 'JetBrains Mono', monospace; font-weight: 900; font-size: clamp(48px, 8vw, 104px); line-height: 1; }
 .main p { color: var(--muted); max-width: 460px; line-height: 1.6; }
 

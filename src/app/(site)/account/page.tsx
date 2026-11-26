@@ -9,11 +9,8 @@ import { tier } from "@/db/schema";
 import { pendingOtp } from "@/lib/accounts";
 import { checkPhoneCode, resendVerify, sendPhoneCode } from "@/lib/auth-actions";
 
-export async function generateMetadata() {
-  const t = await getTranslations("auth");
-  // NFR-022: account and token pages stay out of search results
-  return { title: `${t("accountTitle")} — STATIX`, robots: { index: false, follow: false } };
-}
+// NFR-022: account and token pages stay out of search results
+export const metadata = { robots: { index: false, follow: false } };
 
 // Sign-in basics only: orders, addresses and the rest of page 13 arrive with M5.
 export default async function AccountPage() {

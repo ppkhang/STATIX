@@ -5,11 +5,8 @@ import Link from "next/link";
 import { peekToken } from "@/lib/accounts";
 import { forgotPassword, resetPassword } from "@/lib/auth-actions";
 
-export async function generateMetadata() {
-  const t = await getTranslations("auth");
-  // NFR-022: account and token pages stay out of search results
-  return { title: `${t("resetTitle")} — STATIX`, robots: { index: false, follow: false } };
-}
+// NFR-022: account and token pages stay out of search results
+export const metadata = { robots: { index: false, follow: false } };
 
 export default async function Reset({ searchParams }: PageProps<"/reset">) {
   const { token } = await searchParams;
