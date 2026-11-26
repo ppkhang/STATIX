@@ -41,7 +41,7 @@ function loadModels() {
     viewer.className = 'pop-model';
     viewer.classList.toggle('is-current', slide === slides[current]);
     const attrs = {
-      src: slide.model, alt: slide.modelAlt,
+      alt: slide.modelAlt,
       'camera-controls': '', 'disable-zoom': '', 'disable-pan': '', 'touch-action': 'pan-y',
       loading: 'eager', 'interaction-prompt': 'none', 'environment-image': 'neutral', exposure: '1.4',
       'camera-orbit': '30deg 72deg ' + (slide.distance || 'auto'), 'max-camera-orbit': 'auto auto ' + (slide.distance || 'auto'), 'rotation-per-second': '40deg', 'auto-rotate-delay': '0'
@@ -77,6 +77,7 @@ function showSlide(index) {
   picks.forEach((pick, i) => pick.setAttribute('aria-pressed', String(i === current)));
   frame.setAttribute('aria-label', 'STATIX ' + slide.name + '. Focus to view it in 3D; press Escape to close.');
   for (const other of slides) other.viewer?.classList.toggle('is-current', other === slide);
+  if (wanted && slide.viewer) fetchModel(slide);
   throwCard(slide);
 }
 
@@ -145,8 +146,14 @@ function update() {
   frame.classList.toggle('popped', show);
 }
 
+// a model (up to 5 MB) is downloaded the first time someone reaches for it, not on page load
+function fetchModel(slide) {
+  if (!slide.viewer.hasAttribute('src')) slide.viewer.setAttribute('src', slide.model);
+}
+
 function reach() {
   loadModels();
+  fetchModel(slides[current]);
   wanted = true;
   update();
 }

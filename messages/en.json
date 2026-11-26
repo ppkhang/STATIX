@@ -59,21 +59,11 @@
   "product": {
     "colour": "Colour",
     "vat": "VAT included. It is itemised on your invoice.",
-    "pairsWith": "Pairs with",
     "noPhoto": "Photo coming soon",
-    "views": "Product views",
-    "view": {
-      "photo": "Photo",
-      "art": "Illustration",
-      "model": "3D"
-    },
     "photoAlt": "{name}, photo",
-    "artAlt": "{name}, illustration",
     "modelAlt": "3D model of {name}. Drag to rotate.",
     "modelFailed": "The 3D view didn't load. Showing the photo.",
     "leftOf": "{left, number} / {size, number} left",
-    "closeUp": "Up close",
-    "closeUpNote": "look closer",
     "specs": "Specs",
     "inBox": "In the box",
     "specsSoon": "Full specs land before the drop.",
@@ -84,7 +74,26 @@
     "factRestocks": "restocks, ever",
     "factHeadStart": "minute head start for members",
     "shout": "once they're gone, <line>they're gone</line>.",
-    "resetView": "Reset view"
+    "tabs": {
+      "buy": "Buy",
+      "close": "Up close",
+      "specs": "Specs",
+      "run": "The run"
+    },
+    "tabsLabel": "Product details",
+    "tabShown": "{tab} tab",
+    "membersOpens": "Members open",
+    "publicOpens": "Public opening",
+    "type": "Type",
+    "editionSize": "Edition size",
+    "numbers": "Numbers",
+    "restocks": "Restocks",
+    "none": "None, ever",
+    "price": "Price",
+    "vatShort": "VAT included",
+    "headStart": "Member head start",
+    "minutes": "{minutes} minutes",
+    "others": "Other products"
   },
   "policy": {
     "draft": "Placeholder, not final",
