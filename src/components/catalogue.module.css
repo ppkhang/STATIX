@@ -4,24 +4,24 @@
 
 .card { height: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px; background: var(--well); border: 3px solid var(--black); outline: 2px solid var(--ink); box-shadow: 10px 10px 0 var(--shade); }
 .card:hover, .card:focus-visible { box-shadow: 10px 10px 0 var(--accent); }
-.card h2, .rows h2 { font-family: Doto, 'JetBrains Mono', monospace; font-weight: 900; font-size: 28px; }
+.card h2, .rows h2 { font-family: var(--font-main); font-weight: 900; font-size: 28px; }
 
 .shot { width: 100%; aspect-ratio: 4 / 3; display: grid; place-items: center; overflow: hidden; background: var(--black); }
 .shot img { width: 100%; height: 100%; object-fit: cover; }
 .shot model-viewer { width: 100%; height: 100%; }
 .noShot { color: var(--dim); border: 2px dashed var(--border); font-size: 13px; }
 
-.badge { align-self: flex-start; padding: 4px 10px; background: var(--accent); font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.badge { align-self: flex-start; padding: 4px 10px; background: var(--accent); font-size: 13px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
 /* beats the muted paragraph colour in shell.module.css */
 p.badge.badge, .card .badge { color: var(--bg); }
 
 .countdown { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 640px; border: 2px solid var(--ink); box-shadow: 10px 10px 0 var(--accent); }
 .countdown > div { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 16px 4px; }
 .countdown > div + div { border-left: 1px solid var(--border); }
-.digit { font: 900 clamp(36px, 8vw, 72px)/1 Doto, 'JetBrains Mono', monospace; color: var(--accent); }
+.digit { font: 900 clamp(36px, 8vw, 72px)/1 var(--font-main); color: var(--accent); }
 .unit { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
 
-.cta { align-self: flex-start; min-height: 56px; display: inline-flex; align-items: center; padding: 0 32px; border: 0; background: var(--accent); color: var(--bg); font: 700 16px/1 'JetBrains Mono', monospace; text-transform: uppercase; box-shadow: 8px 8px 0 var(--ink); cursor: pointer; }
+.cta { align-self: flex-start; min-height: 56px; display: inline-flex; align-items: center; padding: 0 32px; border: 0; background: var(--accent); color: var(--bg); font: 900 16px/1 var(--font-main); text-transform: uppercase; box-shadow: 8px 8px 0 var(--ink); cursor: pointer; }
 .cta:disabled { background: var(--panel); color: var(--muted); box-shadow: none; cursor: default; }
 .soldOut { font-size: 20px; }
 
@@ -38,7 +38,7 @@ p.badge.badge, .card .badge { color: var(--bg); }
 .product { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 40px; align-items: start; }
 .gallery { display: flex; flex-direction: column; gap: 12px; }
 .thumbs { display: flex; flex-wrap: wrap; gap: 10px; }
-.thumbs button { min-height: 44px; min-width: 44px; padding: 0 18px; border: 2px solid var(--ink); background: var(--bg); color: var(--ink); font-weight: 700; text-transform: uppercase; cursor: pointer; }
+.thumbs button { min-height: 44px; min-width: 44px; padding: 0 18px; border: 2px solid var(--ink); background: var(--bg); color: var(--ink); font-weight: 900; text-transform: uppercase; cursor: pointer; }
 .thumbs button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
 .panel { display: flex; flex-direction: column; gap: 16px; }
 .colours { margin: 0; padding: 0; border: 0; display: flex; flex-wrap: wrap; gap: 16px; }
@@ -46,7 +46,10 @@ p.badge.badge, .card .badge { color: var(--bg); }
 .colours label { min-height: 44px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
 .colours input { accent-color: var(--accent); }
 .crossed { text-decoration: line-through; color: var(--dim); }
-.price { font-size: 28px; font-weight: 700; }
+.price { font-size: 28px; font-weight: 900; }
 .pairs { display: flex; flex-wrap: wrap; gap: 16px; }
 .pairs a { min-height: 44px; display: inline-flex; align-items: center; padding: 0 20px; border: 2px solid var(--ink); }
 .pairs a:hover { color: var(--accent); border-color: var(--accent); }
+
+/* changing numbers keep their width */
+.digit, .price, .leftWrap, .rows strong { font-variant-numeric: tabular-nums; }
