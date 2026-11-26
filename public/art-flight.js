@@ -1,15 +1,21 @@
 // Click a product card with artwork: the art pops out of the card to the middle of the screen while the page
-// dims. A comic backdrop, the product's name and a "tuning in" meter stay up while the product page loads, then
-// the art flies into its illustration frame.
+// dims. A comic backdrop, the product's name and a "tuning in" meter stay up until the 3D model on the product
+// page is ready to be seen. Then the art slots in: brackets mark the model's place, the art slams into them, and a
+// slanted blade cuts across, turning the drawing into the model.
 // Plain script, loaded in <head>, because the flight has to survive a full page load without a flash.
 // Cards opt in with data-art-fly. The product page's frame is marked data-art-frame, and its root data-product.
 // A card marked data-switch (the other products, on a product page) changes product without a reload: everything
 // slides off to the left, a slanted cover passes behind it, and the next product follows it in.
+// The header's home link (data-home), on a product page, has its own: the cover brings a big white STATIX, and on
+// the landing it shrinks into the logo in the top left corner.
 (() => {
   const KEY = 'statix-art-flight';
   const CSS_ESCAPE = (value) => window.CSS.escape(value); // `CSS` below is this script's own stylesheet
   const RATIO = 1344 / 768; // every *_art.webp is drawn on this canvas
-  const ZOOM = 1.2; // how much the product frame enlarges the art (product.module.css, .comic img)
+  // where the product itself sits on each art canvas (1344 x 768), without the splashes behind it: left, top, right, bottom
+  const SUBJECTS = { speaker_art: [495, 198, 882, 604], amp_art: [385, 300, 952, 572], stand_art: [510, 96, 880, 688] };
+  const MODEL_WAIT = 30000; // a slow connection keeps the art up; only after this long does it stop waiting
+  const LEAN = 0.404; // tan(22deg): the lean of the site's slanted cuts
   // how long the middle of the flight stays up, in ms: before leaving, and at least this long after arriving
   const HOLD_OUT = 260;
   const HOLD_IN = 380;
@@ -41,11 +47,13 @@
     .af-dots { width: 40vw; height: 48vh; background: radial-gradient(circle, #B9A4FF 3px, transparent 3.5px) 0 0 / 12px 12px; opacity: .34; }
     .af-dots.a { left: 0; bottom: 0; -webkit-mask-image: linear-gradient(35deg, #000, transparent 62%); mask-image: linear-gradient(35deg, #000, transparent 62%); }
     .af-dots.b { right: 0; top: 0; -webkit-mask-image: linear-gradient(215deg, #000, transparent 62%); mask-image: linear-gradient(215deg, #000, transparent 62%); }
-    .af-art { max-width: none; object-fit: contain; filter: drop-shadow(18px 18px 0 rgba(0, 0, 0, .85)); }
+    .af-art { max-width: none; object-fit: contain; will-change: transform, opacity; filter: drop-shadow(18px 18px 0 rgba(0, 0, 0, .85)); }
     .af-name { left: 5vw; top: 11vh; padding: 6px 24px 12px; background: #F4F2F8; color: #0B0A0F; border: 3px solid #000; box-shadow: 10px 10px 0 #B9A4FF;
       font: 900 clamp(34px, 4.8vw, 76px)/1 'Archivo', sans-serif; text-transform: uppercase; rotate: -5deg; }
     .af-shard { left: 50%; top: 50%; width: 18px; height: 54px; margin: -27px 0 0 -9px; background: #B9A4FF; clip-path: polygon(50% 0, 100% 100%, 0 78%); }
     .af-ring { border: 6px solid #B9A4FF; box-shadow: 0 0 0 3px #000; }
+    .af-corner { width: 46px; height: 46px; border: solid #F4F2F8; border-width: 7px 0 0 7px; filter: drop-shadow(4px 4px 0 #000); }
+    .af-blade { width: 16px; background: #B9A4FF; border-right: 5px solid #F4F2F8; box-shadow: -8px 0 0 #000, 0 0 34px 6px rgba(185, 164, 255, .8); transform: skewX(-22deg); }
     .af-tune { left: 50%; bottom: 8vh; translate: -50% 0; white-space: nowrap; display: flex; align-items: flex-end; gap: 18px; color: #F4F2F8; text-shadow: 4px 4px 0 #000;
       font: 400 22px/1 'Permanent Marker', cursive; }
     .af-bars { display: flex; align-items: flex-end; gap: 4px; height: 24px; }
@@ -124,10 +132,14 @@
     art.style.animationDelay = -(Date.now() - since) / 1000 + 's';
   };
 
+  // how to show, with transform alone, art that is laid out at `base` as if it were at `at`
+  const shift = (base, at) =>
+    'translate(' + (at.x - base.x) + 'px, ' + (at.y - base.y) + 'px) rotate(' + at.turn + 'deg) scale(' + at.width / base.width + ')';
+
   // moves the art and leaves it there
   function fly(element, from, to, options) {
     Object.assign(element.style, place(to));
-    return element.animate([place(from), place(to)], options).finished.catch(() => {});
+    return element.animate([{ transform: shift(to, from) }, { transform: 'rotate(' + to.turn + 'deg)' }], options).finished.catch(() => {});
   }
 
   const enter = (element, frames, duration, delay = 0) =>
@@ -165,9 +177,133 @@
     };
   }
 
-  /** Takes a flight's overlay away: the backdrop clears and the art flies from the middle into the frame. */
+  const frames = (count) => new Promise((resolve) => { const next = () => (count-- > 0 ? requestAnimationFrame(next) : resolve()); next(); });
+
+  /** The 3D model once it can be seen, or null if this page has none (or it never turns up). */
+  async function readyModel(frame) {
+    const until = Date.now() + MODEL_WAIT;
+    while (Date.now() < until) {
+      const model = frame.querySelector('model-viewer');
+      if (!model && frame.querySelector('img, [role="img"]')) return null; // no model here, or it failed
+      if (model?.loaded) {
+        await model.updateComplete;
+        await wait(360); // the viewer's own fade-in
+        await frames(3);
+        return model;
+      }
+      await wait(60);
+    }
+    return null;
+  }
+
+  /** Where the art has to go for its product to sit on the model: same middle, same size. */
+  async function onModel(model, art) {
+    const shot = new Image();
+    shot.src = model.toDataURL();
+    await shot.decode();
+    const sheet = document.createElement('canvas');
+    sheet.width = 420;
+    sheet.height = Math.round(420 * shot.height / shot.width);
+    const pen = sheet.getContext('2d', { willReadFrequently: true });
+    pen.drawImage(shot, 0, 0, sheet.width, sheet.height);
+    const pixels = pen.getImageData(0, 0, sheet.width, sheet.height).data;
+    let left = sheet.width, top = sheet.height, right = 0, bottom = 0;
+    for (let y = 0; y < sheet.height; y++) {
+      for (let x = 0; x < sheet.width; x++) {
+        if (pixels[(y * sheet.width + x) * 4 + 3] > 200) { // solid parts only: the soft shadow doesn't count
+          left = Math.min(left, x); right = Math.max(right, x); top = Math.min(top, y); bottom = Math.max(bottom, y);
+        }
+      }
+    }
+    if (right <= left || bottom <= top) return null;
+    const box = model.getBoundingClientRect();
+    const per = box.width / sheet.width;
+    const name = new URL(art.src).pathname.split('/').pop().replace(/\.\w+$/, '');
+    const [sl, st, sr, sb] = SUBJECTS[name] || [336, 192, 1008, 576];
+    // screen pixels per art pixel: matched on area, since the drawing and the model aren't quite the same shape
+    const scale = Math.sqrt(((right - left) * (bottom - top) * per * per) / ((sr - sl) * (sb - st)));
+    return {
+      slot: { left: box.left + left * per, top: box.top + top * per, width: (right - left) * per, height: (bottom - top) * per },
+      x: box.left + ((left + right) / 2) * per - ((sl + sr) / 2 - 672) * scale,
+      y: box.top + ((top + bottom) / 2) * per - ((st + sb) / 2 - 384) * scale,
+      width: 1344 * scale, turn: 0,
+    };
+  }
+
+  /** Four corner marks that close in on the model's place and lock. */
+  function brackets(layer, slot) {
+    const pad = 18;
+    return [[0, 0, 0], [1, 0, 90], [1, 1, 180], [0, 1, 270]].map(([right, low, turn]) => {
+      const mark = make('div', 'af-corner');
+      Object.assign(mark.style, {
+        left: slot.left + (right ? slot.width + pad - 46 : -pad) + 'px', top: slot.top + (low ? slot.height + pad - 46 : -pad) + 'px', rotate: turn + 'deg',
+      });
+      layer.append(mark);
+      const out = (right ? 1 : -1) * 90 + 'px ' + (low ? 1 : -1) * 90 + 'px';
+      mark.animate([{ translate: out, opacity: 0 }, { translate: '0 0', opacity: 1 }], { duration: 300, easing: 'cubic-bezier(.2, 1.6, .35, 1)', fill: 'both' });
+      return { mark, out };
+    });
+  }
+
+  /** The hit: a ring and shards burst off the slot, the marks fly apart, the stage jolts. */
+  function impact(layer, frame, slot, marks) {
+    const ring = make('div', 'af-ring');
+    Object.assign(ring.style, { left: slot.left + 'px', top: slot.top + 'px', width: slot.width + 'px', height: slot.height + 'px' });
+    layer.append(ring);
+    ring.animate([{ scale: '.9', opacity: 1 }, { scale: '1.5', opacity: 0 }], { duration: 420, easing: 'cubic-bezier(.1, .8, .3, 1)', fill: 'both' });
+    shards(layer);
+    marks.forEach(({ mark, out }) => mark.animate([{ translate: '0 0', opacity: 1 }, { translate: out, opacity: 0 }], { duration: 260, easing: 'ease-out', fill: 'forwards' }));
+    frame.closest('section')?.animate(
+      [{ translate: '0 0' }, { translate: '-6px 9px' }, { translate: '5px -6px' }, { translate: '-3px 3px' }, { translate: '0 0' }],
+      { duration: 260, easing: 'ease-out' },
+    );
+  }
+
+  /** A slanted blade sweeps the screen under the top bar, in from off the left and out off the right: model behind
+   *  it, drawing ahead of it. Its ends are never in view: one stays behind the bar's edge, one below the screen. */
+  function cut(parts, model) {
+    const art = parts.art.getBoundingClientRect();
+    const middleY = innerHeight / 2;
+    const across = (y, at) => at + (middleY - y) * LEAN; // where the blade is at height y
+    const spare = innerHeight * LEAN * 0.5 + 90; // the lean's overhang, plus the blade and its glow
+    const start = -spare, end = innerWidth + spare;
+    const timing = { duration: 720, easing: 'cubic-bezier(.5, .1, .4, .95)', fill: 'both' };
+    // a clip is measured in the element's own, unscaled box
+    const clip = (element, rect, at, keepLeft) => {
+      const scale = rect.width / element.offsetWidth;
+      const top = (across(rect.top, at) - rect.left) / scale + 'px';
+      const low = (across(rect.bottom, at) - rect.left) / scale + 'px';
+      return keepLeft
+        ? 'polygon(-100% 0, ' + top + ' 0, ' + low + ' 100%, -100% 100%)'
+        : 'polygon(' + top + ' 0, 200% 0, 200% 100%, ' + low + ' 100%)';
+    };
+    const box = model.getBoundingClientRect();
+    const reveal = model.animate([{ clipPath: clip(model, box, start, true) }, { clipPath: clip(model, box, end, true) }], timing);
+    root.removeAttribute('data-art-landing'); // the model is now there, clipped to the side the blade has passed
+    const hide = parts.art.animate([{ clipPath: clip(parts.art, art, start, false) }, { clipPath: clip(parts.art, art, end, false) }], timing);
+    const blade = make('div', 'af-blade');
+    // a window that starts at the foot of the top bar; the blade is only seen through it
+    const under = Math.max(0, document.querySelector('header')?.getBoundingClientRect().bottom ?? 0);
+    const view = make('div', '');
+    Object.assign(view.style, { left: '0', right: '0', top: under + 'px', bottom: '0', overflow: 'hidden' });
+    // taller than the screen and centred on it, so the lean pivots where the clip is measured
+    Object.assign(blade.style, { position: 'absolute', left: '-8px', top: -40 - under + 'px', height: innerHeight + 80 + 'px' });
+    view.append(blade);
+    parts.layer.append(view);
+    blade.animate([{ translate: start + 'px 0' }, { translate: end + 'px 0' }], timing);
+    return Promise.all([reveal.finished, hide.finished]).catch(() => {}).then(() => { reveal.cancel(); });
+  }
+
+  /** Takes a flight's overlay away: once the model is ready, the backdrop clears and the art slots into its place. */
   async function settle(parts, frame, centre) {
-    const finish = () => { root.removeAttribute('data-art-landing'); parts.layer.remove(); };
+    const model = await readyModel(frame);
+    // the page must already be at rest behind the dim: jump its one-off entrances to their end
+    (frame.parentElement || frame).getAnimations({ subtree: true })
+      .filter((animation) => animation.effect.getComputedTiming().iterations !== Infinity)
+      .forEach((animation) => animation.finish());
+    const aim = model ? await onModel(model, parts.art).catch(() => null) : null;
+    if (aim) await frames(2); // let the reading's cost pass before anything moves
+
     // where the art is right now, floating included, then stop the float
     const now = parts.art.getBoundingClientRect();
     parts.art.style.animation = 'none';
@@ -181,33 +317,33 @@
     leave(parts.lines, [{ opacity: 1 }, { opacity: 0 }], 260);
     parts.dim.animate({ opacity: [1, 0] }, { duration: 380, delay: 120, fill: 'forwards' });
 
-    // the frame must already be at rest behind the dim: jump its one-off entrances to their end
-    (frame.parentElement || frame).getAnimations({ subtree: true })
-      .filter((animation) => animation.effect.getComputedTiming().iterations !== Infinity)
-      .forEach((animation) => animation.finish());
-    // on a 3D page the art dissolves into the model as it arrives; otherwise it ends on the framed art's shadow
-    const live = frame.querySelector('model-viewer');
-    const framed = live ? null : frame.querySelector('img');
-    if (live) parts.art.animate({ opacity: [1, 0] }, { duration: 200, delay: 360, fill: 'forwards' });
-    if (framed) parts.art.animate({ filter: [getComputedStyle(parts.art).filter, getComputedStyle(framed).filter] }, { duration: 560, fill: 'forwards' });
-    // measured now, once the page has settled. The frame is tilted, so only its centre comes from the screen.
-    const box = frame.getBoundingClientRect();
-    const tilt = new DOMMatrix(getComputedStyle(frame).transform);
-    const to = {
-      x: box.left + box.width / 2, y: box.top + box.height / 2,
-      width: Math.min(frame.clientWidth, frame.clientHeight * RATIO) * ZOOM,
-      turn: Math.atan2(tilt.b, tilt.a) * 180 / Math.PI,
-    };
-    // a short pull back, then in
-    const back = { ...from, width: from.width * 1.05, turn: 4 };
-    parts.art.animate([place(from), { ...place(back), offset: 0.25 }, place(to)], { duration: 560, easing: 'cubic-bezier(.55, 0, .18, 1)', fill: 'forwards' });
-    await wait(560);
-    await framed?.decode().catch(() => {}); // don't take ours away before the framed copy can be drawn
-    // show the framed art first, and remove the flying one a frame later, so there is never a gap
-    root.removeAttribute('data-art-landing');
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    finish();
-    frame.animate({ scale: ['1', '1.04', '.99', '1'] }, { duration: 340, easing: 'ease-out' });
+    if (!aim) { // nothing to slot into: clear out gently
+      await wait(300);
+      root.removeAttribute('data-art-landing');
+      await parts.art.animate({ opacity: [1, 0] }, { duration: 320, fill: 'forwards' }).finished.catch(() => {});
+      parts.layer.remove();
+      return;
+    }
+
+    const marks = brackets(parts.layer, aim.slot);
+    // up over the slot, cocked and a size bigger, and a beat there
+    const poised = { x: aim.x + 18, y: aim.y - Math.min(70, aim.slot.height * 0.14), width: aim.width * 1.2, turn: -8 };
+    await parts.art.animate([{ transform: shift(centre, from) }, { transform: shift(centre, poised) }],
+      { duration: 430, easing: 'cubic-bezier(.3, 1.25, .4, 1)', fill: 'forwards' }).finished.catch(() => {});
+    await wait(90);
+    // and down: slow to start, fastest at the moment it hits
+    const pressed = { ...aim, width: aim.width * 0.95 };
+    await parts.art.animate([{ transform: shift(centre, poised) }, { transform: shift(centre, pressed) }],
+      { duration: 150, easing: 'cubic-bezier(.6, 0, 1, .6)', fill: 'forwards' }).finished.catch(() => {});
+    impact(parts.layer, frame, aim.slot, marks);
+    // it rebounds into its exact size and sits there for a blink before the blade comes
+    await parts.art.animate([{ transform: shift(centre, pressed) }, { transform: shift(centre, { ...aim, width: aim.width * 1.035 }) }, { transform: shift(centre, aim) }],
+      { duration: 240, easing: 'ease-out', fill: 'forwards' }).finished.catch(() => {});
+    await cut(parts, model);
+    parts.art.style.visibility = 'hidden';
+    frame.animate({ scale: ['1', '1.05', '.985', '1'] }, { duration: 320, easing: 'ease-out' });
+    await wait(240); // the ring and shards finish
+    parts.layer.remove();
   }
 
   // ---- changing product on the product page ----
@@ -239,6 +375,9 @@
   const WIPE_CSS = `
     html[data-wipe] { overflow-x: clip; }
     html[data-wipe="away"] [data-product] > section { translate: 110vw 0; }
+    html[data-wipe="home"] .dock { visibility: hidden; }
+    [data-wipe-word] { position: fixed; left: 50%; top: 50%; translate: -50% -50%; z-index: 1001; pointer-events: none; white-space: nowrap; color: #F4F2F8;
+      font: 900 clamp(72px, 15vw, 240px)/1 'Tektur', sans-serif; letter-spacing: .08em; }
     [data-wipe-cover] * { position: absolute; box-sizing: border-box; }
     .aw-streak { top: 0; bottom: 0; left: 0; background: #B9A4FF; animation: aw-run linear infinite; }
     .aw-edge { top: 0; bottom: 0; background: #B9A4FF; }
@@ -281,6 +420,7 @@
     // a solid highlight down each slanted edge
     cover.append(band('aw-edge', { left: SLANT / 2 + 'vw', width: '2.4vw' }), band('aw-edge', { left: SLANT / 2 + 3.4 + 'vw', width: '.5vw' }),
       band('aw-edge', { right: SLANT / 2 + 'vw', width: '2.4vw' }), band('aw-edge', { right: SLANT / 2 + 3.4 + 'vw', width: '.5vw' }));
+    if (!name) return cover;
     const tune = make('div', 'aw-tune', 'tuning in…');
     const bars = make('div', 'aw-bars');
     for (let i = 0; i < 7; i++) {
@@ -325,6 +465,86 @@
     clear();
   }
 
+  // ---- from a product to home: the wordmark takes over, then settles into the landing's logo ----
+  const HOME_KEY = 'statix-wipe-home';
+  let ridden = []; // what the outgoing page has moved, to put back if the Back button restores it
+
+  const wordmark = () => {
+    const word = make('div', '', 'STATIX');
+    word.setAttribute('data-wipe-word', '');
+    word.setAttribute('aria-hidden', 'true');
+    return word;
+  };
+  // where the letters themselves are, whatever box they sit in
+  const lettersOf = (element) => {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    return range.getBoundingClientRect();
+  };
+
+  async function wipeHome(url) {
+    const sheet = make('style', '', WIPE_CSS);
+    const cover = makeCover(0); // the landing has no header, so the whole window is covered
+    const word = wordmark();
+    root.setAttribute('data-wipe', 'out');
+    root.append(sheet);
+    document.body.append(cover);
+    const old = [document.querySelector('header'), stageOf(document.querySelector('[data-product]'))].filter(Boolean);
+    const gone = old.map((element) => ride(element, '0 0', '-110vw 0', 240, 'cubic-bezier(.45, 0, .75, .55)'));
+    const across = ride(cover, '100vw 0', -SLANT + 'vw 0', 340, 'cubic-bezier(.5, 0, .2, 1)');
+    ridden = [...gone, across];
+    root.append(word);
+    // it slams down out of a bigger size once the cover is nearly across
+    const slam = word.animate([{ opacity: 0, scale: '2.2' }, { opacity: 1, scale: '.94', offset: 0.7 }, { opacity: 1, scale: '1' }],
+      { duration: 380, delay: 200, easing: 'cubic-bezier(.3, .7, .3, 1)', fill: 'both' });
+    await Promise.all([across.finished, slam.finished]).catch(() => {});
+    try { sessionStorage.setItem(HOME_KEY, String(Date.now())); } catch { /* storage blocked: home just opens */ }
+    location.assign(url);
+  }
+
+  /** On the landing: cover and wordmark are up from the first paint; the cover leaves and the word shrinks home. */
+  function arriveHome() {
+    const arrived = Date.now();
+    const sheet = make('style', '', WIPE_CSS);
+    const cover = makeCover(0);
+    const word = wordmark();
+    // over the page this time: it is still being built underneath
+    Object.assign(cover.style, { zIndex: '1000', translate: -SLANT + 'vw 0' });
+    root.setAttribute('data-wipe', 'home'); // keeps the page's own logo hidden until ours has landed on it
+    root.append(sheet, cover, word); // outside <body>, which doesn't exist yet
+    const clear = () => { cover.remove(); word.remove(); sheet.remove(); root.removeAttribute('data-wipe'); };
+    const failsafe = setTimeout(clear, 6000);
+    const settleWord = async () => {
+      const loaded = new Promise((resolve) => (document.readyState === 'complete' ? resolve() : addEventListener('load', resolve, { once: true })));
+      await Promise.race([loaded.then(() => document.fonts.load('900 100px Tektur')).then(() => document.fonts.ready), wait(2000)]);
+      await wait(Math.max(0, 420 - (Date.now() - arrived))); // long enough to be seen at full size
+      scrollTo({ top: 0, behavior: 'instant' });
+      const logo = document.querySelector('.dock');
+      if (!logo) { clearTimeout(failsafe); return clear(); }
+      // the logo must be where it will stay before it is measured
+      (logo.parentElement || logo).getAnimations({ subtree: true })
+        .filter((animation) => animation.effect.getComputedTiming().iterations !== Infinity)
+        .forEach((animation) => animation.finish());
+      const from = lettersOf(word);
+      const to = lettersOf(logo);
+      const x = to.left + to.width / 2 - (from.left + from.width / 2);
+      const y = to.top + to.height / 2 - (from.top + from.height / 2);
+      const passed = ride(cover, -SLANT + 'vw 0', -(100 + SLANT * 2) + 'vw 0', 520, 'cubic-bezier(.7, 0, .3, 1)');
+      // a breath in, then it travels to the corner as it shrinks
+      const shrink = word.animate(
+        [{ translate: '-50% -50%', scale: '1' }, { translate: '-50% -50%', scale: '1.08', offset: 0.2 },
+          { translate: 'calc(-50% + ' + x + 'px) calc(-50% + ' + y + 'px)', scale: String(to.width / from.width) }],
+        { duration: 760, easing: 'cubic-bezier(.65, 0, .2, 1)', fill: 'forwards' },
+      );
+      await Promise.all([shrink.finished, passed.finished]).catch(() => {});
+      clearTimeout(failsafe);
+      clear(); // the page's logo appears exactly where ours was
+      logo.animate({ scale: ['1', '1.12', '.97', '1'] }, { duration: 320, easing: 'ease-out' });
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', settleWord);
+    else settleWord();
+  }
+
   // ---- leaving ----
   let leaving = false;
   async function takeOff(card, image) {
@@ -356,8 +576,14 @@
   }
 
   addEventListener('click', (event) => {
-    const card = event.target.closest?.('a[data-art-fly], a[data-switch]');
+    const card = event.target.closest?.('a[data-art-fly], a[data-switch], a[data-home]');
     if (!card || calm() || root.classList.contains('paused') || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (card.hasAttribute('data-home')) {
+      if (!document.querySelector('[data-product] > section')) return; // from other pages, home just opens
+      event.preventDefault();
+      if (!leaving) { leaving = true; wipeHome(new URL(card.href)); }
+      return;
+    }
     const switching = card.hasAttribute('data-switch') && window.statixSwitch;
     const image = card.hasAttribute('data-art-fly') ? card.querySelector('.panel-art') : null;
     if (!switching && !image) return;
@@ -372,12 +598,21 @@
   addEventListener('pageshow', (event) => {
     if (!event.persisted) return;
     leaving = false;
-    document.querySelectorAll('[data-art-layer], [data-wipe-cover]').forEach((layer) => layer.remove());
+    ridden.forEach((animation) => animation.cancel());
+    ridden = [];
+    document.querySelectorAll('[data-art-layer], [data-wipe-cover], [data-wipe-word]').forEach((layer) => layer.remove());
     root.removeAttribute('data-wipe');
     document.querySelectorAll('.panel-art').forEach((image) => { image.style.visibility = ''; });
   });
 
   // ---- arriving ----
+  let homeward = 0;
+  try {
+    homeward = Number(sessionStorage.getItem(HOME_KEY));
+    sessionStorage.removeItem(HOME_KEY);
+  } catch { /* nothing to finish */ }
+  if (homeward && location.pathname === '/' && Date.now() - homeward < 8000 && !calm()) return arriveHome();
+
   let flight = null;
   try {
     flight = JSON.parse(sessionStorage.getItem(KEY));
@@ -393,7 +628,7 @@
   parts.dim.style.background = SOLID;
   float(parts.art, flight.since);
   const finish = () => { root.removeAttribute('data-art-landing'); parts.layer.remove(); };
-  const failsafe = setTimeout(finish, 6000);
+  const failsafe = setTimeout(finish, MODEL_WAIT + 4000);
 
   async function land() {
     // always start at the top, so the frame is where the art is about to go

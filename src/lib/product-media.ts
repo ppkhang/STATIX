@@ -30,7 +30,7 @@ const FILES: Record<string, { name: string; model: string; version?: string; ang
   },
   stand: {
     name: "stand", model: "statix_stand", version: "1",
-    angles: { buy: "30deg 72deg 123%", close: "90deg 80deg 114%", specs: "180deg 75deg 119%", run: "270deg 80deg 115%" },
+    angles: { buy: "320deg 78deg 123%", close: "90deg 80deg 114%", specs: "180deg 75deg 119%", run: "270deg 80deg 115%" },
   },
   wire: { name: "wire", model: "statix_wire" },
 };
