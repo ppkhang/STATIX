@@ -360,6 +360,11 @@ button, input { font: inherit; }
   animation: tune .5s steps(1) infinite;
 }
 
+/* under the drop page's sticky bar, anything scrolled to or focused stops short of it */
+html:has([data-drop]) { scroll-padding-top: 96px; }
+/* body's `hidden` makes it a scroll box of its own, which a sticky bar cannot stick in; `clip` trims without that */
+html:has([data-drop]) body { overflow-x: clip; }
+
 /* thrown off when a shell is picked (landing.js) */
 .shard { position: fixed; z-index: 40; width: 14px; height: 40px; margin: -20px 0 0 -7px; pointer-events: none; clip-path: polygon(50% 0, 100% 100%, 0 78%); }
 /* the lineup's panels fly in from beyond its edges: no sideways scrollbar meanwhile */

@@ -218,10 +218,12 @@ The resting chip reads the surface behind it: light chip with a lavender shadow 
 | Landing to Drop 001 / Log in (900px and up) | STATIX travels to the middle of the top bar while the destination header is drawn left to right behind a lavender blade (.72s); then TV static fades in under it. The next page starts with the same header and static, then fades the static out |
 | Header links elsewhere (Drop 001, Log in, Account) | TV static fades in under the real header, the page changes without a reload, the static fades out. Reduced motion or paused: plain link |
 | TV static | one 192x108 noise canvas scaled up with hard pixels, redrawn about 30 times a second and only while on screen; dark rolling bars, one lit band, scanlines; fades in .26s, out .34s. Dim, no brightness flicker |
-| Tapes while scrolling | speed up with the scroll (to about 10x) and ease back |
 | Vote pick | 14 shards from the picked card, which squashes; the panel jolts |
 | Countdown | a digit drops into place when it changes |
 | Titles `Lineup` and `Tune in.` | arrive as scrambled characters that settle left to right; read as the word throughout |
+| Product to product | the lavender light on the bottom bar slides to the picked card (.22s) while the slanted wipe plays. The bar sits outside the part that slides |
+| Drop page to a product | a skeleton of the product page (over its two bands and halftone) from the click until the page, model and bar art are in: at least .42s, at most about 6s |
+| Reload or direct visit of a product page | the same skeleton by default, from the first frame, for at least .8s and until the model and bar art are in (at most about 6s). Detecting only slow loads was tried and dropped: on a good connection it never showed. None under reduced motion |
 | Swatch select | transform transition .15s |
 
 Hero letters each get their own tilt (-8, 5, -4, 9, -6, 5deg), vertical nudge (0, 14, 0, -6, 12, 0px), and fill, in this order: ink, accent, outlined ink, ink, accent, outlined accent (outline = 5px inset shadow).
@@ -263,3 +265,17 @@ Under `prefers-reduced-motion` all keyframe animations stop. Hover transitions r
 **Do:** keep corners square, shadows hard, tilts small and alternating; counter-skew button text; put one accent colour on a near-black and off-white base; keep body copy level, calm and narrow.
 
 **Don't:** use soft blurred drop shadows, rounded cards or pill buttons, chromatic aberration, extra accent hues (lavender is the only highlight), a font family beyond the four roles in section 3, or the wordmark face for anything but the wordmark.
+
+## Drop page (reworked 26/11/2026; overrides older notes for this page)
+
+Mostly black and minimal. **No slanted buttons or highlights, and no tilted title card** (both rejected).
+
+- **Top section:** fills the window under the bar, one centred column read top down: state, DROP 001 in very large plain lettering with "No restocks." scrawled at its corner, a "Members open in" label over a bare countdown, a square button with a hard shadow, then the opening times in small print.
+- **Art:** `static-waves.svg` with the pointer's light, still (no breathing, pings or sparks: the page has no pause control), dimmed behind the words.
+- **Editions:** a ledger with thin rules, comic art in a cut panel, name, price, the LED stock bar, then Buy or an arrow. The whole line opens the product.
+- **Bar:** sticks to the top. The footer drops the wordmark and Drop 001.
+- Plain CSS in `drop.module.css`; Tailwind was offered and not added.
+
+**Contour art (also log in and sign up):** every fifth ring from level 3 is brighter (18 of 85, never two neighbours, never the innermost ones). No dots.
+
+**Product page bottom bar:** as tall as the log in footer (93px) and drawn like it, with all four product cards in the middle; the current one is lit.

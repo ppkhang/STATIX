@@ -101,109 +101,112 @@ export default function ProductView({ initial, slug, media, content, closeUps, s
   );
 
   return (
-    <section className={styles.stage}>
-      <div className={styles.cut} aria-hidden="true">
-        <div className="dots" />
-      </div>
-      {bands}
-      <span className={`ghost ${styles.word}`} aria-hidden="true">{content.word}</span>
+    <>
+      <section className={styles.stage}>
+        <div className={styles.cut} aria-hidden="true">
+          <div className="dots" />
+        </div>
+        {bands}
+        <span className={`ghost ${styles.word}`} aria-hidden="true">{content.word}</span>
 
-      <ProductGallery key={slug} media={media} name={picked.name} short={content.word} control={showcase} />
+        <ProductGallery key={slug} media={media} name={picked.name} short={content.word} control={showcase} />
 
-      <div className={styles.buy}>
-        <h1 className={`slab ${styles.title}`}>{picked.name}</h1>
+        <div className={styles.buy}>
+          <h1 className={`slab ${styles.title}`}>{picked.name}</h1>
 
-        {/* the frame stays put; only what's inside it moves, cut off at its edges */}
-        <div className={styles.panes}>
-          <div ref={body} className={styles.reel}>
-          {panel("buy", (
-            <>
-              <div className={styles.box}>
-                <p className={styles.state} role="status">{drop.name} · {d(`state.${state}`)}</p>
-                <div className={`stock ${styles.stock}`}>
-                  <p className="stock-text">{t("leftOf", { left: picked.left, size: picked.size })}</p>
-                  <div className="stock-bar" aria-hidden="true"><span style={{ width: `${(picked.left / picked.size) * 100}%` }} /></div>
-                </div>
-                <div className={styles.surface}>
-                  <fieldset className={styles.colours}>
-                    <legend>{t("colour")}</legend>
-                    {editions.map((e) => (
-                      <label key={e.id} className={e.left === 0 ? styles.gone : undefined}>
-                        <input type="radio" name="colour" checked={e.id === picked.id} onChange={() => setPickedId(e.id)} />
-                        <i style={{ background: SHADES[e.colour] ?? "var(--grey)" }} aria-hidden="true" />
-                        <span>{e.colour}</span>
-                      </label>
-                    ))}
-                  </fieldset>
-                  <p className={styles.price}>{formatVnd(picked.priceVnd)}</p>
-                  <p className={styles.vat}>{t("vat")}</p>
-                </div>
-                <div className={styles.action}>
-                  <DropAction state={state} earlyAccessAt={drop.earlyAccessAt} publicAt={drop.publicAt} editionId={picked.id} />
-                  {stale && <p role="status">{d("stale")}</p>}
-                </div>
-                {facts([[t("numbers"), `${range.from}–${range.to}`], [t("restocks"), t("none")], ...times])}
-              </div>
-            </>
-          ))}
-          {closeUps && panel("close", closeUps)}
-          {panel("specs", <>{facts(glance)}{specs}</>)}
-          {panel("run", (
-            <>
-              <div className={styles.plate}>
-                <p className={styles.plateLabel}>{t("numbered")}</p>
-                <h2 className={styles.range}>
-                  <span>{range.from}</span>
-                  <i aria-hidden="true" />
-                  <span className={styles.srOnly}> {t("to")} </span>
-                  <span>{range.to}</span>
-                </h2>
-                <ul className={styles.facts}>
-                  <li><strong>{picked.size.toLocaleString("en-US")}</strong>{t("factUnits")}</li>
-                  <li><strong>0</strong>{t("factRestocks")}</li>
-                  {headStart > 0 && <li><strong>{headStart}</strong>{t("factHeadStart")}</li>}
-                </ul>
-                {drop.nextAt && drop.state !== "sold_out" && drop.state !== "closed" && (
-                  <div className={styles.clock}>
-                    <p>{d(`next.${drop.state}`, { time: formatDateTime(drop.nextAt) })}</p>
-                    <Countdown to={drop.nextAt} now={now} label={d("countdown")} />
+          {/* the frame stays put; only what's inside it moves, cut off at its edges */}
+          <div className={styles.panes}>
+            <div ref={body} className={styles.reel}>
+            {panel("buy", (
+              <>
+                <div className={styles.box}>
+                  <p className={styles.state} role="status">{drop.name} · {d(`state.${state}`)}</p>
+                  <div className={`stock ${styles.stock}`}>
+                    <p className="stock-text">{t("leftOf", { left: picked.left, size: picked.size })}</p>
+                    <div className="stock-bar" aria-hidden="true"><span style={{ width: `${(picked.left / picked.size) * 100}%` }} /></div>
                   </div>
-                )}
-              </div>
-              <p className={styles.shout} aria-hidden="true">
-                {t.rich("shout", {
-                  line: (words) => (
-                    <span className={styles.underlined}>
-                      {words}
-                      {/* one quick marker stroke and a shorter second pass */}
-                      <svg viewBox="0 0 200 20" preserveAspectRatio="none"><path d="M3 11 C 55 6, 140 5, 197 8 M 22 17 C 80 12, 135 13, 176 14" /></svg>
-                    </span>
-                  ),
-                })}
-              </p>
-            </>
-          ))}
+                  <div className={styles.surface}>
+                    <fieldset className={styles.colours}>
+                      <legend>{t("colour")}</legend>
+                      {editions.map((e) => (
+                        <label key={e.id} className={e.left === 0 ? styles.gone : undefined}>
+                          <input type="radio" name="colour" checked={e.id === picked.id} onChange={() => setPickedId(e.id)} />
+                          <i style={{ background: SHADES[e.colour] ?? "var(--grey)" }} aria-hidden="true" />
+                          <span>{e.colour}</span>
+                        </label>
+                      ))}
+                    </fieldset>
+                    <p className={styles.price}>{formatVnd(picked.priceVnd)}</p>
+                    <p className={styles.vat}>{t("vat")}</p>
+                  </div>
+                  <div className={styles.action}>
+                    <DropAction state={state} earlyAccessAt={drop.earlyAccessAt} publicAt={drop.publicAt} editionId={picked.id} />
+                    {stale && <p role="status">{d("stale")}</p>}
+                  </div>
+                  {facts([[t("numbers"), `${range.from}–${range.to}`], [t("restocks"), t("none")], ...times])}
+                </div>
+              </>
+            ))}
+            {closeUps && panel("close", closeUps)}
+            {panel("specs", <>{facts(glance)}{specs}</>)}
+            {panel("run", (
+              <>
+                <div className={styles.plate}>
+                  <p className={styles.plateLabel}>{t("numbered")}</p>
+                  <h2 className={styles.range}>
+                    <span>{range.from}</span>
+                    <i aria-hidden="true" />
+                    <span className={styles.srOnly}> {t("to")} </span>
+                    <span>{range.to}</span>
+                  </h2>
+                  <ul className={styles.facts}>
+                    <li><strong>{picked.size.toLocaleString("en-US")}</strong>{t("factUnits")}</li>
+                    <li><strong>0</strong>{t("factRestocks")}</li>
+                    {headStart > 0 && <li><strong>{headStart}</strong>{t("factHeadStart")}</li>}
+                  </ul>
+                  {drop.nextAt && drop.state !== "sold_out" && drop.state !== "closed" && (
+                    <div className={styles.clock}>
+                      <p>{d(`next.${drop.state}`, { time: formatDateTime(drop.nextAt) })}</p>
+                      <Countdown to={drop.nextAt} now={now} label={d("countdown")} />
+                    </div>
+                  )}
+                </div>
+                <p className={styles.shout} aria-hidden="true">
+                  {t.rich("shout", {
+                    line: (words) => (
+                      <span className={styles.underlined}>
+                        {words}
+                        {/* one quick marker stroke and a shorter second pass */}
+                        <svg viewBox="0 0 200 20" preserveAspectRatio="none"><path d="M3 11 C 55 6, 140 5, 197 8 M 22 17 C 80 12, 135 13, 176 14" /></svg>
+                      </span>
+                    ),
+                  })}
+                </p>
+              </>
+            ))}
+            </div>
+          </div>
+
+          {/* under the panels; the arrow keys and [ ] step through it when it has focus */}
+          <div
+            className={styles.index} role="group" aria-label={t("tabsLabel")}
+            onKeyDown={(event) => { const by = arrowStep(event); if (by) { event.preventDefault(); step(by, true); } }}
+          >
+            {tabs.map((key) => (
+              <button
+                key={key} type="button" aria-pressed={wanted === key} aria-controls={`panel-${key}`} onClick={() => open(key)}
+                ref={(element) => { if (element) buttons.current.set(key, element); else buttons.current.delete(key); }}
+              >
+                <span>{t(`tabs.${key}`)}</span>
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* under the panels; the arrow keys and [ ] step through it when it has focus */}
-        <div
-          className={styles.index} role="group" aria-label={t("tabsLabel")}
-          onKeyDown={(event) => { const by = arrowStep(event); if (by) { event.preventDefault(); step(by, true); } }}
-        >
-          {tabs.map((key) => (
-            <button
-              key={key} type="button" aria-pressed={wanted === key} aria-controls={`panel-${key}`} onClick={() => open(key)}
-              ref={(element) => { if (element) buttons.current.set(key, element); else buttons.current.delete(key); }}
-            >
-              <span>{t(`tabs.${key}`)}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
+        <p className={styles.srOnly} role="status">{said}</p>
+      </section>
+      {/* outside the stage, like the header: the stage slides away when the product changes, this bar stays put */}
       {roster}
-      <p className={styles.srOnly} role="status">{said}</p>
-    </section>
+    </>
   );
 }

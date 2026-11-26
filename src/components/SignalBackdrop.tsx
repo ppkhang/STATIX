@@ -9,7 +9,8 @@ const GRAPHIC = "/assets/static-waves.svg";
 const TOUCH = 10; // a line this close to the pointer is fully lit...
 const REACH = 40; // ...fading to nothing here. Raise both to light more lines at once.
 const FALLOFF = 280; // how far along a line the brightness travels from the pointer
-const REST = 0.34; // how much of its own strength a contour line or dot keeps when it isn't lit
+const REST = 0.34; // how much of its own strength a contour line keeps when it isn't lit
+const REST_BRIGHT = 0.75; // and the few the graphic marks data-bright, which should stand out at rest
 const MARGIN = REACH + 30; // first rough pass: covers how far the animations move a line
 const SPACING = 10; // distance between the points sampled along each line
 // random glows, besides the one at the pointer
@@ -47,7 +48,7 @@ function prepare(svg: SVGSVGElement): Line[] {
   const found = [...svg.querySelectorAll<SVGGeometryElement>("path, line, circle")].map((shape) => {
     const look = getComputedStyle(shape); // all read before anything is repainted
     const stroked = look.stroke !== "none";
-    return { shape, stroked, colour: stroked ? look.stroke : look.fill, rest: (stroked ? Number(look.strokeOpacity) : 1) * REST };
+    return { shape, stroked, colour: stroked ? look.stroke : look.fill, rest: (stroked ? Number(look.strokeOpacity) : 1) * (shape.hasAttribute("data-bright") ? REST_BRIGHT : REST) };
   });
   const defs = make("defs");
   svg.prepend(defs);
@@ -114,9 +115,10 @@ function distanceTo(points: Float32Array, at: DOMPoint) {
  * public/assets/static-waves.svg, inline so CSS can animate its parts. The line or two under the pointer
  * light up, brightest beside it and fading along the line, and now and then a random spot glows on its own.
  * Nothing is laid over the graphic.
- * The styles rely on the file's groups: topology, nodes.
+ * The styles rely on the file's topology group.
+ * `still` keeps only the pointer's light: nothing moves or glows on its own, for a page with no way to pause it.
  */
-export default function SignalBackdrop() {
+export default function SignalBackdrop({ still = false, className = "" }: { still?: boolean; className?: string }) {
   const root = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -203,7 +205,7 @@ export default function SignalBackdrop() {
       }
       spawner = setTimeout(spawn, between(SPARK_GAP));
     };
-    spawner = setTimeout(spawn, 600);
+    if (!still) spawner = setTimeout(spawn, 600);
 
     const follow = (event: PointerEvent) => { pointer = { x: event.clientX, y: event.clientY }; schedule(); };
     const dim = () => { pointer = null; schedule(); };
@@ -226,7 +228,7 @@ export default function SignalBackdrop() {
       window.removeEventListener("pointercancel", dim);
       document.documentElement.removeEventListener("pointerleave", dim);
     };
-  }, []);
+  }, [still]);
 
-  return <div ref={root} className={styles.backdrop} aria-hidden="true" />;
+  return <div ref={root} className={[styles.backdrop, still && styles.still, className].filter(Boolean).join(" ")} aria-hidden="true" />;
 }

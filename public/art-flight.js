@@ -12,6 +12,9 @@
 // itself left to right, then fade TV static in under it while the page loads. The next page picks both up and lets its own header take over.
 // Elsewhere, the header's own links to the drop, log in and the account fade the same static in and out, without a
 // reload: the header stays, and only what is under it changes (window.statixGo, from the app).
+// From the drop page to a product, a skeleton of the product page stands in under the header until the page, its 3D
+// model and the cards along its foot are ready. It plays too on every reload or direct visit of a product page. The
+// page's own backdrop stays in view behind it.
 // Entering or reloading the landing plays the same arrival over plain black (the intro); window.statixIntro resolves
 // when it is over, and landing.js then shows off the 3D model.
 (() => {
@@ -370,6 +373,42 @@
       };
       look();
     });
+  }
+
+  // ---- changing product: as the screen wipes, the light on the bottom bar slides to the picked card ----
+  /** A lavender frame travels from the lit card to the picked one, taking each card's lean on the way, and lights it.
+   *  It is over before the new page takes the old one's place, and that page draws the same bar, lit there. */
+  async function slideLight(card) {
+    const bar = card.closest('nav');
+    const lit = bar?.querySelector('[aria-current="page"]');
+    if (!lit) return;
+    // the frame as one shape: the card's outline, then its inside, left hollow
+    const place = (element) => {
+      const box = element.getBoundingClientRect();
+      const base = bar.getBoundingClientRect();
+      const item = element.parentElement;
+      const lean = box.height * LEAN;
+      const a = item.previousElementSibling ? lean : 0; // the bar's two outer edges are straight
+      const b = item.nextElementSibling ? lean : 0;
+      const w = box.width, h = box.height, t = 4;
+      const points = [[a, 0], [w, 0], [w - b, h], [0, h], [a, 0], [a + t, t], [t, h - t], [w - b - t, h - t], [w - t, t], [a + t, t]];
+      return {
+        translate: box.left - base.left - bar.clientLeft + 'px ' + (box.top - base.top - bar.clientTop) + 'px',
+        width: w + 'px', height: h + 'px',
+        clipPath: 'polygon(evenodd, ' + points.map(([x, y]) => x + 'px ' + y + 'px').join(', ') + ')',
+      };
+    };
+    const frame = make('div', '');
+    frame.setAttribute('data-slide', '');
+    frame.setAttribute('aria-hidden', 'true');
+    Object.assign(frame.style, { position: 'absolute', left: '0', top: '0', zIndex: '2', pointerEvents: 'none', background: '#B9A4FF' });
+    const from = place(lit);
+    const to = place(card);
+    bar.append(frame);
+    bar.setAttribute('data-sliding', ''); // the card it leaves goes dim
+    await frame.animate([from, to], { duration: 220, easing: 'cubic-bezier(.5, 0, .2, 1)', fill: 'forwards' }).finished.catch(() => {}); // the old page is gone at 240
+    card.setAttribute('data-lit', '');
+    frame.remove();
   }
 
   // ---- changing product: the wipe ----
@@ -769,6 +808,158 @@
     sheet.remove();
   }
 
+  // ---- from the drop page to a product: the page's outline holds the place while it loads ----
+  const SKELETON_LEAST = 420; // ms: shorter than this reads as a flicker
+  const SKELETON_PATIENCE = 6000; // ms: a slow model or picture is not waited for longer than this; it follows on the page
+  const SKELETON_CSS = `
+    [data-skeleton] { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1000; display: flex; flex-direction: column; overflow: hidden; background: #0B0A0F; }
+    [data-skeleton] * { box-sizing: border-box; }
+    /* every block carries the same slow sheen, timed to the window, so one band of light seems to cross them all */
+    .sk { background: linear-gradient(100deg, #17151f 40%, #2b2542 50%, #17151f 60%) 0 0 / 300vw 100% fixed; animation: sk-sheen 1.3s linear infinite; }
+    /* the numbers of .band and .cut in product.module.css, without the words pressed into the bands */
+    .sk-back { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
+    .sk-back u { position: absolute; top: 50%; width: 190svh; height: calc(clamp(56px, 6.4vw, 120px) + 2 * clamp(14px, 1.6vw, 28px)); transform: translate(-50%, -50%) rotate(-68deg); box-shadow: 0 12px 0 #000; }
+    .sk-back u:first-child { left: 22%; background: #B9A4FF; }
+    .sk-back u:nth-child(2) { left: 42%; background: #1d1b24; }
+    .sk-back s { position: absolute; right: 0; top: 0; width: 55%; height: 100%; overflow: hidden; opacity: .38; -webkit-mask-image: linear-gradient(292deg, #000, transparent 88%); mask-image: linear-gradient(292deg, #000, transparent 88%); }
+    .sk-back s::before { content: ''; position: absolute; inset: -40%; background: radial-gradient(circle, #B9A4FF 3px, transparent 3.5px) 0 0 / 12px 12px; transform: rotate(22deg); }
+    .sk-stage { position: relative; isolation: isolate; overflow: hidden; flex: 1; min-height: 0; display: flex; gap: 48px; align-items: center; padding: clamp(10px, 2svh, 40px) max(clamp(20px, 4vw, 56px), calc(50% - 600px)); }
+    .sk-show { flex: 1.5 1 0; height: 100%; display: grid; place-items: center; }
+    /* the frosted burst the model stands on */
+    .sk-burst { height: min(100%, 40vw); aspect-ratio: 1; }
+    .sk-buy { flex: 1 1 0; max-width: 640px; display: flex; flex-direction: column; gap: 6px; }
+    .sk-buy i { display: block; flex: none; }
+    .sk-row { display: flex; gap: 6px; }
+    .sk-row i { flex: 1; }
+    .sk-bar { background: #0B0A0F; flex: none; height: 93px; display: flex; justify-content: center; align-items: center; gap: 6px; border-top: 1px solid #1F1C28; }
+    .sk-bar i { width: 108px; max-width: 22vw; height: 70px; clip-path: polygon(28px 0, 100% 0, calc(100% - 28px) 100%, 0 100%); margin-left: -28px; }
+    .sk-bar i:first-child { width: 94px; margin-left: 0; clip-path: polygon(0 0, 100% 0, calc(100% - 28px) 100%, 0 100%); }
+    .sk-bar i:last-child { width: 94px; clip-path: polygon(28px 0, 100% 0, 100% 100%, 0 100%); }
+    @keyframes sk-sheen { from { background-position-x: 100vw; } to { background-position-x: -200vw; } }
+    @media (max-width: 899px) { .sk-stage { flex-direction: column; justify-content: center; gap: 20px; } .sk-show { flex: 1 1 0; width: 100%; height: auto; min-height: 0; } .sk-burst { height: min(100%, 80vw); } .sk-buy { flex: none; width: 100%; } }
+  `;
+
+  /** The product page in outline: the model's place, the buy panel with its tabs, and the bar of four cards. */
+  function skeleton(top) {
+    const shell = make('div', '');
+    shell.setAttribute('data-skeleton', '');
+    shell.setAttribute('aria-hidden', 'true');
+    shell.style.top = top + 'px';
+    const stagePart = make('div', 'sk-stage');
+    const show = make('div', 'sk-show');
+    const burstShape = make('div', 'sk sk-burst');
+    burstShape.style.clipPath = 'polygon(' + Array.from({ length: 48 }, (_, i) => {
+      const angle = (i * Math.PI) / 24;
+      const radius = i % 2 ? 38 : 50;
+      return (50 + radius * Math.sin(angle)).toFixed(1) + '% ' + (50 - radius * Math.cos(angle)).toFixed(1) + '%';
+    }).join(',') + ')';
+    show.append(burstShape);
+    const buy = make('div', 'sk-buy');
+    const block = (height) => {
+      const part = make('i', 'sk');
+      part.style.height = height;
+      return part;
+    };
+    const tabs = make('div', 'sk-row');
+    for (let i = 0; i < 4; i++) tabs.append(block('clamp(32px, 4.6svh, 42px)'));
+    // name, state, stock, price, button, facts, then the tab strip
+    buy.append(...['clamp(48px, 8svh, 72px)', '28px', 'clamp(48px, 9svh, 76px)', 'clamp(64px, 12svh, 108px)', 'clamp(44px, 7svh, 64px)', 'clamp(52px, 10svh, 86px)'].map(block), tabs);
+    const back = make('div', 'sk-back');
+    back.append(make('u', ''), make('u', ''), make('s', ''));
+    stagePart.append(back, show, buy);
+    const bar = make('div', 'sk-bar');
+    for (let i = 0; i < 4; i++) bar.append(make('i', 'sk'));
+    shell.append(stagePart, bar);
+    return shell;
+  }
+
+  const pageUnder = () => Math.max(0, document.querySelector('header')?.getBoundingClientRect().bottom ?? 0);
+
+  /** Puts the outline up under the header. `remove` takes all of it away. */
+  function outline(name) {
+    const sheet = make('style', '', SKELETON_CSS);
+    const shell = skeleton(pageUnder());
+    // said aloud once; the outline itself is hidden from screen readers
+    const said = make('p', '', 'Loading ' + name);
+    said.setAttribute('role', 'status');
+    said.setAttribute('data-skeleton-said', '');
+    Object.assign(said.style, { position: 'absolute', width: '1px', height: '1px', overflow: 'hidden', clipPath: 'inset(50%)' });
+    root.append(sheet, shell, said);
+    return {
+      shell,
+      remove: () => { shell.remove(); said.remove(); sheet.remove(); },
+      fadeOut: () => shell.animate({ opacity: [1, 0] }, { duration: 220, easing: 'ease-in-out', fill: 'forwards' }).finished.catch(() => {}),
+    };
+  }
+
+  /** Resolves once the product page's model and the cards along its foot can be seen. */
+  function productReady(page) {
+    const frame = page.querySelector('[data-art-frame]');
+    const cards = [...page.querySelectorAll('nav img')].map((image) => image.decode().catch(() => {}));
+    return Promise.all([frame && readyModel(frame), ...cards]);
+  }
+
+  // a product page arrived at by itself (a reload, an address typed or followed from elsewhere): the outline is up from
+  // the first paint, whatever the connection, and stays until the page's model and cards are in
+  const LOAD_PAD = 800; // ms: the least it is shown for on such a load
+  function padLoad() {
+    if (!location.pathname.startsWith('/p/') || calm()) return;
+    const started = Date.now();
+    const held = outline('the product');
+    held.shell.style.top = HEADER + 'px'; // the header isn't in the page yet
+    const failsafe = setTimeout(held.remove, SKELETON_PATIENCE + 2000);
+    const start = async () => {
+      held.shell.style.top = pageUnder() + 'px';
+      const page = document.querySelector('[data-product]');
+      if (page) {
+        // gone too if the visitor moves on while it is up
+        const moved = new Promise((resolve) => { const look = () => (page.isConnected ? setTimeout(look, 100) : resolve()); look(); });
+        await Promise.race([productReady(page), moved, wait(SKELETON_PATIENCE)]);
+        if (page.isConnected) {
+          await wait(Math.max(0, LOAD_PAD - (Date.now() - started)));
+          await held.fadeOut();
+        }
+      }
+      clearTimeout(failsafe);
+      held.remove();
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+    else start();
+  }
+
+  async function skeletonTo(url, name, modelUrl) {
+    const slug = url.pathname.split('/').pop();
+    const page = () => document.querySelector('[data-product="' + CSS_ESCAPE(slug) + '"]');
+    let held = null;
+    let backed = false; // the Back button gives up on the trip, at whatever point it is pressed
+    const done = () => { removeEventListener('popstate', back); held?.remove(); };
+    function back() { backed = true; done(); }
+    addEventListener('popstate', back);
+
+    // asked for at once, alongside the page, so it isn't waiting its turn behind it
+    const library = make('link', '');
+    Object.assign(library, { rel: 'modulepreload', crossOrigin: 'anonymous', href: 'https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js' });
+    document.head.append(library);
+    if (modelUrl) fetch(modelUrl).then((response) => response.blob()).catch(() => {});
+
+    held = outline(name);
+    const started = Date.now();
+    await held.shell.animate({ opacity: [0, 1] }, { duration: 140, easing: 'ease-out', fill: 'backwards' }).finished.catch(() => {});
+    if (backed) return;
+    root.setAttribute('data-switched', ''); // no entrances: the page is uncovered finished
+    window.statixGo(url.pathname + url.search);
+    while (!page() && !backed && Date.now() - started < 8000) await wait(30);
+    if (backed) return;
+    if (!page()) return location.assign(url); // took too long: load it the ordinary way
+    scrollTo({ top: 0, behavior: 'instant' });
+    held.shell.style.top = pageUnder() + 'px';
+    await Promise.race([productReady(page()), wait(SKELETON_PATIENCE)]);
+    await wait(Math.max(0, SKELETON_LEAST - (Date.now() - started)));
+    if (backed) return;
+    await held.fadeOut();
+    done();
+  }
+
   // ---- leaving ----
   let leaving = false;
   async function takeOff(card, image) {
@@ -805,11 +996,17 @@
     const top = location.pathname !== '/' && window.statixGo
       ? event.target.closest?.('header nav a[href="/drop/001"], header nav a[href="/login"], header nav a[href="/account"]') : null;
     const across = top && top.pathname !== location.pathname ? top : null;
-    const card = onward || across || event.target.closest?.('a[data-art-fly], a[data-switch], a[data-home]');
+    const row = location.pathname.startsWith('/drop/') && window.statixGo ? event.target.closest?.('main a[href^="/p/"]') : null;
+    const card = onward || across || row || event.target.closest?.('a[data-art-fly], a[data-switch], a[data-home]');
     if (!card || calm() || root.classList.contains('paused') || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     if (onward) {
       event.preventDefault();
       if (!leaving) { leaving = true; wipeUp(new URL(onward.href)); }
+      return;
+    }
+    if (row) {
+      event.preventDefault(); // also stops Next's link: the page changes once the outline is up
+      if (!leaving) { leaving = true; skeletonTo(new URL(row.href), row.textContent.trim() || 'the product', row.dataset.model).finally(() => { leaving = false; }); }
       return;
     }
     if (across) {
@@ -828,7 +1025,11 @@
     event.preventDefault(); // also stops Next's link, so every marked card takes this path
     if (leaving) return;
     leaving = true;
-    if (switching) wipe(new URL(card.href), card.dataset.name || card.querySelector('h3')?.textContent.trim() || 'STATIX').finally(() => { leaving = false; });
+    if (switching) {
+      const name = card.dataset.name || card.querySelector('h3')?.textContent.trim() || 'STATIX';
+      slideLight(card);
+      wipe(new URL(card.href), name).finally(() => { leaving = false; });
+    }
     else takeOff(card, image);
   }, true);
 
@@ -838,7 +1039,7 @@
     leaving = false;
     ridden.forEach((animation) => animation.cancel());
     ridden = [];
-    document.querySelectorAll('[data-art-layer], [data-wipe-cover], [data-wipe-word], [data-wipe-bar], [data-wipe-edge], [data-wipe-logo]').forEach((layer) => layer.remove());
+    document.querySelectorAll('[data-art-layer], [data-wipe-cover], [data-wipe-word], [data-wipe-bar], [data-wipe-edge], [data-wipe-logo], [data-skeleton], [data-skeleton-said]').forEach((layer) => layer.remove());
     root.removeAttribute('data-wipe');
     document.querySelectorAll('.panel-art').forEach((image) => { image.style.visibility = ''; });
   });
@@ -865,7 +1066,7 @@
     flight = JSON.parse(sessionStorage.getItem(KEY));
     sessionStorage.removeItem(KEY);
   } catch { /* nothing to land */ }
-  if (!flight || flight.path !== location.pathname || Date.now() - flight.left > 8000 || calm()) return;
+  if (!flight || flight.path !== location.pathname || Date.now() - flight.left > 8000 || calm()) return padLoad();
 
   const arrived = Date.now();
   root.setAttribute('data-art-landing', ''); // the page keeps its own art hidden until ours arrives

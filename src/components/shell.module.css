@@ -34,8 +34,16 @@
 .btn:hover { background: var(--bg); color: var(--accent); }
 .btn:focus-visible { outline: 2px solid var(--bg); outline-offset: 3px; }
 
-/* log in and sign up keep a quieter footer */
-.page:has([data-entry]) .footer [data-not-on-entry] { display: none; }
+/* log in, sign up and the drop page keep a quieter footer */
+.page:has([data-entry], [data-drop]) .footer [data-not-on-entry] { display: none; }
+
+/* the drop page's bar stays with you down the list */
+.page:has([data-drop]) .header { position: sticky; top: 0; z-index: 20; background: var(--bg); }
+
+/* log in and sign up: the card sits in the middle of the room between bar and footer. The padding above the stage
+   matches the link and gap under the card, so it is the card that is centred */
+.main:has([data-entry]) { padding-block: 24px; }
+.main > [data-entry] { margin-block: auto; padding-top: 72px; }
 
 /* the menu's two groups: places, then you, set apart */
 .group { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px; }
