@@ -166,7 +166,8 @@
       "expiredCode": "That code no longer works. Send a new one.",
       "phoneTaken": "That number can't be used on this account.",
       "generic": "Something went wrong. Try again."
-    }
+    },
+    "waitlistPrivacy": "Waitlist and privacy"
   },
   "mail": {
     "verify": {
@@ -184,15 +185,15 @@
     "otp": "Your STATIX code is {code}. It works for 5 minutes.",
     "waitlistConfirm": {
       "subject": "Confirm your spot on the {drop} waitlist",
-      "body": "Confirm your email to join the {drop} waitlist:\n{url}\n\nThe link works for {days} days. If you didn't ask for it, ignore this email and nothing happens."
+      "body": "Confirm your email to join the {drop} waitlist:\n{url}\n\nThe link works for {days} days. If you didn't ask for it, ignore this email and nothing happens.\n\nLeave the list, change what we send you or delete your data:\n{manage}"
     },
     "waitlistOn": {
       "subject": "You're on the {drop} waitlist",
-      "body": "Your spot on the {drop} waitlist is confirmed.\n\nWhat happens next: your early access invite arrives by email. Early access for members opens {opens} (Vietnam time)."
+      "body": "Your spot on the {drop} waitlist is confirmed.\n\nWhat happens next: your early access invite arrives by email. Early access for members opens {opens} (Vietnam time).\n\nLeave the list, change what we send you or delete your data:\n{manage}"
     },
     "waitlistAlready": {
       "subject": "You're already on the {drop} waitlist",
-      "body": "Someone signed this address up for the {drop} waitlist, and it's already on it. There's nothing you need to do."
+      "body": "Someone signed this address up for the {drop} waitlist, and it's already on it. There's nothing you need to do.\n\nLeave the list, change what we send you or delete your data:\n{manage}"
     }
   },
   "signup": {
@@ -238,6 +239,37 @@
     "badBody": "It may be incomplete, or a newer one replaced it. Use the latest email, or sign up again.",
     "usedTitle": "That link was already used",
     "usedBody": "There's nothing more to confirm with it.",
-    "signUpAgain": "Sign up again"
+    "signUpAgain": "Sign up again",
+    "manage": "Manage my data"
+  },
+  "preferences": {
+    "title": "Waitlist and privacy",
+    "statusTitle": "Your waitlists",
+    "status": {
+      "pending": "waiting for you to confirm by email",
+      "confirmed": "you're on the list",
+      "invited": "your invite has been sent",
+      "left": "you left this list"
+    },
+    "leave": "Leave the waitlist",
+    "leaveAsk": "Leave the {drop} waitlist? You'll lose your place and any invite you haven't used.",
+    "leaveConfirm": "Yes, leave",
+    "left": "You've left the list.",
+    "saved": "Saved.",
+    "marketingTitle": "Other STATIX news",
+    "marketingNote": "This is only for news. Emails about your waitlist spot and your orders are always sent.",
+    "marketingOn": "On: send me news",
+    "marketingOff": "Off",
+    "marketingLeft": "You're not on a waitlist, so we don't send you news.",
+    "deleteTitle": "Delete my data",
+    "deleteWhat": "This deletes your waitlist entries for this address: the email, phone number, product picks, how you found us and your consent record, plus any invite links. There's nothing from the waitlist we have to keep. A STATIX account with this address isn't deleted here.",
+    "typeLabel": "Type DELETE to confirm",
+    "typeDelete": "Type DELETE in capitals to confirm.",
+    "deleteButton": "Delete my data",
+    "deletedTitle": "Your data is deleted",
+    "deletedBody": "Your waitlist entries for that address are gone.",
+    "goneTitle": "Nothing to manage",
+    "goneBody": "This link doesn't match any waitlist entry. The data may already be deleted, or the link is incomplete.",
+    "toDrop": "See the drop"
   }
 }
