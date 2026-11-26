@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { joinFromPanel } from "@/lib/waitlist-actions";
 import styles from "./signup.module.css";
 
-type Problem = "empty" | "invalid" | null;
+type Problem = "empty" | "invalid" | "needConsent" | "rateLimited" | "unavailable" | "network" | null;
 
 /**
  * The button, and the signup panel it opens over the page you're on, so nobody is sent away to sign up.
@@ -14,25 +16,31 @@ export default function WaitlistSignup({ label, buttonClass, minutes }: { label:
   const t = useTranslations("signup");
   const dialog = useRef<HTMLDialogElement>(null);
   const email = useRef<HTMLInputElement>(null);
-  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const consent = useRef<HTMLInputElement>(null);
+  const [agreed, setAgreed] = useState(false);
+  const [marketing, setMarketing] = useState(false);
   const pressedOutside = useRef(false);
   const [value, setValue] = useState("");
   const [problem, setProblem] = useState<Problem>(null);
   const [stage, setStage] = useState<"form" | "sending" | "done">("form");
 
-  useEffect(() => () => clearTimeout(timer.current), []);
-
-  const submit = (event: React.FormEvent) => {
+  const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (stage !== "form") return;
     const address = value.trim();
-    const wrong: Problem = !address ? "empty" : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address) ? null : "invalid";
+    const wrong: Problem = !address ? "empty" : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address) ? "invalid" : !agreed ? "needConsent" : null;
     setProblem(wrong);
-    if (wrong) return email.current?.focus();
+    if (wrong) return (wrong === "needConsent" ? consent : email).current?.focus();
     setStage("sending");
-    // shortcut: simulated signup, like the landing's form: nothing is sent or stored. M3 wires both to a real
-    // endpoint, with an error path, before launch.
-    timer.current = setTimeout(() => setStage("done"), 1200);
+    try {
+      const source = Object.fromEntries(new URLSearchParams(location.search));
+      const result = await joinFromPanel({ email: address, consent: true, marketing, source });
+      if (result.ok) return setStage("done");
+      setProblem(result.error);
+    } catch {
+      setProblem("network");
+    }
+    setStage("form");
   };
 
   return (
@@ -61,9 +69,17 @@ export default function WaitlistSignup({ label, buttonClass, minutes }: { label:
               <label htmlFor="signup-email">{t("email")}</label>
               <input
                 ref={email} id="signup-email" type="email" autoComplete="email" placeholder={t("placeholder")} required
-                value={value} readOnly={stage === "sending"} aria-invalid={problem ? true : undefined} aria-describedby="signup-error"
+                value={value} readOnly={stage === "sending"} aria-invalid={problem === "empty" || problem === "invalid" ? true : undefined} aria-describedby="signup-error"
                 onChange={(event) => { setValue(event.target.value); setProblem(null); }}
               />
+              <label className={styles.check}>
+                <input ref={consent} type="checkbox" checked={agreed} onChange={(event) => { setAgreed(event.target.checked); setProblem(null); }} />
+                <span>{t.rich("consent", { policy: (words) => <Link href="/privacy-policy" target="_blank">{words}</Link> })}</span>
+              </label>
+              <label className={styles.check}>
+                <input type="checkbox" checked={marketing} onChange={(event) => setMarketing(event.target.checked)} />
+                <span>{t("marketing")}</span>
+              </label>
               <p className={styles.error} id="signup-error" role="alert">{problem ? t(problem) : ""}</p>
               <button type="submit" className={styles.send} disabled={stage === "sending"}>{t(stage === "sending" ? "sending" : "send")}</button>
               <p className={styles.fine}>{t("fine")}</p>

@@ -980,3 +980,8 @@ html.paused .lineup .panel, html.paused .lineup .panel-photo { transition: none;
 /* the landing's menu: scrolls within the page, then a divider, then other pages. A border, not an element: landing.js
    flies every child of .nav-links into the logo menu */
 .nav-links .nav-link--page { padding-left: clamp(10px, 1.6vw, 24px); border-left: 2px solid var(--border); }
+
+/* the signup's two boxes: consent (needed) and other news (not) */
+.signup .consent-line { display: flex; align-items: flex-start; gap: 10px; font: 400 13px/1.45 var(--font-sub); letter-spacing: 0; text-transform: none; cursor: pointer; }
+.signup .consent-line input { flex: none; width: 18px; height: 18px; min-height: 0; margin: 1px 0 0; padding: 0; accent-color: #0B0A0F; }
+.signup .consent-line a { text-decoration: underline; text-underline-offset: 3px; }

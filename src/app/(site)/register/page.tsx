@@ -10,8 +10,9 @@ import { loginWithGoogle, register } from "@/lib/auth-actions";
 // NFR-022: account and token pages stay out of search results
 export const metadata = { robots: { index: false, follow: false } };
 
-export default async function Register() {
+export default async function Register({ searchParams }: PageProps<"/register">) {
   if (await currentAccount()) redirect("/account");
+  const { email } = await searchParams; // from the waitlist's "Create an account"
   const t = await getTranslations("auth");
 
   return (
@@ -31,7 +32,7 @@ export default async function Register() {
         </>
       }
     >
-      <AuthForm action={register} fields={["email", "newPassword"]} submit={t("registerSubmit")} />
+      <AuthForm action={register} fields={["email", "newPassword"]} submit={t("registerSubmit")} email={typeof email === "string" ? email.slice(0, 254) : undefined} />
     </AuthStage>
   );
 }

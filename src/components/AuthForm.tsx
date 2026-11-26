@@ -21,12 +21,14 @@ type Props = {
   fields: Field[];
   submit: string;
   hidden?: Record<string, string>;
+  /** Filled into the email field to begin with. */
+  email?: string;
   /** A small line under the password field, in the spot where the password rule sits. */
   passwordHelp?: React.ReactNode;
 };
 
 /** Every account form: labelled fields, one inline error, and the password rule shown while typing. */
-export default function AuthForm({ action, fields, submit, hidden, passwordHelp }: Props) {
+export default function AuthForm({ action, fields, submit, hidden, passwordHelp, email }: Props) {
   const t = useTranslations("auth");
   const [state, run, pending] = useActionState(action, {});
   const [length, setLength] = useState(0);
@@ -43,7 +45,7 @@ export default function AuthForm({ action, fields, submit, hidden, passwordHelp 
             <input
               {...INPUT[name]}
               required
-              defaultValue={name === "email" ? state.email : undefined}
+              defaultValue={name === "email" ? (state.email ?? email) : undefined}
               aria-describedby={name === "newPassword" ? "password-rule" : undefined}
               onChange={name === "newPassword" ? (event) => setLength([...event.target.value].length) : undefined}
             />
