@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
@@ -8,6 +9,8 @@ import { db } from "@/db";
 import { tier } from "@/db/schema";
 import { pendingOtp } from "@/lib/accounts";
 import { checkPhoneCode, resendVerify, sendPhoneCode } from "@/lib/auth-actions";
+import { manageToken } from "@/lib/manage-token";
+import { anyEntryId } from "@/lib/waitlist";
 
 // NFR-022: account and token pages stay out of search results
 export const metadata = { robots: { index: false, follow: false } };
@@ -19,6 +22,8 @@ export default async function AccountPage() {
   const t = await getTranslations("auth");
   const [level] = await db.select().from(tier).where(eq(tier.id, me.tierId));
   const pending = me.emailVerified ? await pendingOtp(me.id) : undefined;
+  // only once the address is proven: until then this could be someone else's waitlist entry
+  const listed = me.emailVerified ? await anyEntryId(me.email) : null;
 
   return (
     <>
@@ -31,6 +36,7 @@ export default async function AccountPage() {
         <dt>{t("field.phone")}</dt>
         <dd>{me.phoneVerified ? `${me.phone} · ${t("isVerified")}` : t("noPhone")}</dd>
       </dl>
+      {listed && <nav className={styles.links}><Link href={`/preferences/${manageToken(listed)}`}>{t("waitlistPrivacy")}</Link></nav>}
 
       {!me.emailVerified ? (
         <>

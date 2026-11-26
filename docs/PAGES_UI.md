@@ -254,6 +254,11 @@ A confirmation email with the same content is sent too (FR-052, FR-098).
 
 ## 17. Waitlist and privacy (also opened from email links)
 
+> **Built 2026-11-26** at `/preferences/:token`, linked from every waitlist email, the confirm page and, for a verified
+> account on a list, from `/account`. The token is the entry id signed with `AUTH_SECRET`; deleting ends it. "Delete my
+> data" covers waitlist data only: deleting an account arrives with the account area (M5). Position (FR-028) and
+> "Download my data" (FR-037) are R2.
+
 | Element | How you use it | What happens | Reqs |
 |---|---|---|---|
 | **Waitlist status** | Read only | Which drops you're waiting for. Your position is shown from R2. | FR-028 |

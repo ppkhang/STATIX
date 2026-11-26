@@ -1,8 +1,8 @@
 // Waitlist entries and their one-time double opt-in links (FR-021 to FR-024).
 import { createHash, randomBytes } from "node:crypto";
-import { and, asc, eq, gt, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, gt, isNull, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { dropRun, edition, product, variant, waitlistEntry, waitlistLink } from "@/db/schema";
+import { dropRun, edition, invite, product, rateLimit, variant, waitlistEntry, waitlistLink } from "@/db/schema";
 import { getDrop } from "./catalogue";
 import { LINK_DAYS, onJoin } from "./waitlist-rules";
 
@@ -80,4 +80,50 @@ export async function dropProducts(dropId: string) {
     .innerJoin(variant, eq(edition.variantId, variant.id)).innerJoin(product, eq(variant.productId, product.id))
     .where(eq(edition.dropId, dropId)).orderBy(asc(product.sort));
   return [...new Map(rows.map((row) => [row.slug, row])).values()];
+}
+
+// ---- page 17: what the owner of an address can do. Each works on that address's rows only. ----
+
+export async function emailOf(entryId: string): Promise<string | null> {
+  const [row] = await db.select({ email: waitlistEntry.emailNorm }).from(waitlistEntry).where(eq(waitlistEntry.id, entryId));
+  return row?.email ?? null;
+}
+
+export async function entriesFor(email: string) {
+  return db.select({ id: waitlistEntry.id, status: waitlistEntry.status, marketing: waitlistEntry.marketingConsent, drop: dropRun.name })
+    .from(waitlistEntry).innerJoin(dropRun, eq(waitlistEntry.dropId, dropRun.id))
+    .where(eq(waitlistEntry.emailNorm, email)).orderBy(asc(dropRun.number));
+}
+
+/** The newest entry for an address, for linking a signed-in account to its preferences. */
+export async function anyEntryId(email: string): Promise<string | null> {
+  const [row] = await db.select({ id: waitlistEntry.id }).from(waitlistEntry).where(eq(waitlistEntry.emailNorm, email)).orderBy(desc(waitlistEntry.createdAt)).limit(1);
+  return row?.id ?? null;
+}
+
+/** Leaving ends marketing mail and the extras, and takes back anything that would still let them in. */
+export async function leave(email: string, entryId: string) {
+  await db.transaction(async (tx) => {
+    const [left] = await tx.update(waitlistEntry).set({ status: "left", marketingConsent: false, interests: [], phone: null })
+      .where(and(eq(waitlistEntry.id, entryId), eq(waitlistEntry.emailNorm, email))).returning({ id: waitlistEntry.id });
+    if (!left) return;
+    await tx.delete(waitlistLink).where(eq(waitlistLink.entryId, left.id));
+    await tx.delete(invite).where(and(eq(invite.entryId, left.id), isNull(invite.usedAt)));
+  });
+}
+
+export async function setMarketing(email: string, on: boolean) {
+  await db.update(waitlistEntry).set({ marketingConsent: on })
+    .where(and(eq(waitlistEntry.emailNorm, email), ne(waitlistEntry.status, "left")));
+}
+
+/**
+ * Deletes every waitlist row for the address; links and invites go with them (cascade). The rate-limit counters
+ * are keyed by the address too, so they go as well.
+ */
+export async function erase(email: string) {
+  await db.transaction(async (tx) => {
+    await tx.delete(waitlistEntry).where(eq(waitlistEntry.emailNorm, email));
+    await tx.delete(rateLimit).where(eq(rateLimit.key, `waitlist:${email}`));
+  });
 }

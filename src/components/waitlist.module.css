@@ -28,3 +28,19 @@
 .field input { min-height: 50px; max-width: 320px; padding: 0 14px; border: 2px solid var(--bg); background: #fff; color: var(--bg); font: inherit; }
 .links { display: flex; flex-wrap: wrap; gap: 8px 24px; padding-top: 14px; border-top: 1px solid rgba(11, 10, 15, .25); }
 .links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--bg); text-decoration: underline; text-underline-offset: 4px; }
+
+/* page 17 */
+.section { display: flex; flex-direction: column; gap: 12px; padding-top: 16px; border-top: 2px solid var(--bg); }
+.card .section h2 { margin: 0; color: var(--bg); font: 900 18px/1.2 var(--font-main); text-transform: uppercase; }
+.entries { display: flex; flex-direction: column; gap: 14px; margin: 0; padding: 0; list-style: none; }
+.entries li { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 10px 20px; }
+.entries li > span { padding-top: 14px; }
+.entries summary { display: inline-flex; align-items: center; list-style: none; }
+.entries summary::-webkit-details-marker { display: none; }
+.entries details[open] { flex: 1 0 100%; }
+.entries details form { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; padding: 16px; border: 2px solid var(--bg); }
+.toggle { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; padding: 0; border: 0; background: none; color: var(--bg); font: 900 14px/1 var(--font-main); text-transform: uppercase; cursor: pointer; }
+.toggle i { position: relative; width: 52px; height: 28px; border: 2px solid var(--bg); }
+.toggle i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; background: var(--bg); transition: translate .16s; }
+.toggle[aria-checked="true"] i { background: var(--accent); }
+.toggle[aria-checked="true"] i::after { translate: 24px 0; }

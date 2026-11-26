@@ -24,7 +24,7 @@ export async function confirmEntry(form: FormData) {
   const token = field(form, "token");
   if (await waitlist.confirm(token)) {
     const found = await waitlist.findLink(token);
-    if (found) after(() => sendStatusEmail(found.entry.email, found.drop));
+    if (found) after(() => sendStatusEmail(found.entry.id, found.entry.email, found.drop));
   }
   redirect(page(token)); // the page reads the link again and shows what's true now
 }

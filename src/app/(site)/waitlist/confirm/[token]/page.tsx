@@ -4,6 +4,7 @@ import { AutoConfirm, EntryDetails } from "@/components/ConfirmWaitlist";
 import styles from "@/components/waitlist.module.css";
 import WaitlistSignup from "@/components/WaitlistSignup";
 import { sendNewLink } from "@/lib/waitlist-actions";
+import { manageToken } from "@/lib/manage-token";
 import { dropProducts, findLink } from "@/lib/waitlist";
 
 export const dynamic = "force-dynamic";
@@ -38,6 +39,7 @@ export default async function ConfirmWaitlist({ params, searchParams }: PageProp
         <nav className={styles.links}>
           <Link href={`/register?email=${encodeURIComponent(entry.email)}`}>{t("createAccount")}</Link>
           <Link href="/drop/001">{t("toDrop")}</Link>
+          <Link href={`/preferences/${manageToken(entry.id)}`}>{t("manage")}</Link>
         </nav>
       </>
     ));
