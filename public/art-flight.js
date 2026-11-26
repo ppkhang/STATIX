@@ -8,6 +8,12 @@
 // slides off to the left, a slanted cover passes behind it, and the next product follows it in.
 // The header's home link (data-home), on every page that has it, gets its own: the cover brings a big white STATIX,
 // and on the landing it shrinks into the logo in the top left corner.
+// The landing's links to the drop and to log in (wide windows) send the logo to the middle of a header that draws
+// itself left to right, then fade TV static in under it while the page loads. The next page picks both up and lets its own header take over.
+// Elsewhere, the header's own links to the drop, log in and the account fade the same static in and out, without a
+// reload: the header stays, and only what is under it changes (window.statixGo, from the app).
+// Entering or reloading the landing plays the same arrival over plain black (the intro); window.statixIntro resolves
+// when it is over, and landing.js then shows off the 3D model.
 (() => {
   const KEY = 'statix-art-flight';
   const CSS_ESCAPE = (value) => window.CSS.escape(value); // `CSS` below is this script's own stylesheet
@@ -379,6 +385,20 @@
     [data-wipe-word] { position: fixed; left: 50%; top: 50%; translate: -50% -50%; z-index: 1001; pointer-events: none; white-space: nowrap; color: #F4F2F8;
       font: 900 clamp(72px, 15vw, 240px)/1 'Tektur', sans-serif; letter-spacing: .08em; }
     [data-wipe-cover] * { position: absolute; box-sizing: border-box; }
+    html[data-wipe="up"] .dockbar, html[data-wipe="up"] .nav-logo { visibility: hidden !important; }
+    [data-wipe-bar] { position: fixed; left: 0; top: 0; width: 100%; height: 93px; z-index: 1001; pointer-events: none; background: #0B0A0F; border-bottom: 1px solid var(--rule, #26252B);
+      font: 400 14px/1 'Archivo', sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--muted, #A6A5AD); }
+    [data-wipe-bar] span { position: absolute; top: 24px; height: 44px; display: flex; align-items: center; white-space: nowrap; }
+    [data-wipe-bar] span[data-here] { color: #B9A4FF; font-weight: 900; }
+    [data-wipe-edge] { position: fixed; left: 0; top: 0; width: 18px; height: 93px; z-index: 1002; pointer-events: none; background: #B9A4FF; border-right: 4px solid #F4F2F8; transform: skewX(-22deg); }
+    .as-noise { inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
+    .as-lines { inset: 0; background: repeating-linear-gradient(rgba(0, 0, 0, .42) 0 2px, transparent 2px 4px); }
+    .as-bar { left: 0; right: 0; top: 0; animation: as-roll linear infinite; }
+    .as-bar.dark { background: linear-gradient(transparent, rgba(4, 3, 8, .82) 28%, rgba(4, 3, 8, .82) 72%, transparent); }
+    .as-bar.lit { background: linear-gradient(transparent, rgba(185, 164, 255, .26) 55%, rgba(244, 242, 248, .34) 62%, transparent 70%); mix-blend-mode: screen; }
+    @keyframes as-roll { from { transform: translateY(-100%); } to { transform: translateY(100vh); } }
+    [data-wipe-logo] { position: fixed; left: 0; top: 0; z-index: 1003; pointer-events: none; white-space: nowrap; color: #F4F2F8; transform-origin: 0 50%;
+      font: 900 36px/1 'Tektur', sans-serif; letter-spacing: .08em; }
     .aw-streak { top: 0; bottom: 0; left: 0; background: #B9A4FF; animation: aw-run linear infinite; }
     .aw-edge { top: 0; bottom: 0; background: #B9A4FF; }
     .aw-dots { inset: -30%; rotate: 22deg; background: radial-gradient(circle, rgba(185, 164, 255, .22) 2.5px, transparent 3px) 0 0 / 14px 14px; animation: aw-drift .45s linear infinite; }
@@ -482,6 +502,9 @@
     return range.getBoundingClientRect();
   };
 
+  const SLAM = [{ opacity: 0, scale: '2.2' }, { opacity: 1, scale: '.94', offset: 0.7 }, { opacity: 1, scale: '1' }];
+  const SLAM_EASE = 'cubic-bezier(.3, .7, .3, 1)';
+
   async function wipeHome(url) {
     const sheet = make('style', '', WIPE_CSS);
     const cover = makeCover(0); // the landing has no header, so the whole window is covered
@@ -496,28 +519,48 @@
     ridden = [...gone, across];
     root.append(word);
     // it slams down out of a bigger size once the cover is nearly across
-    const slam = word.animate([{ opacity: 0, scale: '2.2' }, { opacity: 1, scale: '.94', offset: 0.7 }, { opacity: 1, scale: '1' }],
-      { duration: 380, delay: 200, easing: 'cubic-bezier(.3, .7, .3, 1)', fill: 'both' });
+    const slam = word.animate(SLAM, { duration: 380, delay: 200, easing: SLAM_EASE, fill: 'both' });
     await Promise.all([across.finished, slam.finished]).catch(() => {});
     try { sessionStorage.setItem(HOME_KEY, String(Date.now())); } catch { /* storage blocked: home just opens */ }
     location.assign(url);
   }
 
-  /** On the landing: cover and wordmark are up from the first paint; the cover leaves and the word shrinks home. */
-  function arriveHome() {
-    const arrived = Date.now();
+  /** On the landing: cover and wordmark are up from the first paint; the cover leaves and the word shrinks home.
+   *  As the intro, the cover is plain black and the word has to slam in here, having no page to come from. */
+  function arriveHome(intro) {
+    let arrived = Date.now();
     const sheet = make('style', '', WIPE_CSS);
     const cover = makeCover(0);
     const word = wordmark();
+    let over = () => {};
+    if (intro) {
+      cover.replaceChildren();
+      word.style.opacity = '0'; // unseen until its font is in
+      window.statixIntro = new Promise((resolve) => { over = resolve; });
+      history.scrollRestoration = 'manual'; // a reload would otherwise jump back down under the cover
+      // fetched now, so the model is ready to leap out as the cover goes. Same addresses as in landing.js
+      for (const [rel, href] of [['modulepreload', 'https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js'], ['preload', '/assets/statix_cube.glb?v=3']]) {
+        const link = make('link', '');
+        Object.assign(link, { rel, crossOrigin: 'anonymous' });
+        if (rel === 'preload') link.as = 'fetch';
+        link.href = href;
+        document.head.append(link);
+      }
+    }
     // over the page this time: it is still being built underneath
     Object.assign(cover.style, { zIndex: '1000', translate: -SLANT + 'vw 0' });
     root.setAttribute('data-wipe', 'home'); // keeps the page's own logo hidden until ours has landed on it
     root.append(sheet, cover, word); // outside <body>, which doesn't exist yet
-    const clear = () => { cover.remove(); word.remove(); sheet.remove(); root.removeAttribute('data-wipe'); };
+    const clear = () => { cover.remove(); word.remove(); sheet.remove(); root.removeAttribute('data-wipe'); history.scrollRestoration = 'auto'; over(); };
     const failsafe = setTimeout(clear, 6000);
     const settleWord = async () => {
       const loaded = new Promise((resolve) => (document.readyState === 'complete' ? resolve() : addEventListener('load', resolve, { once: true })));
       await Promise.race([loaded.then(() => document.fonts.load('900 100px Tektur')).then(() => document.fonts.ready), wait(2000)]);
+      if (intro) {
+        await word.animate(SLAM, { duration: 380, easing: SLAM_EASE, fill: 'both' }).finished.catch(() => {});
+        word.style.opacity = '';
+        arrived = Date.now();
+      }
       await wait(Math.max(0, 420 - (Date.now() - arrived))); // long enough to be seen at full size
       scrollTo({ top: 0, behavior: 'instant' });
       const logo = document.querySelector('.dock');
@@ -544,6 +587,186 @@
     };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', settleWord);
     else settleWord();
+  }
+
+  // ---- from the landing to a page with the header: the logo goes to the middle and the header forms along it ----
+  const UP_KEY = 'statix-wipe-up';
+  const PAGES = { '/drop/001': 'Drop 001', '/login': 'Log in' };
+  const WIDE = '(min-width: 900px)'; // where shell.module.css centres the logo; narrower headers are laid out otherwise
+  const HEADER = 93; // that header's height
+
+  /** The next page's header, as shell.module.css lays it out, for a visitor who is not signed in. */
+  function headerBar(path) {
+    const bar = make('div', '');
+    bar.setAttribute('data-wipe-bar', '');
+    bar.setAttribute('aria-hidden', 'true');
+    const side = 'max(clamp(20px, 4vw, 56px), calc(50vw - 720px))';
+    for (const [href, at] of [['/drop/001', 'left'], ['/login', 'right']]) {
+      const link = make('span', '', PAGES[href]);
+      // measured from the window, as the real one is, so a scrollbar nudges nothing
+      link.style.left = at === 'left' ? side : 'auto';
+      if (at === 'right') link.style.right = 'calc(' + side + ' - (100vw - 100%))';
+      if (href === path) link.setAttribute('data-here', '');
+      bar.append(link);
+    }
+    return bar;
+  }
+
+  const headerLogo = () => {
+    const logo = make('div', '', 'STATIX');
+    logo.setAttribute('data-wipe-logo', '');
+    logo.setAttribute('aria-hidden', 'true');
+    return logo;
+  };
+  // the transform that centres the logo in the header
+  const centred = (logo) => 'translate(' + (innerWidth - logo.offsetWidth) / 2 + 'px, ' + (46 - logo.offsetHeight / 2) + 'px) scale(1)';
+
+  // dim lavender grey, darkest to lightest, as the canvas wants them (ABGR)
+  const SHADES = [10, 22, 34, 48, 64, 84, 108, 140].map((v) => (255 << 24) | (Math.min(255, v * 1.12) << 16) | ((v * 0.94) << 8) | v);
+  const SNOW = { width: 192, height: 108 };
+  let snow; // the one noise canvas, shared by every transition
+
+  /** The noise canvas, redrawn about 30 times a second for as long as it is on the page, and not a frame longer. */
+  function liveNoise() {
+    if (!snow) {
+      snow = make('canvas', 'as-noise');
+      Object.assign(snow, SNOW);
+    }
+    const canvas = snow;
+    const pen = canvas.getContext('2d');
+    const picture = pen.createImageData(SNOW.width, SNOW.height);
+    const pixels = new Uint32Array(picture.data.buffer);
+    const paint = () => {
+      for (let y = 0, i = 0; y < SNOW.height; y++) {
+        // some rows run brighter or darker than others, as a weak signal does
+        const row = Math.random() < 0.07 ? (Math.random() < 0.5 ? 3 : -3) : 0;
+        for (let x = 0; x < SNOW.width; x++, i++) pixels[i] = SHADES[Math.max(0, Math.min(7, ((Math.random() * 7) | 0) + row))];
+      }
+      pen.putImageData(picture, 0, 0);
+    };
+    paint();
+    if (!canvas.running) {
+      canvas.running = true;
+      let last = 0, wasOn = false;
+      const tick = (now) => {
+        wasOn = wasOn || canvas.isConnected;
+        if (wasOn && !canvas.isConnected) { canvas.running = false; return; }
+        if (now - last > 32) { last = now; paint(); }
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+    return canvas;
+  }
+
+  // the rolling bars: [kind, height in vh, seconds per pass, how far into its pass it starts]
+  const BARS = [['dark', 30, 1.3, 0.2], ['dark', 12, 0.85, 0.65], ['dark', 5, 2.1, 0.45], ['lit', 22, 1.05, 0.35]];
+
+  /** TV static over everything under the header: snow, scanlines and bars rolling down it. It only fades in and out,
+   *  and the snow is dim, so the screen as a whole never flashes. */
+  function staticCover(top = HEADER) {
+    const cover = make('div', '');
+    cover.setAttribute('data-wipe-cover', '');
+    cover.setAttribute('aria-hidden', 'true');
+    Object.assign(cover.style, { position: 'fixed', zIndex: '1000', pointerEvents: 'none', left: '0', right: '0', top: top + 'px', bottom: '0', overflow: 'hidden', background: '#0B0A0F' });
+    const bars = BARS.map(([kind, height, seconds, into]) => {
+      const bar = make('div', 'as-bar ' + kind);
+      // timed by the clock, so the bars carry on from where they were when the next page draws them again
+      Object.assign(bar.style, { height: height + 'vh', animationDuration: seconds + 's', animationDelay: -((Date.now() / 1000 + into * seconds) % seconds) + 's' });
+      return bar;
+    });
+    cover.append(liveNoise(), ...bars, make('div', 'as-lines'));
+    return {
+      element: cover,
+      arrive: () => cover.animate({ opacity: [0, 1] }, { duration: 260, easing: 'ease-in', fill: 'both' }),
+      leave: () => cover.animate({ opacity: [1, 0] }, { duration: 340, easing: 'ease-out', fill: 'forwards' }).finished.catch(() => {}),
+    };
+  }
+
+  async function wipeUp(url) {
+    const sheet = make('style', '', WIPE_CSS);
+    // the logo sets off from wherever the landing is showing its own: the corner chip once scrolled, else the top left
+    const home = document.querySelector('.dock');
+    const spot = home.getBoundingClientRect();
+    const size = parseFloat(getComputedStyle(home).fontSize);
+    const padding = parseFloat(getComputedStyle(home).paddingLeft);
+    root.append(sheet);
+    const bar = headerBar(url.pathname);
+    const edge = make('div', '');
+    edge.setAttribute('data-wipe-edge', '');
+    const logo = headerLogo();
+    root.append(bar, edge, logo);
+    root.setAttribute('data-wipe', 'up');
+
+    const timing = { duration: 720, easing: 'cubic-bezier(.65, 0, .25, 1)', fill: 'both' };
+    const from = 'translate(' + (spot.left + padding) + 'px, ' + (spot.top + spot.height / 2 - logo.offsetHeight / 2) + 'px) scale(' + size / 36 + ')';
+    // the bar is drawn from the left, a lavender blade on its leading edge, as the logo travels along it
+    const drawn = bar.animate([{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)' }], timing);
+    const blade = edge.animate([{ translate: '-40px 0' }, { translate: innerWidth + 40 + 'px 0' }], timing);
+    const moved = logo.animate([{ transform: from }, { transform: centred(logo) }], timing);
+    ridden = [drawn, blade, moved];
+    await Promise.all([drawn.finished, moved.finished]).catch(() => {});
+    edge.remove();
+
+    // then the loading is covered, under the header only
+    const cover = staticCover();
+    root.append(cover.element);
+    const faded = cover.arrive();
+    ridden.push(faded);
+    await faded.finished.catch(() => {});
+    await wait(HOLD_OUT);
+    try { sessionStorage.setItem(UP_KEY, JSON.stringify({ path: url.pathname, left: Date.now() })); } catch { /* storage blocked: the page just opens */ }
+    location.assign(url);
+  }
+
+  /** On the next page: header and cover are up from the first paint; once it is ready its own header takes over. */
+  function arriveUp(path) {
+    const arrived = Date.now();
+    const sheet = make('style', '', WIPE_CSS);
+    const bar = headerBar(path);
+    const logo = headerLogo();
+    const cover = staticCover();
+    root.append(sheet, cover.element, bar, logo); // outside <body>, which doesn't exist yet
+    // centred by the stylesheet's own means: its font is not in yet, so a width measured now would put it off centre
+    Object.assign(logo.style, { left: '50vw', top: '46px', translate: '-50% -50%', transformOrigin: '50% 50%' });
+    const clear = () => { cover.element.remove(); bar.remove(); logo.remove(); sheet.remove(); };
+    const failsafe = setTimeout(clear, 6000);
+    const reveal = async () => {
+      const loaded = new Promise((resolve) => (document.readyState === 'complete' ? resolve() : addEventListener('load', resolve, { once: true })));
+      await Promise.race([loaded.then(() => document.fonts.ready), wait(2500)]);
+      await wait(Math.max(0, HOLD_IN - (Date.now() - arrived)));
+      // the page's own header is under ours, laid out the same
+      bar.remove();
+      logo.remove();
+      await cover.leave();
+      clearTimeout(failsafe);
+      clear();
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', reveal);
+    else reveal();
+  }
+
+  // ---- between the other pages, by the header's links: the header stays and static fades over what is under it ----
+  async function fadeTo(url) {
+    const header = () => document.querySelector('header');
+    const under = () => Math.max(0, header()?.getBoundingClientRect().bottom ?? 0);
+    const sheet = make('style', '', WIPE_CSS);
+    const cover = staticCover(under());
+    root.append(sheet, cover.element);
+    await cover.arrive().finished.catch(() => {});
+    const from = location.pathname;
+    window.statixGo(url.pathname + url.search);
+    // the address changes once the new page is in; it may not be the one asked for (signed in, /login goes elsewhere)
+    const started = Date.now();
+    while (location.pathname === from && Date.now() - started < 8000) await wait(40);
+    if (location.pathname === from) return location.assign(url); // took too long: load it the ordinary way
+    await Promise.race([document.fonts.ready, wait(1000)]);
+    await frames(3);
+    await wait(Math.max(0, HOLD_OUT - (Date.now() - started)));
+    cover.element.style.top = under() + 'px';
+    await cover.leave();
+    cover.element.remove();
+    sheet.remove();
   }
 
   // ---- leaving ----
@@ -577,8 +800,23 @@
   }
 
   addEventListener('click', (event) => {
-    const card = event.target.closest?.('a[data-art-fly], a[data-switch], a[data-home]');
+    // the landing's own links to the drop and to log in, in its header, menu and footer
+    const onward = location.pathname === '/' && matchMedia(WIDE).matches ? event.target.closest?.('a[href="/drop/001"], a[href="/login"]') : null;
+    const top = location.pathname !== '/' && window.statixGo
+      ? event.target.closest?.('header nav a[href="/drop/001"], header nav a[href="/login"], header nav a[href="/account"]') : null;
+    const across = top && top.pathname !== location.pathname ? top : null;
+    const card = onward || across || event.target.closest?.('a[data-art-fly], a[data-switch], a[data-home]');
     if (!card || calm() || root.classList.contains('paused') || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (onward) {
+      event.preventDefault();
+      if (!leaving) { leaving = true; wipeUp(new URL(onward.href)); }
+      return;
+    }
+    if (across) {
+      event.preventDefault(); // also stops Next's link: the page changes once the static is up
+      if (!leaving) { leaving = true; fadeTo(new URL(across.href)).finally(() => { leaving = false; }); }
+      return;
+    }
     if (card.hasAttribute('data-home')) {
       event.preventDefault();
       if (!leaving) { leaving = true; wipeHome(new URL(card.href)); }
@@ -600,7 +838,7 @@
     leaving = false;
     ridden.forEach((animation) => animation.cancel());
     ridden = [];
-    document.querySelectorAll('[data-art-layer], [data-wipe-cover], [data-wipe-word]').forEach((layer) => layer.remove());
+    document.querySelectorAll('[data-art-layer], [data-wipe-cover], [data-wipe-word], [data-wipe-bar], [data-wipe-edge], [data-wipe-logo]').forEach((layer) => layer.remove());
     root.removeAttribute('data-wipe');
     document.querySelectorAll('.panel-art').forEach((image) => { image.style.visibility = ''; });
   });
@@ -612,6 +850,15 @@
     sessionStorage.removeItem(HOME_KEY);
   } catch { /* nothing to finish */ }
   if (homeward && location.pathname === '/' && Date.now() - homeward < 8000 && !calm()) return arriveHome();
+  // entering or reloading the landing; not Back/Forward, nor a link into one of its sections
+  if (location.pathname === '/' && !location.hash && !calm() && performance.getEntriesByType('navigation')[0]?.type !== 'back_forward') return arriveHome(true);
+
+  let up = null;
+  try {
+    up = JSON.parse(sessionStorage.getItem(UP_KEY));
+    sessionStorage.removeItem(UP_KEY);
+  } catch { /* nothing to finish */ }
+  if (up && up.path === location.pathname && Date.now() - up.left < 8000 && !calm() && matchMedia(WIDE).matches) return arriveUp(up.path);
 
   let flight = null;
   try {

@@ -34,13 +34,14 @@
 .btn:hover { background: var(--bg); color: var(--accent); }
 .btn:focus-visible { outline: 2px solid var(--bg); outline-offset: 3px; }
 
+/* log in and sign up keep a quieter footer */
+.page:has([data-entry]) .footer [data-not-on-entry] { display: none; }
+
 /* the menu's two groups: places, then you, set apart */
 .group { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px; }
 .you { margin-left: 28px; }
-/* you are here: a lavender slab, leaning like the rest of the site's cuts */
-.links a { position: relative; isolation: isolate; }
-.links a[aria-current], .links a[aria-current]:hover { color: var(--bg); font-weight: 900; }
-.links a[aria-current]::before { content: ""; position: absolute; z-index: -1; inset: 8px -14px; background: var(--accent); clip-path: polygon(11px 0, 100% 0, calc(100% - 11px) 100%, 0 100%); }
+/* you are here: lavender, and heavier so colour is not the only sign */
+.links a[aria-current], .links a[aria-current]:hover { color: var(--accent); font-weight: 900; }
 
 /* the header: the wordmark in the middle of the bar, the places left of it and you on the right.
    Narrow screens keep the wordmark first and the links after it, so nothing can collide. */
