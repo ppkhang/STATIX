@@ -44,6 +44,12 @@ Release tags: **R1** is the MVP store (Drop 001, all 4 products), **R2** comes n
 
 ## Shared pieces (on every customer page)
 
+> **Changed 2026-11-26:** off the landing the menu is just Drop 001, then Log in or Account. The landing's menu is
+> Lineup, Vote, Tune in (its own sections), then Drop 001 and Log in. The current page is highlighted; product pages count as Drop 001.
+> **Join the waitlist** on the product and Drop pages opens a signup panel in place (simulated until M3, like the
+> landing's form).
+> **Cart** and **Support** are hidden until those pages exist. Footer: Drop 001 and the three policies.
+
 | Element | How you use it | What happens | Reqs |
 |---|---|---|---|
 | **Sticky menu** | Same as the landing page | Adds **Shop**, plus **Account** or **Sign in**, and a **Cart** count. | FR-001 |
@@ -83,6 +89,10 @@ Reached from the double opt-in email. Flow: PRC-02.
 | **Manage my data** | Link | Goes to `/preferences/:token` (page 17). | FR-026 |
 
 ## 2. Shop
+
+> **Changed 2026-11-26:** merged into the Drop page while there is only one drop. `/shop` redirects to the current drop and
+> **Shop** is out of the menu and footer. Bring it back when there is more to browse than Drop 001 (another drop, or
+> the desk system page).
 
 | Element | How you use it | What happens | Reqs |
 |---|---|---|---|

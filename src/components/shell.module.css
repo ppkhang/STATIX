@@ -34,11 +34,18 @@
 .btn:hover { background: var(--bg); color: var(--accent); }
 .btn:focus-visible { outline: 2px solid var(--bg); outline-offset: 3px; }
 
-/* the product page: the wordmark takes the middle of the bar, the shopping links sit left of it, the account and cart right */
+/* the menu's two groups: places, then you, set apart */
+.group { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px; }
+.you { margin-left: 28px; }
+/* you are here: a lavender slab, leaning like the rest of the site's cuts */
+.links a { position: relative; isolation: isolate; }
+.links a[aria-current], .links a[aria-current]:hover { color: var(--bg); font-weight: 900; }
+.links a[aria-current]::before { content: ""; position: absolute; z-index: -1; inset: 8px -14px; background: var(--accent); clip-path: polygon(11px 0, 100% 0, calc(100% - 11px) 100%, 0 100%); }
+
+/* the product page: the wordmark takes the middle of the bar, the places sit left of it and you on the right */
 @media (min-width: 900px) {
   .page:has(.main > [data-product]) .header { position: relative; }
   .page:has(.main > [data-product]) .header .logo { position: absolute; left: 50%; top: 50%; translate: -50% -50%; font-size: 36px; }
   .page:has(.main > [data-product]) .header .links { flex: 1; }
-  /* the third item is Account or Log in: it and what follows go to the far side */
-  .page:has(.main > [data-product]) .header .links > :nth-child(3) { margin-left: auto; }
+  .page:has(.main > [data-product]) .header .you { margin-left: auto; }
 }

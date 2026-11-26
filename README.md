@@ -87,9 +87,9 @@ The acceptance test is concrete: 10,000 concurrent holds on an edition of 50 mus
 
 Captured from the local dev server at 1440 × 900.
 
-| Landing (`/`) | Shop (`/shop`) |
+| Landing (`/`) | |
 |---|---|
-| [![STATIX landing page](docs/screenshots/landing.png)](docs/screenshots/landing.png) | [![STATIX shop](docs/screenshots/shop.png)](docs/screenshots/shop.png) |
+| [![STATIX landing page](docs/screenshots/landing.png)](docs/screenshots/landing.png) | |
 
 | Product (`/p/static-one`) | Drop (`/drop/001`) |
 |---|---|

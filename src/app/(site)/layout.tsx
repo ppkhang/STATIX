@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { currentAccount } from "@/auth";
 import { logout } from "@/lib/auth-actions";
+import NavLink from "@/components/NavLink";
 import authStyles from "@/components/auth.module.css";
 import styles from "@/components/shell.module.css";
 
@@ -16,18 +17,22 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
         {/* Plain <a>: the landing script only runs on a full page load. */}
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a className={styles.logo} href="/" aria-label={t("home")} data-home="">STATIX</a>
+        {/* only what matters off the landing: the drop, and you. Lineup and Vote are sections of the landing, so they stay in its menu */}
         <nav className={styles.links} aria-label={t("menu")}>
-          <Link href="/shop">{t("shop")}</Link>
-          <Link href="/drop/001">{t("drop")}</Link>
-          {me ? (
-            <>
-              <Link href="/account">{t("account")}</Link>
-              <form action={logout}><button type="submit" className={authStyles.signOut}>{t("signOut")}</button></form>
-            </>
-          ) : (
-            <Link href="/login">{t("signIn")}</Link>
-          )}
-          <Link href="/cart">{t("cart", { count: 0 })}</Link>
+          <div className={styles.group}>
+            {/* a product belongs to the drop, so product pages light this up too */}
+            <NavLink href="/drop/001" within={["/drop", "/p"]}>{t("drop")}</NavLink>
+          </div>
+          <div className={`${styles.group} ${styles.you}`}>
+            {me ? (
+              <>
+                <NavLink href="/account" within={["/account"]}>{t("account")}</NavLink>
+                <form action={logout}><button type="submit" className={authStyles.signOut}>{t("signOut")}</button></form>
+              </>
+            ) : (
+              <NavLink href="/login" within={["/register", "/verify", "/reset"]}>{t("signIn")}</NavLink>
+            )}
+          </div>
         </nav>
       </header>
 
@@ -36,12 +41,11 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
       <footer className={styles.footer}>
         <span className={styles.logo}>STATIX</span>
         <nav className={styles.links} aria-label={t("footerNav")}>
-          <Link href="/shop">{t("shop")}</Link>
           <Link href="/drop/001">{t("drop")}</Link>
-          <Link href="/support">{t("support")}</Link>
-          <Link href="/terms">{t("terms")}</Link>
-          <Link href="/returns">{t("returns")}</Link>
-          <Link href="/privacy-policy">{t("privacy")}</Link>
+          {/* the policies are only down here, so this is where they show you're on them */}
+          <NavLink href="/terms">{t("terms")}</NavLink>
+          <NavLink href="/returns">{t("returns")}</NavLink>
+          <NavLink href="/privacy-policy">{t("privacy")}</NavLink>
         </nav>
         <small>{t("copyright")}</small>
       </footer>

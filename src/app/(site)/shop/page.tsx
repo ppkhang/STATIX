@@ -1,46 +1,14 @@
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import Link from "next/link";
 import { getDrop } from "@/lib/catalogue";
-import { editionState } from "@/lib/drop-status";
-import { formatVnd } from "@/lib/format";
-import { productMedia } from "@/lib/product-media";
-import styles from "@/components/catalogue.module.css";
 
-export const dynamic = "force-dynamic"; // stock and drop state are live
+export const dynamic = "force-dynamic"; // which drop is current is live
 
+// Shop and Drop are one page for now: with a single drop they listed the same four products. The address stays,
+// for old links, until there is something to browse beyond the current drop.
 export default async function Shop() {
-  const t = await getTranslations("shop");
-  const d = await getTranslations("drop");
   const drop = await getDrop();
-  // one card per product, even once a product has several colours
-  const slugs = [...new Set(drop?.editions.map((e) => e.slug))];
-
-  return (
-    <>
-      <h1>{t("title")}</h1>
-      {slugs.length === 0 && <p>{t("empty")}</p>}
-      <ul className={styles.grid}>
-        {slugs.map((slug) => {
-          const editions = drop!.editions.filter((e) => e.slug === slug);
-          const name = editions[0].name;
-          const media = productMedia(slug);
-          const left = editions.reduce((sum, e) => sum + e.left, 0);
-          return (
-            <li key={slug}>
-              <Link href={`/p/${slug}`} className={styles.card}>
-                <span className={media.photo ? styles.shot : `${styles.shot} ${styles.noShot}`}>
-                  {/* eslint-disable-next-line @next/next/no-img-element -- same plain files the landing uses */}
-                  {media.photo ? <img src={media.photo} alt="" /> : t("noPhoto")}
-                </span>
-                <span className={styles.badge}>{d(`state.${editionState(drop!.state, left)}`)}</span>
-                <h2>{name}</h2>
-                <strong>{formatVnd(Math.min(...editions.map((e) => e.priceVnd)))}</strong>
-                <span>{t("editionSize", { size: editions.reduce((sum, e) => sum + e.size, 0) })}</span>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </>
-  );
+  if (drop) redirect(`/drop/${String(drop.number).padStart(3, "0")}`);
+  const t = await getTranslations("shop");
+  return <p>{t("empty")}</p>;
 }
