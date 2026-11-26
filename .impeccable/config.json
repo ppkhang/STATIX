@@ -53,6 +53,15 @@
         ],
         "createdAt": "2026-11-25T15:18:17.773Z",
         "reason": "agent triage: false positive: the three .panel-art imgs are hover/focus reveals that reach opacity 1; verified in headless Chrome"
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "src/app/globals.css"
+        ],
+        "createdAt": "2026-11-26T02:46:35.126Z",
+        "reason": "agent triage: false positive: L339 .vote::before/.drop::before is a full-width 8px top strip (left:0;right:0), not a side bar; unchanged from the original index.html"
       }
     ]
   }
