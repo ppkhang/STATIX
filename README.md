@@ -1,6 +1,6 @@
 # STATIX
 
-Store for STATIX numbered desk-audio drops. Next.js 16, TypeScript, Postgres with Drizzle, next-intl (English only).
+Store for STATIX numbered desk-audio drops. Next.js 16, TypeScript, Postgres with Drizzle, next-intl (English only). Desktop-first.
 
 Plan: [docs/BUILD.md](docs/BUILD.md) · Pages: [docs/PAGES_UI.md](docs/PAGES_UI.md) · Look: [DESIGN.md](DESIGN.md)
 
@@ -83,6 +83,22 @@ The acceptance test is concrete: 10,000 concurrent holds on an edition of 50 mus
 
 *STATIX is a fictional brand for a design case study. Prices, edition sizes and policies are placeholders marked as assumptions in the requirements.*
 
+## Screenshots
+
+Captured from the local dev server at 1440 × 900.
+
+| Landing (`/`) | Shop (`/shop`) |
+|---|---|
+| [![STATIX landing page](docs/screenshots/landing.png)](docs/screenshots/landing.png) | [![STATIX shop](docs/screenshots/shop.png)](docs/screenshots/shop.png) |
+
+| Product (`/p/static-one`) | Drop (`/drop/001`) |
+|---|---|
+| [![STATIX product page](docs/screenshots/product.png)](docs/screenshots/product.png) | [![STATIX drop page](docs/screenshots/drop.png)](docs/screenshots/drop.png) |
+
+| Log in (`/login`) | |
+|---|---|
+| [![STATIX log in page](docs/screenshots/login.png)](docs/screenshots/login.png) | |
+
 ## Run it locally
 
 Needs Node 24 and Docker.
@@ -96,6 +112,8 @@ npm run db:seed              # tiers, 4 products, Drop 001 with 500-unit edition
 npm run dev                  # http://localhost:3000
 ```
 
+Checks: `npm run lint`, `npm test`, `npm run build`.
+
 Schema changes: edit `src/db/schema.ts`, then `npm run db:generate` and `npm run db:migrate`.
 
 ## Layout
@@ -103,8 +121,11 @@ Schema changes: edit `src/db/schema.ts`, then `npm run db:generate` and `npm run
 | Path | What |
 |---|---|
 | `src/app/(landing)/` | Landing page: the original `index.html` markup; script in `public/landing.js` |
-| `src/app/(site)/` | Every other customer page, inside the shared menu and footer |
+| `src/app/(site)/` | Shop, product (`/p/[slug]`), drop (`/drop/[number]`), account and policy pages, inside the shared menu and footer |
+| `src/components/` | Shared shell, auth stage and backdrop, catalogue, drop and product views |
+| `src/lib/` | Drop status, catalogue/product content and media, auth rules and actions |
 | `src/app/globals.css` | Design tokens and the landing styles |
 | `src/db/` | Schema and client |
 | `messages/` | Page text (English) |
+| `docs/screenshots/` | Screenshots shown above |
 | `index.html` | Original standalone landing, kept as the reference for `docs/INTERACTABLES.md` |
