@@ -70,7 +70,21 @@
     "photoAlt": "{name}, photo",
     "artAlt": "{name}, illustration",
     "modelAlt": "3D model of {name}. Drag to rotate.",
-    "modelFailed": "The 3D view didn't load. Showing the photo."
+    "modelFailed": "The 3D view didn't load. Showing the photo.",
+    "leftOf": "{left, number} / {size, number} left",
+    "closeUp": "Up close",
+    "closeUpNote": "look closer",
+    "specs": "Specs",
+    "inBox": "In the box",
+    "specsSoon": "Full specs land before the drop.",
+    "deskAlt": "{name} on a desk",
+    "numbered": "Numbered run",
+    "to": "to",
+    "factUnits": "units made",
+    "factRestocks": "restocks, ever",
+    "factHeadStart": "minute head start for members",
+    "shout": "once they're gone, <line>they're gone</line>.",
+    "resetView": "Reset view"
   },
   "policy": {
     "draft": "Placeholder, not final",

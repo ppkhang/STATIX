@@ -1,5 +1,5 @@
 /* Shop, product and drop pages. Tokens come from globals.css (DESIGN.md). */
-.grid, .rows, .pairs { list-style: none; margin: 0; padding: 0; }
+.grid, .rows { list-style: none; margin: 0; padding: 0; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 32px; }
 
 .card { height: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px; background: var(--well); border: 3px solid var(--black); outline: 2px solid var(--ink); box-shadow: 10px 10px 0 var(--shade); }
@@ -8,7 +8,6 @@
 
 .shot { width: 100%; aspect-ratio: 4 / 3; display: grid; place-items: center; overflow: hidden; background: var(--black); }
 .shot img { width: 100%; height: 100%; object-fit: cover; }
-.shot model-viewer { width: 100%; height: 100%; }
 .noShot { color: var(--dim); border: 2px dashed var(--border); font-size: 13px; }
 
 .badge { align-self: flex-start; padding: 4px 10px; background: var(--accent); font-size: 13px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
@@ -35,21 +34,6 @@ p.badge.badge, .card .badge { color: var(--bg); }
 .bar { display: block; height: 14px; background: var(--shade); }
 .bar span { display: block; height: 100%; background: var(--accent); }
 
-.product { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 40px; align-items: start; }
-.gallery { display: flex; flex-direction: column; gap: 12px; }
-.thumbs { display: flex; flex-wrap: wrap; gap: 10px; }
-.thumbs button { min-height: 44px; min-width: 44px; padding: 0 18px; border: 2px solid var(--ink); background: var(--bg); color: var(--ink); font-weight: 900; text-transform: uppercase; cursor: pointer; }
-.thumbs button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
-.panel { display: flex; flex-direction: column; gap: 16px; }
-.colours { margin: 0; padding: 0; border: 0; display: flex; flex-wrap: wrap; gap: 16px; }
-.colours legend { padding: 0 0 8px; color: var(--muted); }
-.colours label { min-height: 44px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
-.colours input { accent-color: var(--accent); }
-.crossed { text-decoration: line-through; color: var(--dim); }
-.price { font-size: 28px; font-weight: 900; }
-.pairs { display: flex; flex-wrap: wrap; gap: 16px; }
-.pairs a { min-height: 44px; display: inline-flex; align-items: center; padding: 0 20px; border: 2px solid var(--ink); }
-.pairs a:hover { color: var(--accent); border-color: var(--accent); }
 
 /* changing numbers keep their width */
-.digit, .price, .leftWrap, .rows strong { font-variant-numeric: tabular-nums; }
+.digit, .leftWrap, .rows strong { font-variant-numeric: tabular-nums; }

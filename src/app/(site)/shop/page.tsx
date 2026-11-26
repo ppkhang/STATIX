@@ -23,14 +23,14 @@ export default async function Shop() {
         {slugs.map((slug) => {
           const editions = drop!.editions.filter((e) => e.slug === slug);
           const name = editions[0].name;
-          const media = productMedia[slug];
+          const media = productMedia(slug);
           const left = editions.reduce((sum, e) => sum + e.left, 0);
           return (
             <li key={slug}>
               <Link href={`/p/${slug}`} className={styles.card}>
-                <span className={media ? styles.shot : `${styles.shot} ${styles.noShot}`}>
+                <span className={media.photo ? styles.shot : `${styles.shot} ${styles.noShot}`}>
                   {/* eslint-disable-next-line @next/next/no-img-element -- same plain files the landing uses */}
-                  {media ? <img src={media.photo} alt="" /> : t("noPhoto")}
+                  {media.photo ? <img src={media.photo} alt="" /> : t("noPhoto")}
                 </span>
                 <span className={styles.badge}>{d(`state.${editionState(drop!.state, left)}`)}</span>
                 <h2>{name}</h2>
