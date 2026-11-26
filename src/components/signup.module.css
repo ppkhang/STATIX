@@ -1,0 +1,30 @@
+/* the landing's Tune in card, as a panel over any page: a straight white header joined to the form */
+.dialog { width: min(480px, calc(100vw - 32px)); margin: auto; padding: 0; border: 2px solid var(--ink); background: var(--ink); color: var(--bg); box-shadow: 14px 14px 0 var(--accent); text-align: left; }
+.dialog::backdrop { background: rgba(7, 6, 11, .82); }
+.dialog[open] { animation: arrive .28s cubic-bezier(.2, 1.4, .4, 1); }
+@keyframes arrive { from { opacity: 0; translate: 0 26px; } }
+
+.head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 14px 12px 24px; border-bottom: 3px solid var(--bg); }
+.head h2 { font: 900 clamp(34px, 6vw, 48px)/1 var(--font-main); letter-spacing: .04em; text-transform: uppercase; }
+.close { flex: none; width: 44px; height: 44px; display: grid; place-items: center; padding: 0; border: 2px solid var(--bg); background: none; color: var(--bg); cursor: pointer; }
+.close:hover, .close:focus-visible { background: var(--bg); color: var(--accent); }
+.close svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2.6; }
+
+.body { display: flex; flex-direction: column; gap: 6px; padding: 20px 24px 22px; }
+/* two classes, to outrank the page shell's paragraph styles */
+.body .pitch { max-width: none; color: var(--bg); font: 900 clamp(20px, 3vw, 26px)/1.15 var(--font-main); text-transform: uppercase; }
+.body .perk { max-width: none; color: #3A3647; font: 400 17px/1.4 var(--font-hand); }
+.body form { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.body label { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
+.body input { min-height: 52px; padding: 0 14px; border: 2px solid var(--bg); background: #fff; color: var(--bg); font: inherit; font-size: 16px; }
+.body input:focus-visible { outline: 3px solid #5B3FD1; outline-offset: 2px; }
+.body input[aria-invalid="true"] { border-color: #A4123F; }
+.body .error { max-width: none; min-height: 18px; color: #A4123F; font-size: 13px; line-height: 1.4; }
+.send { min-height: 52px; border: 0; background: var(--bg); color: var(--accent); font: 900 14px/1 var(--font-main); letter-spacing: .1em; text-transform: uppercase; cursor: pointer; }
+.send:hover:not(:disabled), .send:focus-visible { background: var(--accent); color: var(--bg); }
+.send:disabled { cursor: default; }
+.body .fine { max-width: none; color: #3A3647; font: 400 15px/1.4 var(--font-hand); }
+.body .done { max-width: none; margin-top: 12px; padding: 16px; background: var(--bg); color: var(--ink); font-weight: 900; line-height: 1.4; }
+
+@media (prefers-reduced-motion: reduce) { .dialog[open] { animation: none; } }
+:global(html.paused) .dialog[open] { animation: none; }

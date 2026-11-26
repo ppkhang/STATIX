@@ -2,12 +2,9 @@
   "shell": {
     "home": "STATIX, home",
     "menu": "Main menu",
-    "shop": "Shop",
-    "drop": "Drop",
+    "drop": "Drop 001",
     "signIn": "Log in",
-    "cart": "Cart ({count})",
     "footerNav": "Footer",
-    "support": "Support",
     "terms": "Terms",
     "returns": "Returns and warranty",
     "privacy": "Privacy",
@@ -22,10 +19,7 @@
     "decline": "Decline"
   },
   "shop": {
-    "title": "Shop",
-    "empty": "No products yet.",
-    "noPhoto": "Photo coming soon",
-    "editionSize": "Edition of {size, number}"
+    "empty": "No products yet."
   },
   "drop": {
     "state": {
@@ -188,5 +182,19 @@
       "body": "Someone tried to create an account with this address, but you already have one. Log in here:\n{url}\n\nIf it wasn't you, you don't need to do anything."
     },
     "otp": "Your STATIX code is {code}. It works for 5 minutes."
+  },
+  "signup": {
+    "title": "Tune in.",
+    "close": "Close",
+    "pitch": "Get the first signal.",
+    "perk": "Waitlist members get a {minutes} minute head start.",
+    "email": "Email",
+    "placeholder": "you@domain.com",
+    "send": "Send my signal",
+    "sending": "Tuning in…",
+    "fine": "One email. No spam.",
+    "empty": "Enter your email to tune in.",
+    "invalid": "That address doesn't look right. Check it.",
+    "done": "You're tuned in. Watch your inbox."
   }
 }

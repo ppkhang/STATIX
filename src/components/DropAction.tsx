@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import type { DropState } from "@/lib/drop-status";
+import WaitlistSignup from "./WaitlistSignup";
 import styles from "./catalogue.module.css";
 
 type Props = { state: DropState; earlyAccessAt: string | null; publicAt: string | null };
@@ -16,11 +17,10 @@ export default function DropAction({ state, earlyAccessAt, publicAt }: Props) {
   return (
     <>
       {state === "early_access" && <p>{t("membersFirst", { minutes: headStart })}</p>}
-      {/* Plain <a>: the landing script only runs on a full page load. */}
-      {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-      <a className={styles.cta} href="/#signup-form">
-        {state === "sold_out" || state === "closed" ? t("notifyNext") : t("joinWaitlist")}
-      </a>
+      <WaitlistSignup
+        buttonClass={styles.cta} minutes={state === "sold_out" || state === "closed" ? 0 : headStart}
+        label={state === "sold_out" || state === "closed" ? t("notifyNext") : t("joinWaitlist")}
+      />
     </>
   );
 }
