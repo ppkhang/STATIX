@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
@@ -20,7 +21,8 @@ export default async function Product({ params }: PageProps<"/p/[slug]">) {
   const media = productMedia(slug);
   const content: ProductContent = productContent[slug]
     ?? { word: edition.name.toUpperCase(), kind: "", note: "", details: [], specs: [], inBox: [] };
-  const others = [...new Map(drop.editions.filter((e) => e.slug !== slug).map((e) => [e.slug, e])).values()];
+  // every product in the drop, one card each, always in the same order
+  const lineup = [...new Map(drop.editions.map((e) => [e.slug, e])).values()];
   // a close-up shows once there is a real detail shot, or a main photo to cut it from
   const closeUps = content.details
     .map((detail, i) => ({ ...detail, file: media.details[i] }))
@@ -49,8 +51,10 @@ export default async function Product({ params }: PageProps<"/p/[slug]">) {
           );
         })}
         key={slug} initial={drop} slug={slug} media={media} content={content}
+        // everything handed to ProductView is built here on the server and set among its own elements there, so React
+        // asks each for a key
         closeUps={closeUps.length > 0 && (
-          <>
+          <Fragment key="closeUps">
             <ul className={styles.shots}>
               {closeUps.map((detail, i) => (
                 <li key={detail.label}>
@@ -68,12 +72,12 @@ export default async function Product({ params }: PageProps<"/p/[slug]">) {
               // eslint-disable-next-line @next/next/no-img-element -- same plain files the landing uses
               <img className={styles.desk} src={media.desk} alt={t("deskAlt", { name: edition.name })} loading="lazy" />
             )}
-          </>
+          </Fragment>
         )}
         specs={content.specs.length === 0 && content.inBox.length === 0 ? (
-          <p className={styles.soon}>{t("specsSoon")}</p>
+          <p key="specs" className={styles.soon}>{t("specsSoon")}</p>
         ) : (
-          <div className={styles.rows}>
+          <div key="specs" className={styles.rows}>
             {content.specs.length > 0 && (
               <details open>
                 <summary>{t("specs")}</summary>
@@ -88,22 +92,30 @@ export default async function Product({ params }: PageProps<"/p/[slug]">) {
             )}
           </div>
         )}
-        roster={others.length > 0 && (
-          <nav className={styles.roster} aria-label={t("others")}>
+        roster={(
+          // keyed: ProductView sets this server-built element among its own children, and React asks for one
+          <nav key="roster" className={styles.roster} aria-label={t("lineup")}>
             <ul>
-              {others.map((other) => {
-                const art = productMedia(other.slug).art;
-                const word = productContent[other.slug]?.word ?? other.name;
+              {lineup.map((item) => {
+                const art = productMedia(item.slug).art;
+                const card = (
+                  <>
+                    <span className={styles.face}>
+                      {/* eslint-disable-next-line @next/next/no-img-element -- same plain files the landing uses */}
+                      {art && <img src={art} alt="" />}
+                    </span>
+                    <span className={styles.faceName} aria-hidden="true">{productContent[item.slug]?.word ?? item.name}</span>
+                  </>
+                );
                 return (
-                  <li key={other.slug}>
-                    {/* data-switch: art-flight.js changes product with the wipe, and puts data-name on its cover */}
-                    <Link href={`/p/${other.slug}`} data-switch="" data-name={other.name} aria-label={other.name} title={other.name}>
-                      <span className={styles.face}>
-                        {/* eslint-disable-next-line @next/next/no-img-element -- same plain files the landing uses */}
-                        {art && <img src={art} alt="" />}
-                      </span>
-                      <span className={styles.faceName} aria-hidden="true">{word}</span>
-                    </Link>
+                  <li key={item.slug}>
+                    {item.slug === slug ? (
+                      // where you are: lit, and not a link to itself
+                      <span className={styles.card} aria-current="page">{card}<span className={styles.srOnly}>{item.name}</span></span>
+                    ) : (
+                      // data-switch: art-flight.js changes product with the wipe, and puts data-name on its cover
+                      <Link className={styles.card} href={`/p/${item.slug}`} data-switch="" data-name={item.name} aria-label={item.name} title={item.name}>{card}</Link>
+                    )}
                   </li>
                 );
               })}

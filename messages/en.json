@@ -44,10 +44,18 @@
     "membersFirst": "Members get {minutes} minutes first.",
     "allFound": "All {total, number} found a desk.",
     "numberRange": "No. {from}–{to}",
-    "editionLeft": "Edition of {size, number} · {left, number} left",
+    "leftOf": "{left, number} / {size, number} left",
+    "aside": "No restocks.",
+    "until": {
+      "scheduled": "Members open in",
+      "early_access": "Public opening in",
+      "public": "Closes in"
+    },
+    "editionsHeading": "The editions",
     "stale": "Can't reach the server. These numbers may be out of date.",
-    "membersOpen": "Early access for members opens {time} (Vietnam time)",
-    "publicOpen": "Public opening {time} (Vietnam time)",
+    "membersLabel": "Members open",
+    "publicLabel": "Public opening",
+    "zone": "Times are Vietnam time.",
     "buyNow": "Buy now"
   },
   "product": {
@@ -87,7 +95,7 @@
     "vatShort": "VAT included",
     "headStart": "Member head start",
     "minutes": "{minutes} minutes",
-    "others": "Other products"
+    "lineup": "Products"
   },
   "policy": {
     "draft": "Placeholder, not final",

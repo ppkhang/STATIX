@@ -1,18 +1,18 @@
 /* The product page. It reuses the landing's slab, wedge, dots, ghost word, tapes, LED stock bar and lineup
    panels from globals.css. Rules are scoped under .page so they outrank the shell's `.main h1` and `.main p`. */
-.page { --edge: max(clamp(20px, 4vw, 56px), calc(50% - 600px)); --header: 93px; display: flex; flex-direction: column; }
+.page { --edge: max(clamp(20px, 4vw, 56px), calc(50% - 600px)); --header: 93px; --foot: 93px; --face: 70px; --lean: calc(var(--face) * .404); display: flex; flex-direction: column; }
 .page ul { list-style: none; margin: 0; padding: 0; }
 .srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 /* ---- stage ---- */
 /* One screen under the header: showcase left, tabs' content right, the tab bar along the foot. */
 .stage { position: relative; isolation: isolate; overflow: hidden; display: flex; flex-wrap: wrap; align-items: center; align-content: center; gap: clamp(8px, 1.4svh, 24px) 48px;
-  min-height: calc(100svh - var(--header)); padding: clamp(10px, 2svh, 40px) var(--edge) clamp(10px, 1.6svh, 28px); }
+  min-height: calc(100svh - var(--header) - var(--foot)); padding: clamp(10px, 2svh, 40px) var(--edge) clamp(10px, 1.6svh, 28px); }
 .cut { position: absolute; inset: 0; z-index: -3; pointer-events: none; }
 .page .word { z-index: -1; left: 1%; top: 9%; font-size: clamp(110px, 20vw, 300px); }
 
 .gallery { container-type: inline-size; flex: 1.9 1 min(100%, 520px); min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.rig { position: relative; isolation: isolate; width: 100%; max-width: 1200px; height: min(100cqw, max(360px, calc(100svh - 140px - var(--face)))); }
+.rig { position: relative; isolation: isolate; width: 100%; max-width: 1200px; height: min(100cqw, max(340px, calc(100svh - var(--header) - var(--foot) - 28px))); }
 /* a pane of frosted glass cut to the burst: it blurs the bands running behind it */
 .burst { position: absolute; z-index: -2; left: 50%; top: 50%; height: 106%; aspect-ratio: 1; translate: -50% -50%; pointer-events: none; animation: spin 60s linear infinite;
   background: linear-gradient(145deg, rgba(255, 255, 255, .22), rgba(185, 164, 255, .1) 48%, rgba(255, 255, 255, .05)); -webkit-backdrop-filter: blur(18px) saturate(1.5); backdrop-filter: blur(18px) saturate(1.5); }
@@ -158,7 +158,7 @@
   :global(html):has(.page) { overflow: hidden; }
   :global(body):has(.page) { height: 100svh; overflow: hidden; }
   :global(body):has(.page) footer { display: none; }
-  .stage { height: calc(100svh - var(--header)); min-height: 0; }
+  .stage { height: calc(100svh - var(--header) - var(--foot)); min-height: 0; }
 }
 
 /* short windows: the decorative scrawl gives up its line so the tab bar stays clear */
@@ -210,34 +210,44 @@
 /* narrower desktops: the colour and the price stack, so the price can't run out of its box */
 @media (min-width: 900px) and (max-width: 1150px) { .surface { grid-template-columns: minmax(0, 1fr); } .surface .colours { grid-row: auto; } .surface p { justify-self: start; text-align: left; } .surface p:not(.vat) { font-size: clamp(26px, 3.2vw, 36px); } }
 
-/* ---- the other products, as a character picker along the bottom: their comic art in tiles that lean like the bands ---- */
-/* --lean is the tile height times tan(22deg), so the edges run exactly parallel to the bands */
-.stage { --face: clamp(60px, 11.5svh, 112px); --lean: calc(var(--face) * .404); padding-bottom: calc(var(--face) + clamp(18px, 3svh, 34px)); }
-.roster { position: absolute; z-index: 4; left: 50%; translate: -50% 0; bottom: clamp(10px, 1.8svh, 22px); }
-.roster ul { display: flex; gap: 6px; margin: 0; padding: 0; list-style: none; }
-.page .roster li { margin: 0; padding: 0; }
+/* ---- the lineup, as a character picker in the bottom bar: the header's twin, as tall as the other pages' footer and
+   drawn like it. All four in the middle, their comic art in cards that lean like the bands ---- */
+/* --lean (on .page) is the card height times tan(22deg), so the edges run exactly parallel to the bands */
+.roster { position: relative; z-index: 4; flex: none; display: flex; align-items: center; justify-content: center; height: var(--foot); padding: 0 8px; border-top: 1px solid var(--rule); background: var(--bg); }
+.roster ul { display: flex; justify-content: center; gap: 6px; min-width: 0; margin: 0; padding: 0; list-style: none; }
+.page .roster li { min-width: 0; margin: 0; padding: 0; }
+.page .roster li + li { margin-left: calc(var(--lean) * -1); } /* leaves the list's 6px between two parallel edges */
 /* one strip with straight outer edges: only the cuts between cards lean. --a and --b are the left and right sides' lean. */
-.roster a { --a: var(--lean); --b: var(--lean); position: relative; display: block; width: calc(var(--face) * 1.15 + (var(--a) + var(--b)) / 2); height: var(--face); padding: 3px; background: var(--ink); text-decoration: none;
-  clip-path: polygon(var(--a) 0, 100% 0, calc(100% - var(--b)) 100%, 0 100%); transition: translate .16s cubic-bezier(.2, 1.5, .4, 1), background-color .12s; }
-.roster li:first-child a { --a: 0px; }
-.roster li:last-child a { --b: 0px; }
-.roster li + li a { margin-left: calc(var(--lean) * -1); } /* leaves the list's 6px between two parallel edges */
+.card { --a: var(--lean); --b: var(--lean); position: relative; display: block; width: calc(var(--face) * 1.15 + (var(--a) + var(--b)) / 2); max-width: 100%; height: var(--face); padding: 3px; background: var(--shade); text-decoration: none;
+  clip-path: polygon(var(--a) 0, 100% 0, calc(100% - var(--b)) 100%, 0 100%); transition: background-color .12s; }
+.roster li:first-child .card { --a: 0px; }
+.roster li:last-child .card { --b: 0px; }
 .face { display: block; width: 100%; height: 100%; overflow: hidden;
   clip-path: polygon(max(0px, var(--a) - 1px) 0, calc(100% - min(var(--b), 1.4px)) 0, calc(100% - max(0px, var(--b) - 1px)) 100%, min(var(--a), 1.4px) 100%);
   background: radial-gradient(circle, rgba(185, 164, 255, .3) 2px, transparent 2.5px) 0 0 / 9px 9px, var(--well); }
-.face img { width: 100%; height: 100%; object-fit: cover; scale: 1.25; transition: scale .2s ease-out; }
+/* the others wait, dimmed, until pointed at */
+.face img { width: 100%; height: 100%; object-fit: cover; scale: 1.25; filter: grayscale(.75) brightness(.6); transition: scale .2s ease-out, filter .2s; }
 .faceName { position: absolute; left: 0; right: var(--b); bottom: 0; padding: 3px 4px 4px; background: var(--ink); color: var(--bg); text-align: center; font: 900 clamp(10px, 1.7svh, 13px)/1 var(--font-main); letter-spacing: .08em; }
-.roster a:hover, .roster a:focus-visible { translate: 0 -8px; background: var(--accent); }
-.roster a:hover .faceName, .roster a:focus-visible .faceName { background: var(--accent); }
-.roster a:hover img, .roster a:focus-visible img { scale: 1.42; }
+a.card:hover, a.card:focus-visible { background: var(--ink); }
+a.card:hover img, a.card:focus-visible img { scale: 1.42; filter: none; }
+/* the product on screen. data-sliding and data-lit: art-flight.js moves the light before it changes product */
+.card:is([aria-current], [data-lit]) { padding: 4px; background: var(--accent); }
+.card:is([aria-current], [data-lit]) img { scale: 1.42; filter: none; }
+.card:is([aria-current], [data-lit]) .face { background-color: #241d3d; }
+.card:is([aria-current], [data-lit]) .faceName { background: var(--accent); }
+.roster[data-sliding] .card[aria-current] { padding: 3px; background: var(--shade); }
+.roster[data-sliding] .card[aria-current] img { scale: 1.25; filter: grayscale(.75) brightness(.6); }
+.roster[data-sliding] .card[aria-current] .face { background-color: var(--well); }
+.roster[data-sliding] .card[aria-current] .faceName { background: var(--ink); }
 /* the clip would cut an outline off, so keyboard focus is drawn as a thicker frame */
-.roster a:focus-visible { padding: 5px; outline: none; }
+a.card:focus-visible { padding: 5px; background: var(--accent); outline: none; }
 .roster li { animation: rise-in .45s cubic-bezier(.2, 1.4, .4, 1) backwards; }
 .roster li:nth-child(1) { animation-delay: .45s; }
 .roster li:nth-child(2) { animation-delay: .52s; }
 .roster li:nth-child(3) { animation-delay: .59s; }
-@media (prefers-reduced-motion: reduce) { .roster a, .face img { transition: none; } }
-:global(html.paused) .roster a, :global(html.paused) .face img { transition: none; }
+.roster li:nth-child(4) { animation-delay: .66s; }
+@media (prefers-reduced-motion: reduce) { .card, .face img { transition: none; } }
+:global(html.paused) .card, :global(html.paused) .face img { transition: none; }
 
 /* ---- one HUD block: the name is a straight header joined to the panel under it, then the thin tab strip ---- */
 .page .buy .title, .page .buy .title:hover { align-self: stretch; margin: 0; padding: clamp(8px, 1.4svh, 14px) 18px; transform: none; rotate: none; clip-path: none; border: 2px solid var(--ink); box-shadow: 8px 8px 0 var(--shade);

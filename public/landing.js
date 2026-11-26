@@ -381,22 +381,6 @@ function tuneIn(title) {
   }, 50);
 }
 
-// the tapes run faster while the page is scrolled, and ease back once it rests
-let surge = 0, lastY = scrollY, surging = false;
-function runTapes() {
-  surge *= .93;
-  surging = surge > .05;
-  for (const animation of tapes.getAnimations({ subtree: true })) animation.playbackRate = surging ? 1 + surge : 1;
-  if (surging) requestAnimationFrame(runTapes);
-}
-addEventListener('scroll', () => {
-  const moved = Math.abs(scrollY - lastY);
-  lastY = scrollY;
-  if (still() || tapes.classList.contains('offscreen')) return;
-  surge = Math.min(9, surge + moved / 22);
-  if (!surging) { surging = true; requestAnimationFrame(runTapes); }
-}, { passive: true });
-
 const tailParts = [document.querySelector('.wordmark-wrap'), document.querySelector('.page > footer')];
 const tailSize = new ResizeObserver(() => {
   document.documentElement.style.setProperty('--tail', tailParts.reduce((sum, part) => sum + part.offsetHeight, 0) + 'px');

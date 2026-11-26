@@ -41,7 +41,7 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
       <main className={styles.main}>{children}</main>
 
       <footer className={styles.footer}>
-        {/* data-not-on-entry: log in and sign up leave these out (shell.module.css) */}
+        {/* data-not-on-entry: log in, sign up and the drop page leave these out (shell.module.css) */}
         <span className={styles.logo} data-not-on-entry="">STATIX</span>
         <nav className={styles.links} aria-label={t("footerNav")}>
           <Link href="/drop/001" data-not-on-entry="">{t("drop")}</Link>

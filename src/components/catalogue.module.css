@@ -1,7 +1,4 @@
-/* Shop, product and drop pages. Tokens come from globals.css (DESIGN.md). */
-.rows { list-style: none; margin: 0; padding: 0; }
-
-
+/* Shared by the product, drop and policy pages: badge, countdown and buy button. Tokens come from globals.css (DESIGN.md). */
 
 .badge { align-self: flex-start; padding: 4px 10px; background: var(--accent); font-size: 13px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
 /* beats the muted paragraph colour in shell.module.css */
@@ -16,23 +13,10 @@ p.badge.badge { color: var(--bg); }
 .cta { align-self: flex-start; min-height: 56px; display: inline-flex; align-items: center; padding: 0 32px; border: 0; background: var(--accent); color: var(--bg); font: 900 16px/1 var(--font-main); text-transform: uppercase; box-shadow: 8px 8px 0 var(--ink); cursor: pointer; }
 button.cta { cursor: pointer; }
 .cta:disabled { background: var(--panel); color: var(--muted); box-shadow: none; cursor: default; }
-.soldOut { font-size: 20px; }
-
-.rows { display: flex; flex-direction: column; gap: 16px; }
-.rows li { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); align-items: center; gap: 16px; padding: 20px; background: var(--well); border: 2px solid var(--border); }
-.rows li > div:first-child { display: flex; flex-direction: column; gap: 6px; }
-.rows h2 a { min-height: 44px; display: inline-flex; align-items: center; text-decoration: underline; text-underline-offset: 4px; }
-.gone { opacity: .5; }
-
-.leftWrap { display: flex; flex-direction: column; gap: 8px; }
-.bar { display: block; height: 14px; background: var(--shade); }
-.bar span { display: block; height: 100%; background: var(--accent); }
-
 
 /* changing numbers keep their width */
-.digit, .leftWrap, .rows strong { font-variant-numeric: tabular-nums; }
+.digit { font-variant-numeric: tabular-nums; }
 
-.rowBuy { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
 p.refusal.refusal { max-width: 420px; color: var(--accent); font-size: 14px; }
 p.refusal.refusal:empty { display: none; }
 .refusal a { text-decoration: underline; text-underline-offset: 3px; }
