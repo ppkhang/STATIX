@@ -6,11 +6,8 @@ import Link from "next/link";
 import { peekToken } from "@/lib/accounts";
 import { resendVerify, verifyEmail } from "@/lib/auth-actions";
 
-export async function generateMetadata() {
-  const t = await getTranslations("auth");
-  // NFR-022: account and token pages stay out of search results
-  return { title: `${t("verifyTitle")} — STATIX`, robots: { index: false, follow: false } };
-}
+// NFR-022: account and token pages stay out of search results
+export const metadata = { robots: { index: false, follow: false } };
 
 export default async function Verify({ searchParams }: PageProps<"/verify">) {
   const { token, done } = await searchParams;

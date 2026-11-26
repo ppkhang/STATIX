@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { Fragment, useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { FormState } from "@/lib/auth-actions";
 import { PASSWORD_MIN } from "@/lib/auth-rules";
@@ -21,10 +21,12 @@ type Props = {
   fields: Field[];
   submit: string;
   hidden?: Record<string, string>;
+  /** A small line under the password field, in the spot where the password rule sits. */
+  passwordHelp?: React.ReactNode;
 };
 
 /** Every account form: labelled fields, one inline error, and the password rule shown while typing. */
-export default function AuthForm({ action, fields, submit, hidden }: Props) {
+export default function AuthForm({ action, fields, submit, hidden, passwordHelp }: Props) {
   const t = useTranslations("auth");
   const [state, run, pending] = useActionState(action, {});
   const [length, setLength] = useState(0);
@@ -35,21 +37,24 @@ export default function AuthForm({ action, fields, submit, hidden }: Props) {
     <form action={run} className={styles.form} noValidate>
       {Object.entries(hidden ?? {}).map(([name, value]) => <input key={name} type="hidden" name={name} value={value} />)}
       {fields.map((name) => (
-        <label key={name}>
-          <span>{t(`field.${name}`)}</span>
-          <input
-            {...INPUT[name]}
-            required
-            defaultValue={name === "email" ? state.email : undefined}
-            aria-describedby={name === "newPassword" ? "password-rule" : undefined}
-            onChange={name === "newPassword" ? (event) => setLength([...event.target.value].length) : undefined}
-          />
-          {name === "newPassword" && (
-            <small id="password-rule">
-              {t("passwordRule", { min: PASSWORD_MIN })} {length >= PASSWORD_MIN ? "✓" : `${length}/${PASSWORD_MIN}`}
-            </small>
-          )}
-        </label>
+        <Fragment key={name}>
+          <label>
+            <span>{t(`field.${name}`)}</span>
+            <input
+              {...INPUT[name]}
+              required
+              defaultValue={name === "email" ? state.email : undefined}
+              aria-describedby={name === "newPassword" ? "password-rule" : undefined}
+              onChange={name === "newPassword" ? (event) => setLength([...event.target.value].length) : undefined}
+            />
+            {name === "newPassword" && (
+              <small id="password-rule">
+                {t("passwordRule", { min: PASSWORD_MIN })} {length >= PASSWORD_MIN ? "✓" : `${length}/${PASSWORD_MIN}`}
+              </small>
+            )}
+          </label>
+          {name === "password" && passwordHelp && <small className={styles.help}>{passwordHelp}</small>}
+        </Fragment>
       ))}
       <p role="alert" className={styles.error}>{state.error ? t(`error.${state.error}`) : ""}</p>
       <button type="submit" disabled={pending}>{submit}</button>

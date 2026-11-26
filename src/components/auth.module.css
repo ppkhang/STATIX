@@ -19,3 +19,29 @@ p.notice.notice { color: var(--ink); border-left: 4px solid var(--accent); paddi
 .facts dd { margin: 0; overflow-wrap: anywhere; }
 .signOut { background: none; border: 0; padding: 0; min-height: 44px; color: var(--muted); font: inherit; letter-spacing: inherit; text-transform: uppercase; cursor: pointer; }
 .signOut:hover { color: var(--accent); }
+
+/* Log in and sign up, in the landing's language: a title slab over a console box with a light surface
+   (DESIGN.md, "Tune in"). Scoped to .stage, so the other account pages keep the styles above. */
+.stage { position: relative; isolation: isolate; width: 100%; max-width: 574px; margin-inline: auto; padding-right: 14px; display: flex; flex-direction: column; align-items: flex-start; gap: 28px; }
+/* two classes beat the shell's `.main h1` */
+.stage .title { align-self: stretch; margin-inline: 6px; white-space: nowrap; font-size: clamp(36px, 9vw, 72px); text-transform: uppercase; }
+.console { align-self: stretch; border: 2px solid var(--ink); box-shadow: 14px 14px 0 var(--accent); }
+.surface { display: flex; flex-direction: column; gap: 16px; padding: clamp(20px, 5vw, 40px); background: var(--ink); color: var(--bg); }
+.surface .form { max-width: none; }
+.surface .form input { height: 54px; border-color: var(--bg); }
+.surface .form input:focus { border: 4px solid var(--accent); outline: 2px solid var(--bg); outline-offset: 0; }
+.surface .form small { color: var(--card-ink); }
+/* one text line under the password on both pages, so the two boxes come out the same height */
+.surface .form small { line-height: 20px; }
+.form .help { margin-top: -10px; }
+.help a { text-decoration: underline; text-underline-offset: 3px; }
+.surface .help a:focus-visible { outline-color: var(--bg); }
+.surface .form button { align-self: stretch; min-height: 54px; background: var(--bg); color: var(--accent); box-shadow: none; }
+.surface .form button:disabled { color: var(--muted); }
+.surface .form button:focus-visible { outline-color: var(--bg); }
+.surface p.error.error { max-width: none; color: var(--error); font-weight: 700; }
+.surface p.error:empty { margin-top: -16px; }
+.surface p.notice.notice { max-width: none; color: var(--bg); border-left-color: var(--bg); font-weight: 700; }
+.stage .links { column-gap: 28px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.stage .links a { color: var(--muted); text-decoration: none; }
+.stage .links a:hover { color: var(--accent); }
