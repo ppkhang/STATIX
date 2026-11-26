@@ -3,12 +3,10 @@
 .backdrop { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
 .backdrop svg { display: block; width: 100%; height: 100%; }
 
-/* Contour lines must never cross, so they only ever move together, as one group. The ripple that travels
-   outward is brightness: each height (--i, set in the file) swells a moment after the one inside it. */
+/* Contour lines must never cross, so they only ever move together, as one group. No per-line animation:
+   one on every line cost about a third of the page's idle work. */
 .backdrop :global([data-part="topology"]) { transform-origin: 800px 450px; animation: breathe 16s ease-in-out infinite alternate; }
 @keyframes breathe { to { transform: scale(1.03); } }
-.backdrop :global([data-part="topology"] path) { animation: swell 6s ease-in-out infinite; animation-delay: calc(var(--i) * .2s - 12s); }
-@keyframes swell { 0%, 45%, 100% { opacity: .6; } 20% { opacity: 1; } }
 
 /* nodes: the halo rings ping (each dot's halo is the circle that has a stroke) */
 .backdrop :global([data-part="nodes"] circle[stroke]) {
