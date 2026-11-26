@@ -41,14 +41,14 @@
     "seconds": "Sec",
     "joinWaitlist": "Join the waitlist",
     "notifyNext": "Get the next drop",
-    "checkoutSoon": "Checkout opens soon",
     "membersFirst": "Members get {minutes} minutes first.",
     "allFound": "All {total, number} found a desk.",
     "numberRange": "No. {from}–{to}",
     "editionLeft": "Edition of {size, number} · {left, number} left",
     "stale": "Can't reach the server. These numbers may be out of date.",
     "membersOpen": "Early access for members opens {time} (Vietnam time)",
-    "publicOpen": "Public opening {time} (Vietnam time)"
+    "publicOpen": "Public opening {time} (Vietnam time)",
+    "buyNow": "Buy now"
   },
   "product": {
     "colour": "Colour",
@@ -304,5 +304,58 @@
     "badTitle": "That link doesn't work",
     "badBody": "It may be incomplete, or a newer one replaced it. Use the latest email.",
     "toDrop": "See the drop"
+  },
+  "buy": {
+    "holding": "Holding your number…",
+    "toAccount": "Go to your account",
+    "joinInstead": "Join the waitlist",
+    "error": {
+      "needInvite": "Invited members get {minutes} minutes first. Everyone else can buy at the public opening.",
+      "needEmail": "Verify your email before buying.",
+      "needPhone": "Add and verify your phone number before your first buy.",
+      "notOpen": "This drop isn't open yet.",
+      "closed": "This drop has closed.",
+      "soldOut": "That one just sold out.",
+      "cap": "You've already bought your one of these.",
+      "rateLimited": "Too many tries. Wait a few minutes.",
+      "unknown": "Something went wrong. Reload the page and try again."
+    }
+  },
+  "checkout": {
+    "title": "Checkout",
+    "yours": "Held for you",
+    "held": "Your {unit} is held for <time></time>",
+    "minutesLeft": "{minutes} minutes left on your hold",
+    "extend": "Hold 10 more minutes",
+    "release": "Let it go",
+    "contact": "Contact",
+    "deliver": "Deliver to",
+    "field": {
+      "recipient": "Recipient name",
+      "receiverPhone": "Recipient phone",
+      "province": "Province or city",
+      "ward": "Ward",
+      "street": "Street and house number"
+    },
+    "saveAddress": "Save address",
+    "addressSaved": "Address saved.",
+    "addressError": {
+      "missing": "Fill in every field.",
+      "tooLong": "One of those is too long.",
+      "badPhone": "Enter a Vietnamese mobile number."
+    },
+    "summary": "Summary",
+    "items": "{count, plural, one {# item} other {# items}}",
+    "shipping": "Shipping (estimate)",
+    "needAddress": "Add an address",
+    "total": "Estimated total",
+    "totalNote": "Prices include VAT. The shipping figure is an estimate until a carrier is connected.",
+    "payment": "Payment",
+    "noPayment": "Payments aren't connected yet, so nothing can be charged and no order is made. Your hold runs out on its own.",
+    "pay": "Pay",
+    "emptyTitle": "Nothing held",
+    "emptyBody": "You have no running holds. If one ran out, its number went back on sale: try again from the drop if there are units left.",
+    "released": "Your hold is released. The number is back on sale.",
+    "toDrop": "Back to the drop"
   }
 }

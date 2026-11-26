@@ -31,3 +31,8 @@ button.cta { cursor: pointer; }
 
 /* changing numbers keep their width */
 .digit, .leftWrap, .rows strong { font-variant-numeric: tabular-nums; }
+
+.rowBuy { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+p.refusal.refusal { max-width: 420px; color: var(--accent); font-size: 14px; }
+p.refusal.refusal:empty { display: none; }
+.refusal a { text-decoration: underline; text-underline-offset: 3px; }

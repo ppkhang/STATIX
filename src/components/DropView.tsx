@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { DropSnapshot } from "@/lib/catalogue";
 import { formatDateTime, formatVnd, unitNumber } from "@/lib/format";
 import Countdown from "./Countdown";
+import BuyButton from "./BuyButton";
 import DropAction from "./DropAction";
 import LeftBar from "./LeftBar";
 import { useLiveDrop } from "./useLiveDrop";
@@ -14,6 +15,7 @@ export default function DropView({ initial }: { initial: DropSnapshot }) {
   const t = useTranslations("drop");
   const { drop, now, stale } = useLiveDrop(initial);
   const total = drop.editions.reduce((sum, e) => sum + e.size, 0);
+  const headStart = drop.earlyAccessAt && drop.publicAt ? Math.round((Date.parse(drop.publicAt) - Date.parse(drop.earlyAccessAt)) / 60000) : 0;
 
   return (
     <>
@@ -46,6 +48,9 @@ export default function DropView({ initial }: { initial: DropSnapshot }) {
             </div>
             <strong>{formatVnd(e.priceVnd)}</strong>
             <LeftBar left={e.left} size={e.size} />
+            {(drop.state === "public" || drop.state === "early_access") && e.left > 0 && (
+              <div className={styles.rowBuy}><BuyButton editionId={e.id} label={t("buyNow")} minutes={headStart} /></div>
+            )}
           </li>
         ))}
       </ul>

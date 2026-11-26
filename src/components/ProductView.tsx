@@ -139,7 +139,7 @@ export default function ProductView({ initial, slug, media, content, closeUps, s
                   <p className={styles.vat}>{t("vat")}</p>
                 </div>
                 <div className={styles.action}>
-                  <DropAction state={state} earlyAccessAt={drop.earlyAccessAt} publicAt={drop.publicAt} />
+                  <DropAction state={state} earlyAccessAt={drop.earlyAccessAt} publicAt={drop.publicAt} editionId={picked.id} />
                   {stale && <p role="status">{d("stale")}</p>}
                 </div>
                 {facts([[t("numbers"), `${range.from}–${range.to}`], [t("restocks"), t("none")], ...times])}
