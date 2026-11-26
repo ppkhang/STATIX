@@ -185,6 +185,11 @@ All rate limited and kept out of search results (NFR-013, NFR-022).
 
 ## 10. Checkout (one page)
 
+> **Built 2026-11-26 up to payment** at `/checkout`: held units with server-timed countdowns, extend and let go, contact,
+> one delivery address, and a summary. Shipping is a placeholder fallback table (no GHN account). Payment is off: no
+> order or payment row is ever made. There is no cart yet (page 9): with one drop and one of each, "Buy now" holds
+> straight away and every running hold shows here.
+
 > **Holds built 2026-11-26** (`src/lib/holds.ts`, proof: `npm run check:holds`). Working assumptions: the number is picked
 > when the hold is made, one per person per edition, 10 minutes with one 10 minute extension. Early access is decided by
 > an accepted invite for the drop (founders excepted), **not** by tier: verifying an email already makes anyone a
