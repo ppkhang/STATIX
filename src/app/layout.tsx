@@ -14,8 +14,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        {/* eslint-disable-next-line @next/next/no-page-custom-font -- same Google Fonts link as the original landing page */}
-        <link href="https://fonts.googleapis.com/css2?family=Doto:wght@900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font -- fonts load from Google, as on the original landing page */}
+        <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;900&family=Permanent+Marker&family=Tektur:wght@900&display=swap" rel="stylesheet" />
       </head>
       <body>
         <NextIntlClientProvider>

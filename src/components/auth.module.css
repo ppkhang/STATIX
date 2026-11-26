@@ -1,10 +1,10 @@
 /* Account pages. Tokens come from globals.css (DESIGN.md). */
 .form { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 420px; }
-.form label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.form input { height: 52px; width: 100%; padding: 0 14px; border: 2px solid var(--ink); border-radius: 0; background: var(--input); color: var(--bg); font: 400 16px/1.2 'JetBrains Mono', monospace; }
+.form label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 400; letter-spacing: .08em; text-transform: uppercase; }
+.form input { height: 52px; width: 100%; padding: 0 14px; border: 2px solid var(--ink); border-radius: 0; background: var(--input); color: var(--bg); font: 400 16px/1.2 var(--font-sub); }
 .form input:focus { border: 4px solid var(--accent); }
 .form small { font-size: 13px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--muted); }
-.form button, .secondary { min-height: 52px; padding: 0 28px; align-self: flex-start; border: 0; background: var(--accent); color: var(--bg); font: 700 15px/1 'JetBrains Mono', monospace; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.form button, .secondary { min-height: 52px; padding: 0 28px; align-self: flex-start; border: 0; background: var(--accent); color: var(--bg); font: 900 15px/1 var(--font-main); letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
 .form button { box-shadow: 6px 6px 0 var(--ink); }
 .form button:disabled { background: var(--panel); color: var(--muted); box-shadow: none; cursor: default; }
 .secondary { background: transparent; color: var(--ink); border: 2px solid var(--ink); }
@@ -39,9 +39,9 @@ p.notice.notice { color: var(--ink); border-left: 4px solid var(--accent); paddi
 .surface .form button { align-self: stretch; min-height: 54px; background: var(--bg); color: var(--accent); box-shadow: none; }
 .surface .form button:disabled { color: var(--muted); }
 .surface .form button:focus-visible { outline-color: var(--bg); }
-.surface p.error.error { max-width: none; color: var(--error); font-weight: 700; }
+.surface p.error.error { max-width: none; color: var(--error); font-weight: 400; }
 .surface p.error:empty { margin-top: -16px; }
-.surface p.notice.notice { max-width: none; color: var(--bg); border-left-color: var(--bg); font-weight: 700; }
-.stage .links { column-gap: 28px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.surface p.notice.notice { max-width: none; color: var(--bg); border-left-color: var(--bg); font-weight: 400; }
+.stage .links { column-gap: 28px; font-weight: 400; letter-spacing: .08em; text-transform: uppercase; }
 .stage .links a { color: var(--muted); text-decoration: none; }
 .stage .links a:hover { color: var(--accent); }

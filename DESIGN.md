@@ -50,31 +50,19 @@ The accent is a variable. Default `#B9A4FF`; alternate `#8A6CFF`. **In the refer
 
 ## 3. Typography
 
-**Two families only. Do not add a third.**
+Reworked 26/11/2026: a heavy face for main text, the same face at regular weight for supporting text, and a handwritten face for asides. This replaces the earlier Doto and JetBrains Mono pairing. Tokens are in `globals.css`.
 
-| Family | Weights loaded | Used for |
-|---|---|---|
-| **Doto** (dot-matrix; fallback JetBrains Mono, monospace) | 900 | Everything loud: logo, headlines, tapes, countdown digits, card and swatch titles, watermarks, "Soft signal." sticker, graffiti notes (uppercase) |
-| **JetBrains Mono** | 400, 500, 700 | Everything quiet: body, nav, buttons, form, tags, captions, labels |
+| Tier | Token | Family and weight | Used for |
+|---|---|---|---|
+| Main | `--font-main` | **Archivo 900** | Headings and title slabs, product names, panel numbers, tapes, countdown digits, stock line, prices, watermarks, buttons, menu cards, badges, swatch names |
+| Sub | `--font-sub` | **Archivo 400** | Body, nav and footer links, form labels, inputs, help and error text, status messages, small labels, copyright |
+| Additional | `--font-hand` | **Permanent Marker 400** | Asides only: "Soft signal." sticker, hero name tag, "No restocks", "pick one!", "MY PICK", head-start line, "One email. No spam." |
+| Wordmark | `--font-logo` | **Tektur 900** | The STATIX logo only: sticky and nav logo, footer logo, hero cutout letters, footer wordmark. Chosen 26/11/2026 over Doto (dot-matrix lettering reads as Nothing's) for cut corners that match the slabs and hold up small |
 
-| Element | Spec |
-|---|---|
-| Hero letters | Doto `clamp(56px, min(11.6vw, 18.5svh), 184px)`, line-height 1; tagline up to 60px, lede up to 24px, hero buttons up to 72px tall; hero column up to 1440px |
-| Watermarks | Doto `clamp(120px, 22vw, 320px)` hero; `clamp(120px, 26vw, 380px)` footer; line-height .8; transparent fill, 2px `#2A2540` stroke |
-| Section titles | Doto up to 112px (drop), 144px (lineup), 68px (vote) |
-| Countdown digits | Doto 48px / 1 |
-| Product name / logo | Doto 32px / 30px nav, 22px footer |
-| Tapes | Doto up to 38px (+.12em) and 32px (+.14em) |
-| Swatch name | Doto 24px |
-| Sticker tagline | Doto 900, `clamp(28px, 3.4vw, 42px)` |
-| Light card heading | JetBrains Mono 700, 26px / 1.2 |
-| Body | JetBrains Mono 18px hero, 16px section, 15px card; line-height 1.6; `#C9C6D3` on dark; max width 380–460px |
-| Buttons | JetBrains Mono 700, 16px, uppercase |
-| Nav | JetBrains Mono 600, 14px, +.08em, uppercase |
-| Form label / error / swatch sub / copyright | JetBrains Mono 13–14px, weight 400–600 |
-| Mono labels | JetBrains Mono 11–13px, uppercase (mostly), +.10 to .18em |
-
-Doto tracking: .04em for headings, .08em for the logo, .02em for the footer watermark.
+- Only 400 and 900 of Archivo are loaded. A weight of 500 to 700 would show as 900 or 400, so set one of the two.
+- The handwritten face never goes on controls, labels, errors, prices or status messages, and not below 15px for sentences.
+- Changing numbers use `font-variant-numeric: tabular-nums`, because Archivo isn't monospaced.
+- Prices need the ₫ sign: check any replacement face has it.
 
 ## 4. Shape and depth
 
@@ -261,4 +249,4 @@ Under `prefers-reduced-motion` all keyframe animations stop. Hover transitions r
 
 **Do:** keep corners square, shadows hard, tilts small and alternating; counter-skew button text; put one accent colour on a near-black and off-white base; keep body copy level, calm and narrow.
 
-**Don't:** use soft blurred drop shadows, rounded cards or pill buttons, chromatic aberration, extra accent hues (lavender is the only highlight), a third font family, or Doto for paragraphs.
+**Don't:** use soft blurred drop shadows, rounded cards or pill buttons, chromatic aberration, extra accent hues (lavender is the only highlight), a font family beyond the four roles in section 3, or the wordmark face for anything but the wordmark.
