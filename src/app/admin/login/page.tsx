@@ -11,9 +11,9 @@ export default async function StaffLoginPage() {
   if (await currentStaff()) redirect("/admin");
   const t = await getTranslations("admin");
   return (
-    <>
+    <div className={`${styles.panel} ${styles.lead} ${styles.login}`}>
       <h1>{t("logInTitle")}</h1>
-      <div className={`${styles.panel} ${styles.narrow}`}><StaffLogin /></div>
-    </>
+      <StaffLogin />
+    </div>
   );
 }

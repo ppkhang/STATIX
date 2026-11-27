@@ -145,6 +145,7 @@
       "phone": "Phone",
       "code": "6-digit code"
     },
+    "phoneVerified": "Your phone number is verified.",
     "isVerified": "verified",
     "notVerified": "not verified",
     "noPhone": "not added",
@@ -388,6 +389,7 @@
     "tracking": "Tracking",
     "method": "Payment method",
     "back": "All orders",
+    "cancelledNow": "Order cancelled.",
     "cancel": "Cancel order",
     "cancelAsk": "Cancel this order? Your payment is refunded the way you paid, and you give up your number. It can't be undone, and you can't buy that product from this drop again.",
     "cancelAskCod": "Cancel this order? You give up your number. It can't be undone, and you can't buy that product from this drop again.",
@@ -409,6 +411,7 @@
       "refunded": "Refunded"
     }
   },
+  "toast": { "close": "Dismiss" },
   "admin": {
     "title": "STATIX admin",
     "tag": "Admin",
@@ -500,7 +503,13 @@
     "closeAt": "Closes (optional)",
     "vietnamTime": "All times are Vietnam time.",
     "save": "Save",
-    "saved": "Saved.",
+    "did": {
+      "created": "Draft drop created.",
+      "saved": "Changes saved.",
+      "scheduled": "Drop scheduled. It now shows in the shop.",
+      "closed": "Drop closed. Sales have ended.",
+      "added": "Edition added."
+    },
     "lockedNote": "Selling has started, so the times, sizes, prices and caps are fixed. People are buying on those terms.",
     "editions": "Editions",
     "noEditions": "No editions yet.",
@@ -585,6 +594,9 @@
     },
     "saveAddress": "Save address",
     "addressSaved": "Address saved.",
+    "deliveryChanged": "Delivery address changed.",
+    "extended": "Your hold is 10 minutes longer.",
+    "payToast": { "failed": "Payment didn't go through.", "cancelled": "Payment cancelled." },
     "addressError": {
       "missing": "Fill in every field.",
       "tooLong": "One of those is too long.",

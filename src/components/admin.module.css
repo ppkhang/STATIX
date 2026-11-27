@@ -145,3 +145,16 @@
 .narrow { width: 100%; max-width: 460px; }
 .srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
+
+/* staff log in: one card in the middle, under the same bar and contour art as every other staff page */
+.login { align-self: center; width: 100%; max-width: 440px; margin-top: clamp(0px, 5vh, 56px); padding: 0; }
+.main .login h1 { padding: 22px 28px 20px; border-bottom: 1px solid var(--border); font-size: clamp(28px, 4vw, 34px); }
+.loginForm { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 18px; padding: 24px 28px 30px; }
+.loginForm label { flex: 0 0 auto; max-width: none; }
+.loginForm input { min-height: 50px; }
+.loginForm input:focus-visible { border-color: var(--accent); }
+/* six digits, spread out so they're easy to check against the phone */
+.loginForm .code { text-align: center; font: 900 24px/1 var(--font-main); letter-spacing: .5em; padding-left: .5em; font-variant-numeric: tabular-nums; }
+.loginForm button { min-height: 54px; margin-top: 4px; }
+.loginForm .error { flex-basis: auto; padding: 10px 14px; border-left: 4px solid #FF9B93; line-height: 1.5; }
+.loginForm .error:empty { padding: 0; border: 0; }

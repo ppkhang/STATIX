@@ -1,0 +1,73 @@
+/* A short word that something happened, shouted: an angular speech bubble, leaning, with its tail to the right and a
+   hard shadow. Bottom right, clear of the cookie banner on the left. Its own colours, so it reads the same over dark
+   pages and light cards. */
+.region { position: fixed; right: 24px; bottom: 24px; z-index: 60; width: min(430px, calc(100vw - 40px)); }
+.toast {
+  --edge: var(--accent);
+  position: relative; isolation: isolate; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px;
+  /* the extra room on the right is the tail's */
+  min-height: 78px; padding: 14px 28px 18px 22px; color: var(--ink);
+  /* the heavy face, in sentence case: loud, and still read at a glance */
+  font: 900 16px/1.4 var(--font-main);
+  /* everything grows out of the tip of the tail */
+  transform-origin: 100% 52%; animation: pop .42s cubic-bezier(.2, 1.25, .35, 1) both;
+}
+.toast[data-leaving] { pointer-events: none; animation: away .2s cubic-bezier(.6, 0, .9, .4) both; }
+
+/* clip-path cuts off a border and a box shadow, so each is its own layer in the same shape. Corners, clockwise from
+   the top left; the third to fifth are the tail */
+.toast::before, .edge, .fill { position: absolute; inset: 0; }
+.toast::before, .edge {
+  clip-path: polygon(10px 0, calc(100% - 15px) 0, calc(100% - 17px) calc(50% - 13px), 100% calc(50% + 5px),
+    calc(100% - 19px) calc(50% + 11px), calc(100% - 22px) 100%, 0 calc(100% - 6px));
+}
+.toast::before { content: ""; z-index: -3; background: var(--edge); translate: 7px 7px; animation: cast .26s .24s cubic-bezier(.2, 1.5, .4, 1) both; }
+.edge { z-index: -2; background: var(--ink); }
+/* the same corners, each pulled in by the width of the white edge */
+.fill {
+  z-index: -1; background: #141318;
+  clip-path: polygon(12px 2.5px, calc(100% - 17.5px) 2.5px, calc(100% - 19.5px) calc(50% - 9px), calc(100% - 6px) calc(50% + 4px),
+    calc(100% - 21.3px) calc(50% + 9px), calc(100% - 24.3px) calc(100% - 2.5px), 2.8px calc(100% - 8.3px));
+}
+.toast[data-tone="bad"] { --edge: #FF9B93; }
+.toast p { margin: 0; max-width: none; color: var(--ink); line-height: 1.4; transform: skewX(-6deg); }
+/* the exclamation mark. Always purple, whatever the card's edge says. It plays once and then rests: nothing here
+   loops, as there is no way to pause it */
+.mark { width: 46px; height: 46px; overflow: visible; }
+.burst { fill: #3b2f69; transform-origin: 24px 24px; animation: burst .55s .1s cubic-bezier(.2, 1.5, .4, 1) both; }
+.ink { fill: var(--accent); stroke: #000; stroke-width: 2.5; stroke-linejoin: miter; paint-order: stroke; }
+.shadow { fill: var(--ink); stroke: #000; stroke-width: 2.5; translate: 3px 3px; }
+/* one letter: bar and dot drop and land together, squashing from its foot */
+.bar, .dot { transform-origin: 23px 43px; animation: slam .42s .2s cubic-bezier(.2, 1.4, .4, 1) both; }
+@keyframes burst { from { scale: 0; } to { scale: 1; } }
+@keyframes slam {
+  from { transform: translateY(-22px) scale(.7, 1.5); opacity: 0; }
+  60% { transform: translateY(1px) scale(1.18, .8); opacity: 1; }
+  to { transform: none; opacity: 1; }
+}
+.close { width: 44px; height: 44px; border: 0; background: none; color: var(--muted); font: 400 24px/1 var(--font-sub); cursor: pointer; }
+.close:hover { color: var(--edge); }
+/* the time left runs the whole of the bubble's bottom edge, corner to corner, on the same slant: a 5px strip cut
+   along the inside of the white edge, with a block shrinking behind it */
+.rail {
+  position: absolute; inset: 0; pointer-events: none;
+  clip-path: polygon(2.4px calc(100% - 13.3px), calc(100% - 23.5px) calc(100% - 7.5px), calc(100% - 24.3px) calc(100% - 2.5px),
+    2.8px calc(100% - 8.3px));
+}
+.timer { position: absolute; left: 0; bottom: 0; width: calc(100% - 23px); height: 16px; background: var(--edge); transform-origin: left; animation: run linear both; }
+/* squeezed out of the tail: a thin sliver, a little past full size, then settled */
+@keyframes pop {
+  from { transform: scale(.08, .3) skewX(-18deg); opacity: 0; }
+  25% { opacity: 1; }
+  62% { transform: scale(1.06, .96) skewX(3deg); }
+  to { transform: none; opacity: 1; }
+}
+@keyframes away { to { transform: scale(.08, .3) skewX(-18deg); opacity: 0; } }
+/* the shadow slides out from under the bubble once it has landed, and the words follow */
+@keyframes cast { from { translate: 0 0; } }
+.toast p, .close { animation: words .24s .22s ease-out both; }
+@keyframes words { from { opacity: 0; translate: 10px 0; } }
+@keyframes run { to { scale: 0 1; } }
+/* on a narrow screen the cookie banner takes the bottom, so this comes in at the top */
+@media (max-width: 560px) { .region { right: 20px; top: 16px; bottom: auto; } }
+@media (prefers-reduced-motion: reduce) { .toast, .toast::before, .toast p, .close, .toast .mark, .toast .mark * { animation: none; } .timer { display: none; } }

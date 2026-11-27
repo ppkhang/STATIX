@@ -7,6 +7,7 @@ import AddressForm from "@/components/AddressForm";
 import styles from "@/components/checkout.module.css";
 import HoldTimer from "@/components/HoldTimer";
 import PayForm from "@/components/PayForm";
+import Toast from "@/components/Toast";
 import card from "@/components/waitlist.module.css";
 import { listAddresses } from "@/lib/addresses";
 import { extend, release, setDefaultAddress } from "@/lib/checkout-actions";
@@ -22,7 +23,7 @@ export const metadata = { robots: { index: false, follow: false } };
 export default async function Checkout({ searchParams }: PageProps<"/checkout">) {
   const me = await currentAccount();
   if (!me) redirect("/login?next=/checkout");
-  const { released, saved, pay } = await searchParams;
+  const { released, saved, pay, extended, delivery: picked } = await searchParams;
   const t = await getTranslations("checkout");
   const holds = await activeHolds(me.id);
   const book = await listAddresses(me.id);
@@ -84,7 +85,9 @@ export default async function Checkout({ searchParams }: PageProps<"/checkout">)
 
       <section className={card.section}>
         <h2>{t("deliver")}</h2>
-        {saved === "1" && <p className={card.notice} role="status">{t("addressSaved")}</p>}
+        {saved === "1" && <Toast key={randomUUID()} param="saved" message={t("addressSaved")} />}
+        {picked === "1" && <Toast key={randomUUID()} param="delivery" message={t("deliveryChanged")} />}
+        {extended === "1" && <Toast key={randomUUID()} param="extended" message={t("extended")} />}
         <AddressForm key={delivery?.id ?? "none"} saved={delivery ?? null} />
         {others.length > 0 && (
           // picked here, not in the address book, so nobody walks away from a running hold
@@ -114,7 +117,12 @@ export default async function Checkout({ searchParams }: PageProps<"/checkout">)
 
       <section className={card.section}>
         <h2>{t("payment")}</h2>
-        {(pay === "failed" || pay === "cancelled") && <p className={card.notice} role="status">{t(`payResult.${pay}`)}</p>}
+        {(pay === "failed" || pay === "cancelled") && (
+          <>
+            <p className={card.notice}>{t(`payResult.${pay}`)}</p>
+            <Toast key={randomUUID()} param="pay" tone={pay === "failed" ? "bad" : "good"} message={t(`payToast.${pay}`)} />
+          </>
+        )}
         {mockPaymentsOn() ? (
           // a new key each time the button is drawn: pressing it twice is one attempt, coming back is another
           <PayForm key={randomUUID()} attempt={randomUUID()} ready={Boolean(delivery)} />

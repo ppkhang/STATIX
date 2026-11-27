@@ -1,7 +1,9 @@
+import { randomUUID } from "node:crypto";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { currentAccount } from "@/auth";
+import Toast from "@/components/Toast";
 import styles from "@/components/checkout.module.css";
 import card from "@/components/waitlist.module.css";
 import type { Address } from "@/lib/checkout-rules";
@@ -24,7 +26,7 @@ export default async function Order({ params, searchParams }: PageProps<"/accoun
   const { orderNo } = await params;
   if (!me) redirect(`/login?next=${encodeURIComponent(`/account/orders/${orderNo}`)}`);
   await expireStaleOrders(me.id);
-  const { placed } = await searchParams;
+  const { placed, cancelled } = await searchParams;
   // someone else's order number gets the same 404 as one that doesn't exist
   const order = await findOrder(me.id, orderNo);
   if (!order) notFound();
@@ -39,8 +41,9 @@ export default async function Order({ params, searchParams }: PageProps<"/accoun
       <h1>{t("order", { number: order.orderNo })}</h1>
       <div className={card.body}>
         {/* page 12. The status is read from the order, so the address alone can't make this show */}
-        {placed === "1" && order.status === "paid" && <p className={card.notice} role="status">{t("confirmed")}</p>}
-        {order.status === "refunded" && <p className={card.notice} role="status">{t("refundedNote")}</p>}
+        {placed === "1" && order.status === "paid" && <Toast key={randomUUID()} param="placed" message={t("confirmed")} />}
+        {cancelled === "1" && order.status === "cancelled" && <Toast key={randomUUID()} param="cancelled" message={t("cancelledNow")} />}
+        {order.status === "refunded" && <p className={card.notice}>{t("refundedNote")}</p>}
         {order.refunds.map((row) => (
           <p key={row.id} className={card.line}>{t(row.status === "pending" ? "refundDue" : "refundOther", { amount: formatVnd(row.amountVnd) })}</p>
         ))}

@@ -30,8 +30,8 @@ export async function buy(_state: BuyState, form: FormData): Promise<BuyState> {
 /** Extend and release act only on the signed-in account's own hold (holds.ts checks that). */
 export async function extend(form: FormData) {
   const me = await currentAccount();
-  if (me && UUID.test(field(form, "hold"))) await extendHold(me.id, field(form, "hold"));
-  redirect("/checkout");
+  const longer = me && UUID.test(field(form, "hold")) ? await extendHold(me.id, field(form, "hold")) : null;
+  redirect(longer ? "/checkout?extended=1" : "/checkout");
 }
 
 export async function release(form: FormData) {
@@ -68,7 +68,7 @@ export async function setDefaultAddress(form: FormData) {
   if (!me) redirect(`/login?next=${back}`);
   const id = field(form, "id");
   const done = UUID.test(id) && (await makeDefault(me.id, id));
-  redirect(done && back === "/account/addresses" ? `${back}?done=default` : back);
+  redirect(done ? `${back}?${back === "/checkout" ? "delivery=1" : "done=default"}` : back);
 }
 
 export async function deleteAddress(form: FormData) {

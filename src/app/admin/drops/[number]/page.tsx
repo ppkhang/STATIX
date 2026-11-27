@@ -1,8 +1,10 @@
+import { randomUUID } from "node:crypto";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import AdminForm from "@/components/AdminForm";
 import AdminMeter from "@/components/AdminMeter";
+import Toast from "@/components/Toast";
 import styles from "@/components/admin.module.css";
 import { addEditionAction, closeDropAction, scheduleDropAction, updateDropAction, updateEditionAction } from "@/lib/admin-actions";
 import { allVariants, findDrop } from "@/lib/admin-drops";
@@ -19,7 +21,8 @@ export default async function Drop({ params, searchParams }: PageProps<"/admin/d
   const number = parseDropNumber((await params).number);
   const drop = number === null ? null : await findDrop(number);
   if (!drop) notFound();
-  const { saved } = await searchParams;
+  const asked = (await searchParams).done;
+  const did = (["created", "saved", "scheduled", "closed", "added"] as const).find((name) => name === asked);
   const t = await getTranslations("admin");
   const d = await getTranslations("drop");
   const live = await getDrop(drop.number);
@@ -37,7 +40,7 @@ export default async function Drop({ params, searchParams }: PageProps<"/admin/d
     <>
       <nav><Link href="/admin/drops" className={styles.back}>← {t("allDrops")}</Link></nav>
       <h1>{drop.name} <span className={styles.chip} data-status={live?.state ?? "draft"}>{live ? d(`state.${live.state}`) : t("draft")}</span></h1>
-      {saved === "1" && <p className={styles.note} role="status">{t("saved")}</p>}
+      {did && <Toast key={randomUUID()} param="done" message={t(`did.${did}`)} />}
       {locked && <p className={styles.note}>{t("lockedNote")}</p>}
       <p className={styles.quiet}>{t("vietnamTime")}</p>
 

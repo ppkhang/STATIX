@@ -59,8 +59,8 @@ export async function cancelMyOrder(form: FormData) {
   const me = await currentAccount();
   if (!me) redirect("/login?next=/account/orders");
   const orderNo = field(form, "order").slice(0, 40);
-  await cancelOrder(me.id, orderNo); // acts only on this account's own, unshipped order
-  redirect(`/account/orders/${encodeURIComponent(orderNo)}`);
+  const cancelled = await cancelOrder(me.id, orderNo); // acts only on this account's own, unshipped order
+  redirect(`/account/orders/${encodeURIComponent(orderNo)}${cancelled ? "?cancelled=1" : ""}`);
 }
 
 /** The order email (FR-052), sent after the response so a slow mail server can't hold up the confirmation. */
