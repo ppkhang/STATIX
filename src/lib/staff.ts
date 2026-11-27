@@ -17,6 +17,7 @@ export const SESSION_HOURS = 8;
 const PAGE_ROLES = {
   home: adminRole.enumValues,
   audit: ["owner"],
+  dashboard: ["owner", "ops"],
   drops: ["owner", "ops"],
   orders: ["owner", "ops", "fulfilment"],
 } as const satisfies Record<string, readonly Role[]>;
