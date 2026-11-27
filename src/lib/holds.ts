@@ -1,7 +1,7 @@
 // Holds on numbered units (FR-011 to FR-015, data model §2). Overselling a numbered run is the one bug this store
 // can't have: units are pre-created rows, and a hold locks the row it takes.
 // Relative imports, so scripts/check-holds.ts can run this outside Next.
-import { and, asc, eq, gt, sql } from "drizzle-orm";
+import { and, asc, eq, gt, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "../db";
 import { account, customerOrder, dropRun, edition, editionUnit, hold, orderLine, product, setting, tier, variant } from "../db/schema";
 import { dropStatus } from "./drop-status";
@@ -54,7 +54,7 @@ export async function holdUnit(accountId: string, editionId: string): Promise<Ho
     const [{ bought }] = await tx.select({ bought: sql<number>`count(*)::int` }).from(orderLine)
       .innerJoin(customerOrder, eq(orderLine.orderId, customerOrder.id))
       .innerJoin(editionUnit, eq(orderLine.editionUnitId, editionUnit.id))
-      .where(and(eq(customerOrder.accountId, accountId), eq(editionUnit.editionId, editionId), eq(editionUnit.status, "sold")));
+      .where(and(eq(customerOrder.accountId, accountId), eq(editionUnit.editionId, editionId), inArray(editionUnit.status, ["sold", "retired"]), isNull(orderLine.releasedAt)));
     if (bought >= target.edition.perPersonCap) return { ok: false, error: "cap" } as const;
 
     // the lowest number that is free, or whose hold has run out; a row someone else is taking is skipped

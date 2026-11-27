@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -5,21 +6,23 @@ import { currentAccount } from "@/auth";
 import AddressForm from "@/components/AddressForm";
 import styles from "@/components/checkout.module.css";
 import HoldTimer from "@/components/HoldTimer";
+import PayForm from "@/components/PayForm";
 import card from "@/components/waitlist.module.css";
 import { listAddresses } from "@/lib/addresses";
 import { extend, release, setDefaultAddress } from "@/lib/checkout-actions";
 import { shippingEstimateVnd } from "@/lib/checkout-rules";
 import { formatVnd, unitNumber } from "@/lib/format";
 import { activeHolds } from "@/lib/holds";
+import { mockPaymentsOn } from "@/lib/payment-rules";
 
 export const dynamic = "force-dynamic";
 export const metadata = { robots: { index: false, follow: false } };
 
-/** Page 10, up to payment: the held units and their timers, where to send them, and what they'd cost. */
+/** Page 10: the held units and their timers, where to send them, and what they'd cost. */
 export default async function Checkout({ searchParams }: PageProps<"/checkout">) {
   const me = await currentAccount();
   if (!me) redirect("/login?next=/checkout");
-  const { released, saved } = await searchParams;
+  const { released, saved, pay } = await searchParams;
   const t = await getTranslations("checkout");
   const holds = await activeHolds(me.id);
   const book = await listAddresses(me.id);
@@ -111,8 +114,16 @@ export default async function Checkout({ searchParams }: PageProps<"/checkout">)
 
       <section className={card.section}>
         <h2>{t("payment")}</h2>
-        <p className={card.line}>{t("noPayment")}</p>
-        <button type="button" className={card.primary} disabled>{t("pay")}</button>
+        {(pay === "failed" || pay === "cancelled") && <p className={card.notice} role="status">{t(`payResult.${pay}`)}</p>}
+        {mockPaymentsOn() ? (
+          // a new key each time the button is drawn: pressing it twice is one attempt, coming back is another
+          <PayForm key={randomUUID()} attempt={randomUUID()} ready={Boolean(delivery)} />
+        ) : (
+          <>
+            <p className={card.line}>{t("noPayment")}</p>
+            <button type="button" className={card.primary} disabled>{t("pay")}</button>
+          </>
+        )}
       </section>
     </>
   ));

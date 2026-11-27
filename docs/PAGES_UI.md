@@ -186,8 +186,8 @@ All rate limited and kept out of search results (NFR-013, NFR-022).
 ## 10. Checkout (one page)
 
 > **Built 2026-11-26 up to payment** at `/checkout`: held units with server-timed countdowns, extend and let go, contact,
-> one delivery address, and a summary. Shipping is a placeholder fallback table (no GHN account). Payment is off: no
-> order or payment row is ever made. There is no cart yet (page 9): with one drop and one of each, "Buy now" holds
+> one delivery address, and a summary. Shipping is a placeholder fallback table (no GHN account). Pay works only with the mock
+> (page 11); without it, payment is off and no order is made. There is no cart yet (page 9): with one drop and one of each, "Buy now" holds
 > straight away and every running hold shows here.
 
 > **Holds built 2026-11-26** (`src/lib/holds.ts`, proof: `npm run check:holds`). Working assumptions: the number is picked
@@ -214,6 +214,14 @@ Everything is on one screen. Flow: PRC-03.
 States to design for: hold expired · item sold out while you were checking out · cap reached · payment provider down (the hold gets extended once by 10 min, with a notice) · shipping quote failed. All come from FR-051, NFR-009 and BRU-005.
 
 ## 11. Payment processing
+
+> **Built 2026-11-27 with a mock only.** `PAYMENT_MOCK=1` turns on a pretend VNPay and MoMo (`/pay/mock/:txn`) that
+> approves with no money; a production build ignores it unless `APP_URL` is localhost. Real providers need only an
+> adapter: send the buyer off with the id from `startPayment()`, and pass their signed notification to
+> `confirmPayment()` (`src/lib/payments.ts`, proof: `npm run check:payments`). A success that can't be honoured
+> (charged twice, different total, number gone, over the cap, drop closed by staff, account deleted) records a refund.
+> Not built: the processing card (the mock answers at once), COD, the pre-order notice next to the agree box, and
+> **sending refunds**: they are recorded and shown to staff, and nothing pays them out.
 
 | Element | How you use it | What happens | Reqs |
 |---|---|---|---|
@@ -244,6 +252,9 @@ A confirmation email with the same content is sent too (FR-052, FR-098).
 | **Next drop** | Read only | Countdown, and whether you're in the early-access group. | FR-010 |
 
 ## 14. Orders and order detail
+
+> **Added 2026-11-27:** Cancel order, from Paid or Confirmed or Packing. The refund is recorded (none for COD).
+> `[ASSUMPTION]` the number is retired, not sold again, and still counts toward the cap.
 
 > **Built 2026-11-27** at `/account/orders`: list, one order, timeline, tracking code as text. Nothing creates an order until
 > payment is connected. Not built: cancel, invoice, return request, a time per timeline step (nothing records status changes),
@@ -337,6 +348,14 @@ All staff pages need sign-in with MFA, show only what the user's role allows, an
 > Drop 001. Not built: removing an edition, closing a drop (A5), logging the clock's own state changes (US-007 AC1).
 > Known gap: an invite expires at the public opening as it was when sent, so moving a scheduled drop later leaves
 > invites already sent with the old, earlier expiry.
+>
+> **Built 2026-11-27:** from A5, only **Close drop** (on the drop's A3 page): it ends running holds, and payments that
+> land afterwards are refunded. A8 read only at `/admin/orders` (Ops and Fulfilment, as listed here, so not Owner):
+> search, status and drop filters, refunds owed. Not built: serial scan, QC, shipments, labels, staff refunds.
+> Known limit: Close drop during a multi-item payment or a repeat Buy can deadlock (rows are locked in different
+> orders); Postgres then aborts one of the two, which can be tried again.
+> The same can happen between a late payment and the number's previous holder pressing Buy again. A real provider's
+> notification handler must answer non-2xx on an error, so the provider sends it again.
 
 | # | Page | Main interactables | Roles | Reqs |
 |---|---|---|---|---|

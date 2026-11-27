@@ -2,7 +2,7 @@
 // Relative imports, so scripts/check-account.ts can run this outside Next.
 import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { db } from "../db";
-import { customerOrder, dropRun, edition, editionUnit, orderLine, product, shipment, variant } from "../db/schema";
+import { customerOrder, dropRun, edition, editionUnit, orderLine, payment, product, refund, shipment, variant } from "../db/schema";
 
 async function linesOf(orderIds: string[]) {
   if (!orderIds.length) return [];
@@ -31,5 +31,7 @@ export async function findOrder(accountId: string, orderNo: string) {
     .where(and(eq(customerOrder.accountId, accountId), eq(customerOrder.orderNo, orderNo)));
   if (!order) return null;
   const shipments = await db.select().from(shipment).where(eq(shipment.orderId, order.id)).orderBy(asc(shipment.createdAt));
-  return { ...order, lines: await linesOf([order.id]), shipments };
+  const refunds = await db.select({ id: refund.id, amountVnd: refund.amountVnd, status: refund.status }).from(refund)
+    .innerJoin(payment, eq(refund.paymentId, payment.id)).where(eq(payment.orderId, order.id)).orderBy(asc(refund.createdAt));
+  return { ...order, lines: await linesOf([order.id]), shipments, refunds };
 }

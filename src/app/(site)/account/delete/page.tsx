@@ -5,6 +5,7 @@ import { currentAccount } from "@/auth";
 import DeleteAccount from "@/components/DeleteAccount";
 import card from "@/components/waitlist.module.css";
 import { deleteBlock } from "@/lib/account-delete";
+import { expireStaleOrders } from "@/lib/payments";
 
 export const dynamic = "force-dynamic";
 export const metadata = { robots: { index: false, follow: false } };
@@ -14,6 +15,7 @@ export default async function DeleteAccountPage() {
   if (!me) redirect("/login?next=/account/delete");
   const t = await getTranslations("deleteAccount");
   const account = await getTranslations("account");
+  await expireStaleOrders(me.id);
   const blocked = await deleteBlock(me.id);
 
   return (

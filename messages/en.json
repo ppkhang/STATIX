@@ -191,6 +191,10 @@
       "body": "Someone tried to create an account with this address, but you already have one. Log in here:\n{url}\n\nIf it wasn't you, you don't need to do anything."
     },
     "otp": "Your STATIX code is {code}. It works for 5 minutes.",
+    "orderPaid": {
+      "subject": "Order {number} confirmed",
+      "body": "Your order {number} is confirmed.\n\n{items}\n\nTotal: {total}\n\nSee it here:\n{url}"
+    },
     "waitlistConfirm": {
       "subject": "Confirm your spot on the {drop} waitlist",
       "body": "Confirm your email to join the {drop} waitlist:\n{url}\n\nThe link works for {days} days. If you didn't ask for it, ignore this email and nothing happens.\n\nLeave the list, change what we send you or delete your data:\n{manage}"
@@ -384,6 +388,14 @@
     "tracking": "Tracking",
     "method": "Payment method",
     "back": "All orders",
+    "cancel": "Cancel order",
+    "cancelAsk": "Cancel this order? Your payment is refunded the way you paid, and you give up your number. It can't be undone, and you can't buy that product from this drop again.",
+    "cancelAskCod": "Cancel this order? You give up your number. It can't be undone, and you can't buy that product from this drop again.",
+    "cancelConfirm": "Yes, cancel the order",
+    "refundDue": "Refund of {amount}: recorded, not yet sent.",
+    "refundOther": "Refund of {amount}.",
+    "confirmed": "Order confirmed. Your numbers are yours.",
+    "refundedNote": "We couldn't complete this order, so your payment is due back to you.",
     "methods": { "vnpay": "VNPay", "momo": "MoMo", "cod": "Cash on delivery" },
     "status": {
       "pending": "Pending",
@@ -401,7 +413,7 @@
     "title": "STATIX admin",
     "menu": "Admin menu",
     "home": "Home",
-    "homeBody": "Orders, the dashboard and the other admin pages aren't built yet.",
+    "homeBody": "The dashboard and the other admin pages aren't built yet.",
     "logInTitle": "Staff log in",
     "logIn": "Log in",
     "logOut": "Log out",
@@ -425,6 +437,32 @@
     "after": "After",
     "reason": "Reason",
     "commandLine": "Command line",
+    "orders": "Orders",
+    "allOrders": "All orders",
+    "search": "Order, email, phone or unit number",
+    "status": "Status",
+    "any": "Any",
+    "dropNumber": "Drop number",
+    "owedOnly": "Refund owed",
+    "orderNo": "Order",
+    "customer": "Customer",
+    "total": "Total",
+    "owed": "Refund owed",
+    "payments": "Payments",
+    "refunds": "Refunds",
+    "none": "None.",
+    "notSent": "Not sent",
+    "notTheirs": "No longer claims this number",
+    "paymentStatus": { "created": "Created", "pending": "Waiting", "succeeded": "Succeeded", "failed": "Failed", "cancelled": "Cancelled" },
+    "refundReason": {
+      "duplicate": "Charged twice",
+      "amount_changed": "Paid an amount the order no longer shows",
+      "unit_taken": "The number went to someone else",
+      "cap": "Over the cap",
+      "drop_closed": "Paid after the drop was closed",
+      "account_deleted": "Paid after the account was deleted",
+      "cancelled_by_buyer": "Cancelled by the buyer"
+    },
     "drops": "Drops",
     "allDrops": "All drops",
     "newDrop": "New drop",
@@ -452,6 +490,9 @@
     "capIs": "{cap} per person",
     "taken": "{taken} held or sold",
     "schedule": "Schedule",
+    "closeDrop": "Close drop",
+    "closeNote": "This ends sales for good and lets go of every running hold. It can't be undone.",
+    "closeConfirm": "Yes, close the drop",
     "scheduleNote": "Scheduling shows the drop in the shop. The newest scheduled drop becomes the current one, and it opens by itself at its times.",
     "dropError": {
       "denied": "Your role can't change drops.",
@@ -466,6 +507,7 @@
       "noPublicTime": "Set the public opening first.",
       "inThePast": "The first opening has to be in the future.",
       "notDraft": "Only a draft can be scheduled.",
+      "notOpenToClose": "Only a scheduled or running drop can be closed.",
       "noEditions": "Add at least one edition first.",
       "unitCount": "An edition's numbered units don't match its size. Don't schedule it; check the database.",
       "badSize": "Size has to be a whole number from 1 to 10,000.",
@@ -474,6 +516,17 @@
       "variantTaken": "This drop already has that product and colour.",
       "unitsInUse": "A number above that size is held or sold, so the run can't be that small."
     }
+  },
+  "mockPay": {
+    "title": "Test payment",
+    "note": "This stands in for {name}. No money moves.",
+    "amount": "Amount",
+    "order": "Order {number}",
+    "approve": "Approve payment",
+    "decline": "Decline payment",
+    "cancel": "Cancel",
+    "done": "This payment is already settled.",
+    "toOrder": "See the order"
   },
   "buy": {
     "holding": "Holding your number…",
@@ -527,6 +580,26 @@
     "payment": "Payment",
     "noPayment": "Payments aren't connected yet, so nothing can be charged and no order is made. Your hold runs out on its own.",
     "pay": "Pay",
+    "method": "Payment method",
+    "testMode": "Test payments are on. No money moves.",
+    "testName": "{name} (test)",
+    "agree": "I agree to the <terms>terms</terms> and the <returns>return policy</returns>.",
+    "paying": "Starting your payment…",
+    "payError": {
+      "noHold": "Your hold ran out. Pick your number again from the drop.",
+      "closed": "This drop has closed.",
+      "noAddress": "Add a delivery address first.",
+      "twoDrops": "Pay for one drop at a time. Let go of the other hold first.",
+      "badKey": "Reload the page and try again.",
+      "agree": "Tick the box to agree before paying.",
+      "method": "Choose a payment method.",
+      "unavailable": "Payments aren't connected yet.",
+      "rateLimited": "Too many tries. Wait a few minutes."
+    },
+    "payResult": {
+      "failed": "The payment didn't go through. Nothing was charged. Your hold is still running until its timer ends.",
+      "cancelled": "You cancelled the payment. Your hold is still running until its timer ends."
+    },
     "emptyTitle": "Nothing held",
     "emptyBody": "You have no running holds. If one ran out, its number went back on sale: try again from the drop if there are units left.",
     "released": "Your hold is released. The number is back on sale.",

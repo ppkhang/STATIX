@@ -186,9 +186,13 @@ export const customerOrder = pgTable("customer_order", {
 export const orderLine = pgTable("order_line", {
   id: id(),
   orderId: uuid("order_id").notNull().references(() => customerOrder.id),
-  editionUnitId: uuid("edition_unit_id").notNull().references(() => editionUnit.id).unique(),
+  editionUnitId: uuid("edition_unit_id").notNull().references(() => editionUnit.id),
   priceVnd: integer("price_vnd").notNull(),
-});
+  releasedAt: ts("released_at"), // set when the order ends without the unit, which can then be sold again
+}, (t) => [
+  // a numbered unit is claimed by one order at a time
+  uniqueIndex("order_line_one_claim").on(t.editionUnitId).where(sql`${t.releasedAt} is null`),
+]);
 
 export const payment = pgTable("payment", {
   id: id(),

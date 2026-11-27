@@ -8,19 +8,23 @@ import type { Address } from "@/lib/checkout-rules";
 import { formatDateTime, formatVnd, unitNumber } from "@/lib/format";
 import { timeline } from "@/lib/order-rules";
 import { findOrder } from "@/lib/orders";
+import { cancelMyOrder } from "@/lib/payment-actions";
+import { CANCELLABLE, expireStaleOrders } from "@/lib/payments";
 
 export const dynamic = "force-dynamic";
 export const metadata = { robots: { index: false, follow: false } };
 
 /**
- * Page 14, one order. Left until orders can exist: cancel, invoice and return request.
+ * Page 14, one order. Not built: invoice and return request.
  * shortcut: no time per step and tracking codes aren't links; add both once something records status changes
  * and there is a GHN account.
  */
-export default async function Order({ params }: PageProps<"/account/orders/[orderNo]">) {
+export default async function Order({ params, searchParams }: PageProps<"/account/orders/[orderNo]">) {
   const me = await currentAccount();
   const { orderNo } = await params;
   if (!me) redirect(`/login?next=${encodeURIComponent(`/account/orders/${orderNo}`)}`);
+  await expireStaleOrders(me.id);
+  const { placed } = await searchParams;
   // someone else's order number gets the same 404 as one that doesn't exist
   const order = await findOrder(me.id, orderNo);
   if (!order) notFound();
@@ -34,6 +38,12 @@ export default async function Order({ params }: PageProps<"/account/orders/[orde
     <div className={card.card}>
       <h1>{t("order", { number: order.orderNo })}</h1>
       <div className={card.body}>
+        {/* page 12. The status is read from the order, so the address alone can't make this show */}
+        {placed === "1" && order.status === "paid" && <p className={card.notice} role="status">{t("confirmed")}</p>}
+        {order.status === "refunded" && <p className={card.notice} role="status">{t("refundedNote")}</p>}
+        {order.refunds.map((row) => (
+          <p key={row.id} className={card.line}>{t(row.status === "pending" ? "refundDue" : "refundOther", { amount: formatVnd(row.amountVnd) })}</p>
+        ))}
         <p className={card.lead}>{t(`status.${order.status}`)}</p>
         <p className={card.line}>
           {t("placed", { time: formatDateTime(order.createdAt.toISOString()) })}<br />
@@ -82,6 +92,18 @@ export default async function Order({ params }: PageProps<"/account/orders/[orde
             <h2>{t("tracking")}</h2>
             {tracked.map((row) => <p key={row.id} className={card.line}>{row.carrier.toUpperCase()} · {row.trackingCode}</p>)}
           </section>
+        )}
+
+        {(CANCELLABLE as readonly string[]).includes(order.status) && (
+          // opening this is the "are you sure" step
+          <details>
+            <summary className={styles.release}>{t("cancel")}</summary>
+            <form action={cancelMyOrder} className={styles.actions}>
+              <input type="hidden" name="order" value={order.orderNo} />
+              <span>{t(order.paymentMethod === "cod" ? "cancelAskCod" : "cancelAsk")}</span>
+              <button type="submit" className={card.secondary}>{t("cancelConfirm")}</button>
+            </form>
+          </details>
         )}
 
         <nav className={card.links}><Link href="/account/orders">{t("back")}</Link></nav>

@@ -14,10 +14,11 @@
     "check:staff": "node --env-file-if-exists=.env.local --import tsx scripts/check-staff.ts",
     "staff:create": "node --env-file-if-exists=.env.local --import tsx scripts/create-staff.ts",
     "check:drops": "node --env-file-if-exists=.env.local --import tsx scripts/check-drops.ts",
+    "check:payments": "node --env-file-if-exists=.env.local --import tsx scripts/check-payments.ts",
     "check:holds": "node --env-file-if-exists=.env.local --import tsx scripts/check-holds.ts",
     "invites:release": "node --env-file-if-exists=.env.local --import tsx scripts/release-invites.ts",
     "db:seed": "node --env-file-if-exists=.env.local --import tsx scripts/seed.ts",
-    "test": "node --import tsx --test src/lib/drop-status.test.ts src/lib/auth-rules.test.ts src/lib/waitlist-rules.test.ts src/lib/manage-token.test.ts src/lib/invite-rules.test.ts src/lib/purchase-rules.test.ts src/lib/checkout-rules.test.ts src/lib/order-rules.test.ts src/lib/totp.test.ts src/lib/drop-admin-rules.test.ts"
+    "test": "node --import tsx --test src/lib/drop-status.test.ts src/lib/auth-rules.test.ts src/lib/waitlist-rules.test.ts src/lib/manage-token.test.ts src/lib/invite-rules.test.ts src/lib/purchase-rules.test.ts src/lib/checkout-rules.test.ts src/lib/order-rules.test.ts src/lib/totp.test.ts src/lib/drop-admin-rules.test.ts src/lib/payment-rules.test.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.4",

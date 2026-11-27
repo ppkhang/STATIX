@@ -2,8 +2,9 @@
 // account with any keeps its row with nothing in it that names the person.
 // [ASSUMPTION] orders, with the delivery address saved on them, are kept; how long is still to be decided.
 // Relative imports, so scripts/check-account.ts can run this outside Next.
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "../db";
+import { expireStaleOrders } from "./payments";
 import { account, address, authToken, customerOrder, dropRun, edition, editionUnit, hold, orderLine, phoneOtp, waitlistEntry } from "../db/schema";
 
 export type DeleteBlock = "openOrder" | "openDrop";
@@ -22,7 +23,7 @@ export async function deleteBlock(accountId: string, from: Reader = db): Promise
     .innerJoin(editionUnit, eq(orderLine.editionUnitId, editionUnit.id))
     .innerJoin(edition, eq(editionUnit.editionId, edition.id))
     .innerJoin(dropRun, eq(edition.dropId, dropRun.id))
-    .where(and(eq(customerOrder.accountId, accountId), eq(editionUnit.status, "sold"),
+    .where(and(eq(customerOrder.accountId, accountId), inArray(editionUnit.status, ["sold", "retired"]), isNull(orderLine.releasedAt),
       sql`${dropRun.state} <> 'closed' and (${dropRun.closeAt} is null or ${dropRun.closeAt} > now())`))
     .limit(1);
   return stillSelling ? "openDrop" : null;
@@ -30,6 +31,7 @@ export async function deleteBlock(accountId: string, from: Reader = db): Promise
 
 /** The caller has already proved this is the account's owner. */
 export async function deleteAccount(accountId: string): Promise<DeleteBlock | "deleted"> {
+  await expireStaleOrders(accountId); // an abandoned payment isn't an order in progress
   return db.transaction(async (tx) => {
     // also keeps a new hold or order for this account waiting until this is done
     const [me] = await tx.select().from(account).where(eq(account.id, accountId)).for("update");
