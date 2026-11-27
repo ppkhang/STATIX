@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import styles from "./shell.module.css";
@@ -24,7 +25,8 @@ export default function ConsentBanner() {
 
   return (
     <section className={styles.consent} aria-label={t("label")}>
-      <p>{t("text")}</p>
+      <strong>{t("label")}</strong>
+      <p>{t("text")} <Link href="/privacy-policy">{t("policy")}</Link></p>
       <div className={styles.consentActions}>
         <button type="button" className={styles.btn} onClick={() => choose("accepted")}>{t("accept")}</button>
         <button type="button" className={styles.btn} onClick={() => choose("declined")}>{t("decline")}</button>

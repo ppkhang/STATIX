@@ -4,7 +4,7 @@ Turns `PAGES_UI.md` (what each page does) into an order of work. Read that file 
 
 Status: draft, 26/11/2026. Items marked **[DECIDE]** need an answer before the step that uses them.
 
-## Where we are (updated 27/11/2026, paused)
+## Where we are (updated 27/11/2026, stopped for the day)
 
 The app is Next.js with Postgres. PRs up to #22 are merged into `main`. **Nothing is deployed.** Drop 001 opens **20/12/2026**: early access 19:30, public 20:00 (UTC+7).
 
@@ -21,7 +21,7 @@ PR #22 added the restyled staff login screen and toasts (`components/Toast.tsx`)
 
 ### Run it
 
-`npm run db:up`, `npm run db:migrate`, then `npm run dev -- -H 127.0.0.1`. Staff pages are at `/admin`; make an account with `npm run staff:create`. Checks: `npm test`, `npm run lint`, `npm run build`, and against the local database `check:holds`, `check:account`, `check:payments`, `check:drops`, `check:staff` (CI doesn't run these).
+Everything was shut down at the stop, so open Docker Desktop first. Then `npm run db:up`, `npm run db:migrate`, then `npm run dev -- -H 127.0.0.1`. Staff pages are at `/admin`; the laptop's database has a local-only owner account, and `npm run staff:create` makes more. To see a toast without doing anything, open `/login?reset=1` while logged out. If the dev server shows odd styling after style changes, restart it. Checks: `npm test`, `npm run lint`, `npm run build`, and against the local database `check:holds`, `check:account`, `check:payments`, `check:drops`, `check:staff` (CI doesn't run these).
 
 ### Before 20/12
 

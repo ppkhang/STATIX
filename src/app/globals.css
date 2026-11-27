@@ -869,10 +869,10 @@ footer {
   position: relative;
   display: flex;
   align-items: center;
-  width: var(--wide);
-  height: 44px;
+  width: 144px; /* a step down from the STATIX card, which is --wide */
+  height: 38px;
   margin-top: 14px;
-  padding: 0 18px;
+  padding: 0 14px;
   background: var(--card);
   color: var(--card-ink);
   white-space: nowrap;
@@ -881,7 +881,12 @@ footer {
   translate: -200px 0; /* off the left edge of the window */
   transition: translate .38s cubic-bezier(.2, 1.3, .4, 1), opacity .1s, background-color .12s;
 }
-.fan-label { font: 900 13px/1 var(--font-main); letter-spacing: .08em; text-transform: uppercase; }
+/* the cards that leave the landing: an arrow on each, and a rule with more room before the first. The rule hangs off
+   that card, so it flies and floats with it */
+.fan-item--page::after { content: "→" / ""; margin-left: auto; font: 900 15px/1 var(--font-main); }
+.fan-item:not(.fan-item--page) + .fan-item--page { margin-top: 36px; }
+.fan-item:not(.fan-item--page) + .fan-item--page::before { content: ""; position: absolute; left: 0; width: 48px; top: -19px; height: 4px; background: var(--card); box-shadow: 0 0 0 2px var(--ring); }
+.fan-label { font: 900 12px/1 var(--font-main); letter-spacing: .08em; text-transform: uppercase; }
 /* the float is on transform, so it never fights the fly-out, which is on translate */
 .dockbar.is-stuck:is(.is-hover, .is-open, :has(:focus-visible)) .fan-item { opacity: 1; pointer-events: auto; translate: 0 0; transition-delay: calc(var(--i) * .09s), calc(var(--i) * .09s), 0s;
   animation: hover-float 2.4s ease-in-out calc(var(--i) * -.45s) infinite alternate; }

@@ -24,8 +24,6 @@ p.notice.notice { color: var(--ink); border-left: 4px solid var(--accent); paddi
 /* Log in and sign up, in the landing's language: a title slab over a console box with a light surface
    (DESIGN.md, "Tune in"). Scoped to .stage, so the other account pages keep the styles above. */
 .stage { position: relative; isolation: isolate; width: 100%; max-width: 574px; margin-inline: auto; padding-right: 14px; display: flex; flex-direction: column; align-items: flex-start; gap: 28px; }
-/* two classes beat the shell's `.main h1` */
-.stage .title { align-self: stretch; margin-inline: 6px; white-space: nowrap; font-size: clamp(36px, 9vw, 72px); text-transform: uppercase; }
 .console { align-self: stretch; border: 2px solid var(--ink); box-shadow: 14px 14px 0 var(--accent); }
 .surface { display: flex; flex-direction: column; gap: 16px; padding: clamp(20px, 5vw, 40px); background: var(--ink); color: var(--bg); }
 .surface .form { max-width: none; }
@@ -49,6 +47,39 @@ p.notice.notice { color: var(--ink); border-left: 4px solid var(--accent); paddi
 
 /* one card: the title is a straight header joined to the form, as on the product page and the landing's Tune in.
    `.slab`'s tilt, hover lean and shadow are all put down. */
-.stage .title, .stage .title:hover { margin: 0 0 -28px; /* takes back the stage's gap */ padding: 18px clamp(20px, 5vw, 40px) 16px; transform: none; line-height: 1; border: 2px solid var(--ink); border-bottom: 3px solid var(--bg); box-shadow: 14px 14px 0 var(--accent); }
+.stage .title, .stage .title:hover { position: relative; align-self: stretch; display: flex; margin: 0 0 -28px; /* takes back the stage's gap */ padding: 0; background: var(--bg); transform: none; line-height: 1; border: 2px solid var(--ink); border-bottom: 0; box-shadow: 14px 14px 0 var(--accent); }
+/* log in and sign up as two halves; the current one is joined to the light surface */
+.title a { position: relative; z-index: 1; transition: color .25s; flex: 1; display: grid; place-items: center; min-height: 72px; padding: 0 8px; color: var(--muted); font-size: clamp(20px, 5vw, 30px); text-transform: uppercase; white-space: nowrap; }
+.title a:hover { color: var(--accent); }
+.title a[aria-current] { color: var(--bg); }
+.title > span { position: absolute; inset: 0 50% 0 0; background: var(--ink); box-shadow: inset 0 6px 0 var(--accent); transition: translate .25s cubic-bezier(.2, .8, .2, 1); }
+.title a:nth-of-type(2)[aria-current] ~ span { translate: 100% 0; }
+@media (prefers-reduced-motion: reduce) { .title a, .title > span { transition: none; } }
+.title a:focus-visible { outline-offset: -10px; }
+.title a[aria-current]:focus-visible { outline-color: var(--bg); }
+/* two classes beat the shell's `.main h1` */
+.stage .title h1 { margin: 0; font: inherit; letter-spacing: inherit; }
+.below { align-self: stretch; display: flex; justify-content: center; min-height: 44px; margin-top: -8px; }
+/* the other way in sits apart from the form: more space around the divider than between fields */
+.or { margin-block: 8px; display: flex; align-items: center; gap: 12px; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; }
+.or::before, .or::after { content: ""; flex: 1; height: 2px; background: var(--bg); opacity: .2; }
+.surface p.or { max-width: none; color: var(--card-ink); }
+.google { width: 100%; min-height: 54px; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 0 12px; border: 2px solid var(--bg); background: var(--input); color: var(--bg); font: 900 clamp(12px, 3.6vw, 15px)/1.2 var(--font-main); letter-spacing: .04em; text-transform: uppercase; cursor: pointer; }
+/* outline against the solid submit, so the form's own button leads; both invert a step on hover */
+.google:hover:enabled { background: var(--bg); color: var(--ink); }
+.surface .form button:hover:enabled { background: var(--accent); color: var(--bg); }
+.google:disabled { cursor: not-allowed; }
+.surface .google:focus-visible { outline-color: var(--bg); }
+.surface p.preview { max-width: none; color: var(--card-ink); font-size: 13px; text-align: center; }
 /* positioned, so it covers the header's shadow where the two meet: one shadow round the pair */
 .console { position: relative; border-top: 0; }
+
+/* these pages don't scroll, so on a short window the box tightens. The sizes above are the roomy ones. */
+.stage .title a { min-height: clamp(48px, 8dvh, 72px); }
+.stage .surface { gap: clamp(6px, calc(4dvh - 18px), 16px); padding-block: clamp(12px, calc(10dvh - 50px), 40px); }
+.stage .surface .form { gap: clamp(6px, calc(4dvh - 18px), 16px); }
+.stage .surface .form input, .stage .surface .form button, .stage .google { height: auto; min-height: clamp(44px, 6dvh, 54px); }
+.stage .surface .form input { height: clamp(44px, 6dvh, 54px); }
+.stage .surface .form .help { margin-top: calc(clamp(6px, calc(4dvh - 18px), 16px) * -.5); }
+.stage .surface p.error:empty { margin-top: calc(clamp(6px, calc(4dvh - 18px), 16px) * -1); }
+.stage .surface .or { margin-block: clamp(0px, .9dvh, 8px); }
