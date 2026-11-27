@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import AdminForm from "@/components/AdminForm";
 import styles from "@/components/admin.module.css";
-import { addEditionAction, scheduleDropAction, updateDropAction, updateEditionAction } from "@/lib/admin-actions";
+import { addEditionAction, closeDropAction, scheduleDropAction, updateDropAction, updateEditionAction } from "@/lib/admin-actions";
 import { allVariants, findDrop } from "@/lib/admin-drops";
 import { getDrop, parseDropNumber } from "@/lib/catalogue";
 import { salesStarted, toVietnamInput } from "@/lib/drop-admin-rules";
@@ -87,6 +87,15 @@ export default async function Drop({ params, searchParams }: PageProps<"/admin/d
             ]}
           />
         </>
+      )}
+
+      {drop.state !== "draft" && drop.state !== "closed" && (
+        // opening this is the confirm step
+        <details>
+          <summary className={styles.summary}>{t("closeDrop")}</summary>
+          <p>{t("closeNote")}</p>
+          <AdminForm action={closeDropAction} hidden={hidden} submit={t("closeConfirm")} label={t("closeDrop")} />
+        </details>
       )}
 
       {drop.state === "draft" && (

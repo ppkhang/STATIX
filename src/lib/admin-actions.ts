@@ -2,7 +2,7 @@
 
 // Thin on purpose: who is asking, and what they typed. admin-drops.ts checks the role, the rules and writes the log.
 import { redirect } from "next/navigation";
-import { addEdition, createDrop, scheduleDrop, updateDrop, updateEdition, type DropProblem, type Result } from "./admin-drops";
+import { addEdition, closeDrop, createDrop, scheduleDrop, updateDrop, updateEdition, type DropProblem, type Result } from "./admin-drops";
 import { fromVietnamInput } from "./drop-admin-rules";
 import { requireStaff } from "./staff-session";
 
@@ -48,6 +48,13 @@ export async function scheduleDropAction(_state: AdminState, form: FormData): Pr
   const input = read(form);
   const number = input.whole("number");
   return done(await scheduleDrop(me, number || 0), input, dropPage(number));
+}
+
+export async function closeDropAction(_state: AdminState, form: FormData): Promise<AdminState> {
+  const me = await requireStaff("drops");
+  const input = read(form);
+  const number = input.whole("number");
+  return done(await closeDrop(me, number || 0), input, dropPage(number));
 }
 
 export async function addEditionAction(_state: AdminState, form: FormData): Promise<AdminState> {

@@ -18,6 +18,7 @@ const PAGE_ROLES = {
   home: adminRole.enumValues,
   audit: ["owner"],
   drops: ["owner", "ops"],
+  orders: ["ops", "fulfilment"],
 } as const satisfies Record<string, readonly Role[]>;
 
 export type AdminPage = keyof typeof PAGE_ROLES;

@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import { and, asc, eq, gt, inArray, like, sql } from "drizzle-orm";
 import { db } from "../src/db";
 import { account, adminUser, auditLog, dropRun, edition, editionUnit, hold, tier } from "../src/db/schema";
-import { addEdition, allVariants, createDrop, findDrop, scheduleDrop, updateDrop, updateEdition } from "../src/lib/admin-drops";
+import { addEdition, allVariants, closeDrop, createDrop, findDrop, scheduleDrop, updateDrop, updateEdition } from "../src/lib/admin-drops";
 import { holdUnit } from "../src/lib/holds";
 import type { Staff } from "../src/lib/staff";
 
@@ -178,8 +178,21 @@ async function main() {
   await expect(() => updateEdition(staff.owner, editionId, { ...terms, size: 14, priceVnd: 2000 }), "locked");
   ok("from early access on, nothing changes: price, size, new editions, times (US-097 AC2 and stricter)");
 
+  await expect(() => closeDrop(staff.support, number), "denied");
+  await db.update(dropRun).set({ publicAt: new Date(Date.now() - hour) }).where(eq(dropRun.id, drop.id));
+  await db.update(editionUnit).set({ status: "available", holdId: null, heldUntil: null }).where(eq(editionUnit.editionId, editionId));
+  const running = await holdUnit(buyers[20], editionId);
+  assert.ok(running.ok, JSON.stringify(running));
+  await expect(() => closeDrop(staff.ops, number), null);
+  assert.equal((await db.select().from(hold).where(and(eq(hold.editionId, editionId), eq(hold.status, "active")))).length, 0);
+  assert.equal((await db.select().from(editionUnit).where(and(eq(editionUnit.editionId, editionId), eq(editionUnit.status, "held")))).length, 0);
+  assert.deepEqual(await holdUnit(buyers[21], editionId), { ok: false, error: "closed" });
+  await expect(() => closeDrop(staff.ops, number), "notOpenToClose");
+  ok("closing a drop ends its holds, stops new ones, and can't be done twice");
+
   await expect(() => createDrop(staff.owner, second, { ...soon, earlyAccessAt: null, publicAt: null }), null);
   await expect(() => updateEdition(staff.owner, "00000000-0000-0000-0000-000000000000", terms), "gone");
+  await expect(() => closeDrop(staff.owner, second), "notOpenToClose");
   const trail = await db.select().from(auditLog).where(and(eq(auditLog.entityId, editionId), eq(auditLog.action, "update"))).orderBy(asc(auditLog.at));
   assert.deepEqual(trail[0].oldValue, terms);
   assert.deepEqual(trail[0].newValue, { ...terms, size: 25 });

@@ -6,16 +6,18 @@ import styles from "@/components/checkout.module.css";
 import card from "@/components/waitlist.module.css";
 import { formatDateTime, formatVnd, unitNumber } from "@/lib/format";
 import { listOrders } from "@/lib/orders";
+import { expireStaleOrders } from "@/lib/payments";
 
 export const dynamic = "force-dynamic";
 export const metadata = { robots: { index: false, follow: false } };
 
-/** Page 14, the list. Nothing makes an order until payment is connected (M4), so for now it is empty. */
+/** Page 14, the list. Orders are made by Pay, which so far only has the mock provider. */
 export default async function Orders() {
   const me = await currentAccount();
   if (!me) redirect("/login?next=/account/orders");
   const t = await getTranslations("orders");
   const account = await getTranslations("account");
+  await expireStaleOrders(me.id);
   const orders = await listOrders(me.id);
 
   return (

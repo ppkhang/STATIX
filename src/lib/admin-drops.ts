@@ -1,14 +1,14 @@
 // A3 and A4: making, scheduling and filling drops (FR-007 to FR-009, FR-097).
 // The role check and the audit row live here, with the change, so no route to a change can skip either.
 // Relative imports, so scripts/check-drops.ts can run this outside Next.
-import { and, asc, desc, eq, gt, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray, sql } from "drizzle-orm";
 import { db } from "../db";
-import { dropRun, edition, editionUnit, product, variant } from "../db/schema";
+import { dropRun, edition, editionUnit, hold, product, variant } from "../db/schema";
 import { detailsProblem, editionProblem, salesStarted, scheduleProblem, type DropDetails, type EditionTerms } from "./drop-admin-rules";
 import { audit, can, type Staff } from "./staff";
 
 export type DropProblem =
-  | "denied" | "gone" | "locked" | "badNumber" | "numberTaken" | "unitsInUse" | "variantTaken" | "notDraft" | "noEditions" | "unitCount"
+  | "denied" | "gone" | "locked" | "badNumber" | "numberTaken" | "unitsInUse" | "variantTaken" | "notDraft" | "notOpenToClose" | "noEditions" | "unitCount"
   | NonNullable<ReturnType<typeof detailsProblem>> | NonNullable<ReturnType<typeof editionProblem>> | NonNullable<ReturnType<typeof scheduleProblem>>;
 export type Result = { ok: true } | { ok: false; error: DropProblem };
 
@@ -88,6 +88,28 @@ export async function scheduleDrop(actor: Staff, number: number): Promise<Result
     if (editions.some((row) => row.units !== row.size || row.highest !== row.size)) throw new Refused("unitCount");
     await tx.update(dropRun).set({ state: "scheduled" }).where(eq(dropRun.id, drop.id));
     await audit({ adminId: actor.id, entity: "drop", entityId: drop.id, action: "schedule", oldValue: { state: "draft" }, newValue: { state: "scheduled" } }, tx);
+  });
+}
+
+/**
+ * Ends sales for good, from the part of A5 that exists. Running holds are let go; a payment that still lands is
+ * refunded (payments.ts).
+ */
+export async function closeDrop(actor: Staff, number: number): Promise<Result> {
+  return change(actor, async (tx) => {
+    const drop = await lockDrop(tx, number);
+    if (drop.state === "draft" || drop.state === "closed") throw new Refused("notOpenToClose");
+    await tx.update(dropRun).set({ state: "closed" }).where(eq(dropRun.id, drop.id));
+    const runs = tx.select({ id: edition.id }).from(edition).where(eq(edition.dropId, drop.id));
+    // units first, then holds: the order holdUnit() takes them in
+    await tx.update(editionUnit).set({ status: "available", holdId: null, heldUntil: null })
+      .where(and(inArray(editionUnit.editionId, runs), eq(editionUnit.status, "held")));
+    const ended = await tx.update(hold).set({ status: "released" })
+      .where(and(inArray(hold.editionId, runs), eq(hold.status, "active"))).returning({ id: hold.id });
+    await audit({
+      adminId: actor.id, entity: "drop", entityId: drop.id, action: "close",
+      oldValue: { state: drop.state }, newValue: { state: "closed", holdsEnded: ended.length },
+    }, tx);
   });
 }
 
