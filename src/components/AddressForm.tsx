@@ -11,11 +11,13 @@ const FIELDS = [
   ["recipient", "name"], ["receiverPhone", "tel"], ["province", "address-level1"], ["ward", "address-level3"], ["street", "street-address"],
 ] as const;
 
-export default function AddressForm({ saved }: { saved: Address | null }) {
+/** `id` is for the address book: the address being edited, or "new". Checkout leaves it out. */
+export default function AddressForm({ saved, id }: { saved: Address | null; id?: string }) {
   const t = useTranslations("checkout");
   const [state, run, pending] = useActionState<AddressState, FormData>(saveAddress, {});
   return (
     <form action={run} className={styles.address} noValidate>
+      {id && <><input type="hidden" name="from" value="book" /><input type="hidden" name="id" value={id} /></>}
       {FIELDS.map(([name, autoComplete]) => (
         <label key={name} className={name === "street" ? styles.wide : undefined}>
           <span>{t(`field.${name}`)}</span>

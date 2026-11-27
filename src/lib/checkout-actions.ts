@@ -1,11 +1,9 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { currentAccount } from "@/auth";
-import { db } from "@/db";
-import { address } from "@/db/schema";
+import { listAddresses, makeDefault, removeAddress, writeAddress } from "./addresses";
 import { safeNext } from "./auth-rules";
 import { cleanAddress, type AddressProblem } from "./checkout-rules";
 import { extendHold, holdUnit, releaseHold, type HoldResult } from "./holds";
@@ -42,19 +40,41 @@ export async function release(form: FormData) {
   redirect("/checkout?released=1");
 }
 
-export type AddressState = { error?: AddressProblem; saved?: boolean; values?: Record<string, string> };
+export type AddressState = { error?: AddressProblem | "full" | "gone"; values?: Record<string, string> };
 
-/** shortcut: one delivery address per account, the default one. The address book is M5 (page 16). */
+/**
+ * Checkout sends no id and edits the default address (or adds the first). The address book sends the id it is
+ * editing, or "new".
+ */
 export async function saveAddress(_state: AddressState, form: FormData): Promise<AddressState> {
   const me = await currentAccount();
-  if (!me) redirect("/login?next=/checkout");
+  const book = field(form, "from") === "book";
+  if (!me) redirect(`/login?next=${book ? "/account/addresses" : "/checkout"}`);
   const values = Object.fromEntries(["recipient", "receiverPhone", "province", "ward", "street"].map((name) => [name, field(form, name)])) as Record<"recipient" | "receiverPhone" | "province" | "ward" | "street", string>;
   const result = cleanAddress(values);
   if ("problem" in result) return { error: result.problem, values };
-  await db.transaction(async (tx) => {
-    const [mine] = await tx.select({ id: address.id }).from(address).where(and(eq(address.accountId, me.id), eq(address.isDefault, true)));
-    if (mine) await tx.update(address).set(result.value).where(eq(address.id, mine.id));
-    else await tx.insert(address).values({ ...result.value, accountId: me.id, isDefault: true });
-  });
-  redirect("/checkout?saved=1");
+  const asked = field(form, "id");
+  if (asked && asked !== "new" && !UUID.test(asked)) return { error: "gone", values };
+  const id = asked === "new" ? undefined : asked || (await listAddresses(me.id)).find((row) => row.isDefault)?.id;
+  const written = await writeAddress(me.id, result.value, id);
+  if (written !== "ok") return { error: written, values };
+  redirect(book ? "/account/addresses?done=saved" : "/checkout?saved=1");
+}
+
+/** From the address book, or from checkout's "use another saved address", and back to whichever it was. */
+export async function setDefaultAddress(form: FormData) {
+  const me = await currentAccount();
+  const back = field(form, "from") === "checkout" ? "/checkout" : "/account/addresses";
+  if (!me) redirect(`/login?next=${back}`);
+  const id = field(form, "id");
+  const done = UUID.test(id) && (await makeDefault(me.id, id));
+  redirect(done && back === "/account/addresses" ? `${back}?done=default` : back);
+}
+
+export async function deleteAddress(form: FormData) {
+  const me = await currentAccount();
+  if (!me) redirect("/login?next=/account/addresses");
+  const id = field(form, "id");
+  const done = UUID.test(id) && (await removeAddress(me.id, id));
+  redirect(done ? "/account/addresses?done=deleted" : "/account/addresses");
 }
