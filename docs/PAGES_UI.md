@@ -254,7 +254,8 @@ A confirmation email with the same content is sent too (FR-052, FR-098).
 ## 14. Orders and order detail
 
 > **Added 2026-11-27:** Cancel order, from Paid or Confirmed or Packing. The refund is recorded (none for COD).
-> `[ASSUMPTION]` the number is retired, not sold again, and still counts toward the cap.
+> `[ASSUMPTION]` the number is retired, not sold again, and still counts toward the cap. A payment that was started
+> and left is not listed (its page still opens).
 
 > **Built 2026-11-27** at `/account/orders`: list, one order, timeline, tracking code as text. Nothing creates an order until
 > payment is connected. Not built: cancel, invoice, return request, a time per timeline step (nothing records status changes),
@@ -344,13 +345,13 @@ All staff pages need sign-in with MFA, show only what the user's role allows, an
 >
 > **Built 2026-11-27:** A3 and A4 at `/admin/drops`. `[ASSUMPTION]` everything on a drop and its editions is fixed from
 > its first opening (early access), not only the price from the public opening: holds start then. Unit numbers stay 1 to
-> size. The newest scheduled drop becomes the current one on the site, though the header and some links still say
-> Drop 001. Not built: removing an edition, closing a drop (A5), logging the clock's own state changes (US-007 AC1).
-> Known gap: an invite expires at the public opening as it was when sent, so moving a scheduled drop later leaves
-> invites already sent with the old, earlier expiry.
+> size. The current drop on the site is the lowest-numbered one that isn't closed (past its closing time or closed by
+> staff), so close a drop once it has sold out for good. The header and some links still say Drop 001. Not built: removing an edition, closing a drop (A5), logging the clock's own state changes (US-007 AC1).
+> Moving the public opening moves the expiry of invites not used yet.
 >
 > **Built 2026-11-27:** from A5, only **Close drop** (on the drop's A3 page): it ends running holds, and payments that
-> land afterwards are refunded. A8 read only at `/admin/orders` (Ops and Fulfilment, as listed here, so not Owner):
+> land afterwards are refunded. A8 read only at `/admin/orders` (Ops, Fulfilment, and the Owner, added to the roles listed here because no other
+> page shows refunds owed):
 > search, status and drop filters, refunds owed. Not built: serial scan, QC, shipments, labels, staff refunds.
 > Known limit: Close drop during a multi-item payment or a repeat Buy can deadlock (rows are locked in different
 > orders); Postgres then aborts one of the two, which can be tried again.

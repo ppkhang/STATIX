@@ -10,7 +10,7 @@ import { listAddresses, makeDefault, MAX_ADDRESSES, removeAddress, writeAddress 
 import { findOrder, listOrders } from "../src/lib/orders";
 
 const MAIL = "@account.statix.test";
-const TEST_DROP = -998; // negative, so it is never the current drop
+const TEST_DROP = 900_998; // a late number, so it is never the current drop
 const gone: string[] = []; // anonymised accounts no longer match MAIL
 
 async function cleanUp() {

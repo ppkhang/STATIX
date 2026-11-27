@@ -1,6 +1,6 @@
 // Proves paying can't oversell a numbered run, charge twice for one click, or lose money, against a real Postgres
 // (CI has none). Run: npm run check:payments
-// Makes its own drop (number -997, so it is never the current one) and test accounts, and removes them after.
+// Makes its own drop (number 900_997: a later drop, so never the current one) and test accounts, and removes them after.
 // Refuses to run against a database that isn't on this machine.
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
@@ -9,10 +9,11 @@ import { db } from "../src/db";
 import { account, address, customerOrder, dropRun, edition, editionUnit, hold, orderLine, payment, refund, tier, variant } from "../src/db/schema";
 import { deleteAccount } from "../src/lib/account-delete";
 import { searchOrders, staffOrder } from "../src/lib/admin-orders";
+import { findOrder, listOrders } from "../src/lib/orders";
 import { holdUnit, releaseHold } from "../src/lib/holds";
 import { cancelOrder, confirmPayment, expireStaleOrders, findPayment, startPayment, type Confirmed } from "../src/lib/payments";
 
-const TEST_DROP = -997;
+const TEST_DROP = 900_997;
 const UNITS = 5;
 const BUYERS = 30;
 const MAIL = "@payments.statix.test";
@@ -163,6 +164,7 @@ async function main() {
   const cancels = await Promise.all(Array.from({ length: 8 }, () => cancelOrder(a, paidOrder.orderNo)));
   assert.equal(cancels.filter(Boolean).length, 1);
   assert.equal((await ordersOf(a))[0].status, "cancelled");
+  assert.equal((await listOrders(a)).length, 1, "cancelled after paying stays listed");
   assert.equal((await unit(1)).status, "retired");
   assert.deepEqual((await refundsOf(a)).map((r) => [r.reason, r.amount]).sort(), [["amount_changed", 41_000], ["cancelled_by_buyer", 51_000]]);
   assert.deepEqual(await holdUnit(a, run.id), { ok: false, error: "cap" });
@@ -188,10 +190,11 @@ async function main() {
   ok("a second charge landing after a cancel is refunded and the order stays cancelled");
 
   const ops = { id: a, email: "ops", role: "ops" as const };
-  for (const role of ["owner", "support", "community"] as const) {
+  for (const role of ["support", "community"] as const) {
     assert.equal(await searchOrders({ ...ops, role }), null);
     assert.equal(await staffOrder({ ...ops, role }, (await ordersOf(a))[0].orderNo), null);
   }
+  assert.ok(await searchOrders({ ...ops, role: "owner" }));
   const [target] = await ordersOf(a);
   const numbers = async (filter: Parameters<typeof searchOrders>[1]) => (await searchOrders(ops, filter))!.map((row) => row.orderNo);
   for (const q of [target.orderNo.toLowerCase(), `buyer0${MAIL}`, "0912345678"]) assert.ok((await numbers({ q })).includes(target.orderNo), q);
@@ -203,7 +206,7 @@ async function main() {
   assert.equal(owed[0].owedVnd, 2 * 41_000);
   const seen = (await staffOrder(ops, target.orderNo))!;
   assert.deepEqual([seen.payments.length, seen.owed.length], [2, 2]);
-  ok("staff find orders by number, email, phone or unit, see what's owed, and only Ops and Fulfilment can");
+  ok("staff find orders by number, email, phone or unit, see what's owed; Support and Community can't");
 
   // paying and deleting the account at the same moment: never a paid order on a deleted account
   const spare = buyers.slice(3);
@@ -259,7 +262,10 @@ async function main() {
   await lapse(own.holdId);
   await expireStaleOrders(a);
   assert.equal((await ordersOf(a))[0].status, "cancelled");
+  assert.equal((await listOrders(a)).length, 0, "an abandoned payment isn't listed");
+  assert.ok(await findOrder(a, (await ordersOf(a))[0].orderNo), "but its page still opens");
   assert.equal((await confirm(a, slow)).result, "paid");
+  assert.equal((await listOrders(a)).length, 1);
   assert.equal((await unit(own.number)).status, "sold");
   assert.equal((await db.select().from(orderLine).where(and(eq(orderLine.editionUnitId, (await unit(own.number)).id), isNull(orderLine.releasedAt)))).length, 1);
   ok("paid after the hold ran out with the number still free: the buyer gets it, even if the order was cancelled");

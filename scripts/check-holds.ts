@@ -1,6 +1,6 @@
 // Proves the hold engine can't oversell, against a real Postgres (CI has none, so this isn't part of npm test).
 // Run: npm run check:holds
-// It makes its own drop (number -999, so it is never the current one) and test accounts, and removes them after.
+// It makes its own drop (number 900_999: a later drop, so never the current one) and test accounts, and removes them after.
 // It never changes a real drop. Refuses to run against a database that isn't on this machine.
 import assert from "node:assert/strict";
 import { and, eq, inArray, like, sql } from "drizzle-orm";
@@ -9,7 +9,7 @@ import { account, dropRun, edition, editionUnit, hold, invite, tier, variant, wa
 import { getDrop } from "../src/lib/catalogue";
 import { activeHolds, extendHold, holdUnit, releaseHold } from "../src/lib/holds";
 
-const TEST_DROP = -999;
+const TEST_DROP = 900_999;
 const UNITS = 5;
 const BUYERS = 30;
 const MAIL = "@holds.statix.test";
