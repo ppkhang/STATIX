@@ -32,3 +32,12 @@
 .filters .check { flex-direction: row; align-items: center; gap: 8px; min-height: 44px; }
 .filters .check input { width: 20px; min-height: 20px; }
 .main ul { margin: 0; padding-left: 20px; line-height: 1.8; }
+.picker { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+.picker a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: underline; text-underline-offset: 4px; }
+.picker a[aria-current] { color: var(--accent); font-weight: 900; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin: 0; }
+.tiles div { padding: 14px 16px; border: 1px solid var(--rule); }
+.tiles dt { color: var(--dim); font-size: 13px; }
+.tiles dd { margin: 6px 0 0; font: 900 26px/1.2 var(--font-main); }
+.tiles small { display: block; margin-top: 4px; color: var(--dim); font: 400 13px/1.4 var(--font-sub); }
+.table tbody th { font-weight: 400; }

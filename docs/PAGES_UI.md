@@ -352,7 +352,8 @@ All staff pages need sign-in with MFA, show only what the user's role allows, an
 > **Built 2026-11-27:** from A5, only **Close drop** (on the drop's A3 page): it ends running holds, and payments that
 > land afterwards are refunded. A8 read only at `/admin/orders` (Ops, Fulfilment, and the Owner, added to the roles listed here because no other
 > page shows refunds owed):
-> search, status and drop filters, refunds owed. Not built: serial scan, QC, shipments, labels, staff refunds.
+> search, status and drop filters, refunds owed.
+> A2 at `/admin/dashboard`, refreshing every 5 s. The funnel starts at holds: nothing counts visits. Not built: serial scan, QC, shipments, labels, staff refunds.
 > Known limit: Close drop during a multi-item payment or a repeat Buy can deadlock (rows are locked in different
 > orders); Postgres then aborts one of the two, which can be tried again.
 > The same can happen between a late payment and the number's previous holder pressing Buy again. A real provider's

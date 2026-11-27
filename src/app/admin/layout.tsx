@@ -21,6 +21,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
           <>
             <nav aria-label={t("menu")}>
               <Link href="/admin">{t("home")}</Link>
+              {can(me.role, "dashboard") && <Link href="/admin/dashboard">{t("dashboard")}</Link>}
               {can(me.role, "drops") && <Link href="/admin/drops">{t("drops")}</Link>}
               {can(me.role, "orders") && <Link href="/admin/orders">{t("orders")}</Link>}
               {can(me.role, "audit") && <Link href="/admin/audit">{t("audit")}</Link>}

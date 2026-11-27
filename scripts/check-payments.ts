@@ -8,6 +8,7 @@ import { and, eq, inArray, isNull, like, sql } from "drizzle-orm";
 import { db } from "../src/db";
 import { account, address, customerOrder, dropRun, edition, editionUnit, hold, orderLine, payment, refund, tier, variant } from "../src/db/schema";
 import { deleteAccount } from "../src/lib/account-delete";
+import { dashboard } from "../src/lib/admin-dashboard";
 import { searchOrders, staffOrder } from "../src/lib/admin-orders";
 import { findOrder, listOrders } from "../src/lib/orders";
 import { holdUnit, releaseHold } from "../src/lib/holds";
@@ -190,6 +191,32 @@ async function main() {
   ok("a second charge landing after a cancel is refunded and the order stays cancelled");
 
   const ops = { id: a, email: "ops", role: "ops" as const };
+
+  // the dashboard, from a known state: one sold and paid, one held, one cancelled after paying
+  await reset();
+  await take(a);
+  await confirm(a, await start(a));
+  await take(b);
+  await take(c);
+  await confirm(c, await start(c));
+  await cancelOrder(c, (await ordersOf(c))[0].orderNo);
+  for (const role of ["fulfilment", "support", "community"] as const) assert.equal(await dashboard({ ...ops, role }, TEST_DROP), null);
+  const board = (await dashboard(ops, TEST_DROP))!;
+  const [counts] = board.editions;
+  assert.deepEqual([counts.size, counts.left, counts.held, counts.sold, counts.retired], [5, 2, 1, 1, 1]);
+  assert.deepEqual([board.holds.open, board.holds.people, board.paid.orders, board.paid.people], [1, 3, 1, 1]);
+  assert.deepEqual([board.paid.totalVnd, board.owedVnd], [41_000, 41_000]);
+  assert.deepEqual(board.waitlist, { confirmed: 0, pending: 0 });
+  ok("the dashboard counts units, holds, paid orders and refunds owed, for Owner and Ops only");
+
+  // back to the state the staff search below expects
+  await reset();
+  await take(a);
+  const again = await start(a);
+  await confirm(a, again, "failed");
+  await confirm(a, await start(a));
+  await cancelOrder(a, (await ordersOf(a))[0].orderNo);
+  await confirm(a, again);
   for (const role of ["support", "community"] as const) {
     assert.equal(await searchOrders({ ...ops, role }), null);
     assert.equal(await staffOrder({ ...ops, role }, (await ordersOf(a))[0].orderNo), null);
