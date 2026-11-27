@@ -1,10 +1,11 @@
 // Holds on numbered units (FR-011 to FR-015, data model §2). Overselling a numbered run is the one bug this store
 // can't have: units are pre-created rows, and a hold locks the row it takes.
 // Relative imports, so scripts/check-holds.ts can run this outside Next.
-import { and, asc, eq, gt, isNotNull, sql } from "drizzle-orm";
+import { and, asc, eq, gt, sql } from "drizzle-orm";
 import { db } from "../db";
-import { account, customerOrder, dropRun, edition, editionUnit, hold, invite, orderLine, product, setting, tier, variant, waitlistEntry } from "../db/schema";
+import { account, customerOrder, dropRun, edition, editionUnit, hold, orderLine, product, setting, tier, variant } from "../db/schema";
 import { dropStatus } from "./drop-status";
+import { invitedTo } from "./invites";
 import { refusal, type Refusal } from "./purchase-rules";
 
 export type HoldResult =
@@ -46,10 +47,7 @@ export async function holdUnit(accountId: string, editionId: string): Promise<Ho
       .where(and(eq(hold.accountId, accountId), eq(hold.editionId, editionId), eq(hold.status, "active")));
     if (mine) return { ok: true, holdId: mine.id, number: mine.number, expiresAt: mine.expiresAt, already: true } as const;
 
-    const [accepted] = await tx.select({ id: invite.id }).from(invite)
-      .innerJoin(waitlistEntry, eq(invite.entryId, waitlistEntry.id))
-      .where(and(eq(invite.accountId, accountId), isNotNull(invite.usedAt), eq(waitlistEntry.dropId, target.drop.id))).limit(1);
-    const no = refusal(status.state, { ...buyer, invited: Boolean(accepted) });
+    const no = refusal(status.state, { ...buyer, invited: await invitedTo(accountId, target.drop.id, tx) });
     if (no) return { ok: false, error: no } as const;
 
     // units already bought count toward the cap (FR-015)

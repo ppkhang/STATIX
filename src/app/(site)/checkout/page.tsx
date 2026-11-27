@@ -1,4 +1,3 @@
-import { and, eq } from "drizzle-orm";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -7,9 +6,8 @@ import AddressForm from "@/components/AddressForm";
 import styles from "@/components/checkout.module.css";
 import HoldTimer from "@/components/HoldTimer";
 import card from "@/components/waitlist.module.css";
-import { db } from "@/db";
-import { address } from "@/db/schema";
-import { extend, release } from "@/lib/checkout-actions";
+import { listAddresses } from "@/lib/addresses";
+import { extend, release, setDefaultAddress } from "@/lib/checkout-actions";
 import { shippingEstimateVnd } from "@/lib/checkout-rules";
 import { formatVnd, unitNumber } from "@/lib/format";
 import { activeHolds } from "@/lib/holds";
@@ -24,7 +22,9 @@ export default async function Checkout({ searchParams }: PageProps<"/checkout">)
   const { released, saved } = await searchParams;
   const t = await getTranslations("checkout");
   const holds = await activeHolds(me.id);
-  const [delivery] = await db.select().from(address).where(and(eq(address.accountId, me.id), eq(address.isDefault, true)));
+  const book = await listAddresses(me.id);
+  const delivery = book.find((row) => row.isDefault);
+  const others = book.filter((row) => !row.isDefault);
   const now = new Date().toISOString();
 
   const shell = (title: string, body: React.ReactNode) => (
@@ -82,7 +82,21 @@ export default async function Checkout({ searchParams }: PageProps<"/checkout">)
       <section className={card.section}>
         <h2>{t("deliver")}</h2>
         {saved === "1" && <p className={card.notice} role="status">{t("addressSaved")}</p>}
-        <AddressForm saved={delivery ?? null} />
+        <AddressForm key={delivery?.id ?? "none"} saved={delivery ?? null} />
+        {others.length > 0 && (
+          // picked here, not in the address book, so nobody walks away from a running hold
+          <details>
+            <summary className={styles.release}>{t("otherAddress")}</summary>
+            {others.map((row) => (
+              <form key={row.id} action={setDefaultAddress} className={styles.actions}>
+                <input type="hidden" name="id" value={row.id} />
+                <input type="hidden" name="from" value="checkout" />
+                <span>{row.recipient}, {row.street}, {row.ward}, {row.province}</span>
+                <button type="submit" className={card.secondary}>{t("deliverHere")}</button>
+              </form>
+            ))}
+          </details>
+        )}
       </section>
 
       <section className={card.section}>

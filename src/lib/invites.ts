@@ -1,6 +1,6 @@
 // Early-access invites: releasing, reading and accepting them (FR-025, page 7, PRC-02).
 import { createHash, randomBytes } from "node:crypto";
-import { and, asc, eq, gt, isNull, ne, notExists, sql } from "drizzle-orm";
+import { and, asc, eq, gt, isNotNull, isNull, ne, notExists, sql } from "drizzle-orm";
 import { db } from "../db";
 import { account, dropRun, invite, tier, waitlistEntry } from "../db/schema";
 
@@ -13,6 +13,14 @@ export async function awaitingInvite(dropId: string, limit?: number) {
       notExists(db.select({ one: sql`1` }).from(invite).where(eq(invite.entryId, waitlistEntry.id)))))
     .orderBy(asc(waitlistEntry.confirmedAt));
   return limit ? query.limit(limit) : query;
+}
+
+/** Whether this account has accepted an invite for this drop: what early access goes by. */
+export async function invitedTo(accountId: string, dropId: string, from: Pick<typeof db, "select"> = db): Promise<boolean> {
+  const [accepted] = await from.select({ id: invite.id }).from(invite)
+    .innerJoin(waitlistEntry, eq(invite.entryId, waitlistEntry.id))
+    .where(and(eq(invite.accountId, accountId), isNotNull(invite.usedAt), eq(waitlistEntry.dropId, dropId))).limit(1);
+  return Boolean(accepted);
 }
 
 /** A new link replaces any earlier unused one (except `keep`). Returns the raw token for the email; only its hash is kept. */

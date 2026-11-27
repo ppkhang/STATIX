@@ -248,9 +248,19 @@ export const adminUser = pgTable("admin_user", {
   passwordHash: text("password_hash"),
   mfaSecret: text("mfa_secret"),
   mfaEnabled: boolean("mfa_enabled").notNull().default(false),
+  totpLastStep: integer("totp_last_step"), // the last authenticator time step used, so a code works once
 });
 
-// Append-only: the app never updates or deletes rows here (FR-088).
+// Staff sign-ins. A row per session, so signing out really ends it. Only the token's hash is stored.
+export const adminSession = pgTable("admin_session", {
+  id: id(),
+  adminId: uuid("admin_id").notNull().references(() => adminUser.id, { onDelete: "cascade" }),
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: ts("expires_at").notNull(),
+  createdAt: createdAt(),
+});
+
+// Append-only (FR-088): a trigger (drizzle/0005) refuses updates, deletes and truncate.
 export const auditLog = pgTable("audit_log", {
   id: id(),
   adminId: uuid("admin_id").references(() => adminUser.id),

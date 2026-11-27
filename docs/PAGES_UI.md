@@ -234,6 +234,9 @@ A confirmation email with the same content is sent too (FR-052, FR-098).
 
 ## 13. Account home
 
+> **Built 2026-11-27** at `/account`: tier and what it gets, tiles (orders, addresses, waitlist and privacy), next drop with a
+> countdown and whether you're in early access, plus the email and phone checks.
+
 | Element | How you use it | What happens | Reqs |
 |---|---|---|---|
 | **Tier badge** | Read only; click opens the benefits | Visitor, Waitlist, Member or Founder, and what each one gets (early access, caps). | FR-032, FR-033 |
@@ -241,6 +244,10 @@ A confirmation email with the same content is sent too (FR-052, FR-098).
 | **Next drop** | Read only | Countdown, and whether you're in the early-access group. | FR-010 |
 
 ## 14. Orders and order detail
+
+> **Built 2026-11-27** at `/account/orders`: list, one order, timeline, tracking code as text. Nothing creates an order until
+> payment is connected. Not built: cancel, invoice, return request, a time per timeline step (nothing records status changes),
+> tracking links (no GHN account).
 
 | Element | How you use it | What happens | Reqs |
 |---|---|---|---|
@@ -262,6 +269,13 @@ A confirmation email with the same content is sent too (FR-052, FR-098).
 | **Submit** | Click | Creates the request and shows its status: Submitted → Approved (with RMA number and shipping steps) or Rejected (with the reason). | FR-074 |
 
 ## 16. Addresses
+
+> **Built 2026-11-27** at `/account/addresses`: add, edit, delete, set default, up to 10. Province and ward are typed: there
+> is no two-level address source yet. Checkout uses the default; another saved one can be picked there.
+>
+> Account deletion is at `/account/delete`: password (if there is one) and DELETE. Refused with an order in progress or a
+> purchase from a drop still open (so a new account can't get past the per-person cap). With past orders the account row is
+> kept with no email, phone or password, and the orders stay. `[ASSUMPTION]` how long orders are kept is undecided.
 
 | Element | How you use it | What happens | Reqs |
 |---|---|---|---|
@@ -311,6 +325,18 @@ Static pages: terms, returns and warranty, privacy. They're linked from checkout
 ## Admin (`/admin`, R1)
 
 All staff pages need sign-in with MFA, show only what the user's role allows, and write sensitive changes to the audit log (FR-087, FR-088). The roles are Owner, Ops, Fulfilment, Support and Community.
+
+> **Built 2026-11-27:** A1 and A14. Staff are made from the command line (`npm run staff:create -- --email … --role …`),
+> which shows the authenticator key once. Sessions last 8 hours. Each new admin page adds itself to `PAGE_ROLES` in
+> `src/lib/staff.ts` and calls `requireStaff()` in the page and in every action. Not built: changing a password,
+> resetting MFA or removing staff (A13).
+>
+> **Built 2026-11-27:** A3 and A4 at `/admin/drops`. `[ASSUMPTION]` everything on a drop and its editions is fixed from
+> its first opening (early access), not only the price from the public opening: holds start then. Unit numbers stay 1 to
+> size. The newest scheduled drop becomes the current one on the site, though the header and some links still say
+> Drop 001. Not built: removing an edition, closing a drop (A5), logging the clock's own state changes (US-007 AC1).
+> Known gap: an invite expires at the public opening as it was when sent, so moving a scheduled drop later leaves
+> invites already sent with the old, earlier expiry.
 
 | # | Page | Main interactables | Roles | Reqs |
 |---|---|---|---|---|

@@ -15,6 +15,7 @@ p.notice.notice { color: var(--ink); border-left: 4px solid var(--accent); paddi
 .links { display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: 14px; }
 .links a { min-height: 44px; display: inline-flex; align-items: center; text-decoration: underline; text-underline-offset: 4px; }
 .facts { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 10px 24px; }
+.benefits summary { min-height: 44px; align-content: center; cursor: pointer; }
 .facts dt { color: var(--dim); }
 .facts dd { margin: 0; overflow-wrap: anywhere; }
 .signOut { background: none; border: 0; padding: 0; min-height: 44px; color: var(--muted); font: inherit; letter-spacing: inherit; text-transform: uppercase; cursor: pointer; }
