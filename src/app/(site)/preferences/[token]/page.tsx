@@ -1,6 +1,8 @@
+import { randomUUID } from "node:crypto";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import DeleteData from "@/components/DeleteData";
+import Toast from "@/components/Toast";
 import styles from "@/components/waitlist.module.css";
 import { entryFromToken } from "@/lib/manage-token";
 import { leaveList, setMarketing } from "@/lib/preferences-actions";
@@ -31,7 +33,7 @@ export default async function Preferences({ params, searchParams }: PageProps<"/
 
   return card(t("title"), (
     <>
-      {(done === "left" || done === "saved") && <p className={styles.notice} role="status">{t(done)}</p>}
+      {(done === "left" || done === "saved") && <Toast key={randomUUID()} param="done" message={t(done)} />}
       <p className={styles.line}>{email}</p>
 
       <section className={styles.section}>

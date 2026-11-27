@@ -4,12 +4,40 @@ Turns `PAGES_UI.md` (what each page does) into an order of work. Read that file 
 
 Status: draft, 26/11/2026. Items marked **[DECIDE]** need an answer before the step that uses them.
 
-## Where we are
+## Where we are (updated 27/11/2026, paused)
 
-- `index.html` is the landing page: one hand-written file, ~1,550 lines, plain CSS variables, `model-viewer` from a CDN, no build step. Signup, vote and stock are fake.
-- `assets/` has photos, art and `.glb` models for **Speaker, Amp, Stand**. **Wire has no assets yet**, but Drop 001 needs all 4 products.
-- No backend, no database, no package.json.
-- Drop 001 target in the reference: **20/12/2026 20:00 (UTC+7)**. That's about 3.5 weeks away.
+The app is Next.js with Postgres. PRs up to #22 are merged into `main`. **Nothing is deployed.** Drop 001 opens **20/12/2026**: early access 19:30, public 20:00 (UTC+7).
+
+| # | State | Built | Not built |
+|---|---|---|---|
+| M0–M2 | Done | Scaffold, catalogue, accounts | Real SMS; Google sign-in is built but untested |
+| M3 | Done | Waitlist, invites, preferences | 7-day reminder job, real email keys |
+| M4 | Mock only | Holds, checkout, orders, mock VNPay and MoMo (`PAYMENT_MOCK=1`) | Real providers, COD, sending refunds, cart page |
+| M5 | Part | Account home, addresses, orders, cancel before ship, delete account | Invoice, returns |
+| M6 | Part | Staff login with MFA, dashboard, drops and editions, close drop, orders (read only), audit log, restyled screens | Rest of the drop console, counter adjustment, waitlist, order fulfilment, returns, customers, content, stock, settings and staff |
+| M7 | Not started | | Bot check, waiting room, support, load test, real policies |
+
+PR #22 added the restyled staff login screen and toasts (`components/Toast.tsx`): a speech bubble that confirms an action, shown when a redirect adds a query parameter. Errors in forms stay next to their fields. The three deleted `assets/*_2d.png` files are left out of commits on purpose.
+
+### Run it
+
+`npm run db:up`, `npm run db:migrate`, then `npm run dev -- -H 127.0.0.1`. Staff pages are at `/admin`; make an account with `npm run staff:create`. Checks: `npm test`, `npm run lint`, `npm run build`, and against the local database `check:holds`, `check:account`, `check:payments`, `check:drops`, `check:staff` (CI doesn't run these).
+
+### Before 20/12
+
+- Hosting and deploy, a real payment provider, email keys, and real policy text.
+- **Enter Drop 001's close time before 19:30**, when the editor locks.
+- On the live site: never set `PAYMENT_MOCK`, don't change `AUTH_SECRET` once staff exist, and make new staff accounts with long passwords.
+
+### Next time
+
+1. Decide whether to delete the development login skip (`ADMIN_NO_LOGIN`). It's turned off on the laptop; the code is in the public repo.
+2. Check whether the Drop page's top bar sticks. It may have the bug the admin header had.
+3. After Drop 001 closes, `check:holds` will fail locally: with no open drop, its test drop becomes the current one.
+
+### Waiting on Khang
+
+VNPay and MoMo sandbox accounts; COD (on, limited or off, and the limit); return window and photo storage; how long orders are kept after an account is deleted. The questions and what was decided on 27/11 are in `PROGRESS.md` and the vault build log.
 
 ## Stack (recommended, [DECIDE] to confirm)
 

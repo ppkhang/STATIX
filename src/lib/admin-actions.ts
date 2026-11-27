@@ -27,34 +27,34 @@ const done = (result: Result, input: ReturnType<typeof read>, to: string): Admin
   redirect(to);
 };
 
-const dropPage = (number: number) => `/admin/drops/${number}?saved=1`;
+const dropPage = (number: number, did: "created" | "saved" | "scheduled" | "closed" | "added") => `/admin/drops/${number}?done=${did}`;
 
 export async function createDropAction(_state: AdminState, form: FormData): Promise<AdminState> {
   const me = await requireStaff("drops");
   const input = read(form);
   const number = input.whole("number");
-  return done(await createDrop(me, number, input.drop()), input, dropPage(number));
+  return done(await createDrop(me, number, input.drop()), input, dropPage(number, "created"));
 }
 
 export async function updateDropAction(_state: AdminState, form: FormData): Promise<AdminState> {
   const me = await requireStaff("drops");
   const input = read(form);
   const number = input.whole("number");
-  return done(await updateDrop(me, number || 0, input.drop()), input, dropPage(number));
+  return done(await updateDrop(me, number || 0, input.drop()), input, dropPage(number, "saved"));
 }
 
 export async function scheduleDropAction(_state: AdminState, form: FormData): Promise<AdminState> {
   const me = await requireStaff("drops");
   const input = read(form);
   const number = input.whole("number");
-  return done(await scheduleDrop(me, number || 0), input, dropPage(number));
+  return done(await scheduleDrop(me, number || 0), input, dropPage(number, "scheduled"));
 }
 
 export async function closeDropAction(_state: AdminState, form: FormData): Promise<AdminState> {
   const me = await requireStaff("drops");
   const input = read(form);
   const number = input.whole("number");
-  return done(await closeDrop(me, number || 0), input, dropPage(number));
+  return done(await closeDrop(me, number || 0), input, dropPage(number, "closed"));
 }
 
 export async function addEditionAction(_state: AdminState, form: FormData): Promise<AdminState> {
@@ -63,7 +63,7 @@ export async function addEditionAction(_state: AdminState, form: FormData): Prom
   const number = input.whole("number");
   const variantId = input.text("variant");
   if (!UUID.test(variantId)) return { error: "gone", values: input.values() };
-  return done(await addEdition(me, number || 0, variantId, input.terms()), input, dropPage(number));
+  return done(await addEdition(me, number || 0, variantId, input.terms()), input, dropPage(number, "added"));
 }
 
 export async function updateEditionAction(_state: AdminState, form: FormData): Promise<AdminState> {
@@ -71,5 +71,5 @@ export async function updateEditionAction(_state: AdminState, form: FormData): P
   const input = read(form);
   const editionId = input.text("edition");
   if (!UUID.test(editionId)) return { error: "gone", values: input.values() };
-  return done(await updateEdition(me, editionId, input.terms()), input, dropPage(input.whole("number")));
+  return done(await updateEdition(me, editionId, input.terms()), input, dropPage(input.whole("number"), "saved"));
 }

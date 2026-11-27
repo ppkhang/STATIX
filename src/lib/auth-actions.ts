@@ -139,5 +139,5 @@ export async function checkPhoneCode(_state: FormState, form: FormData): Promise
   if (!(await within("otp-check", me.id, 15, 30))) return { error: "rateLimited" };
   const result = await accounts.checkOtp(me.id, field(form, "code").trim());
   if (result !== "ok") return { error: { wrong: "wrongCode", expired: "expiredCode", taken: "phoneTaken" }[result] };
-  redirect("/account");
+  redirect("/account?phone=1");
 }

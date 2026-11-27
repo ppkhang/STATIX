@@ -1,8 +1,10 @@
+import { randomUUID } from "node:crypto";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { currentAccount } from "@/auth";
 import AddressForm from "@/components/AddressForm";
+import Toast from "@/components/Toast";
 import styles from "@/components/checkout.module.css";
 import card from "@/components/waitlist.module.css";
 import { listAddresses, MAX_ADDRESSES } from "@/lib/addresses";
@@ -29,7 +31,7 @@ export default async function Addresses({ searchParams }: PageProps<"/account/ad
     <div className={card.card}>
       <h1>{t("title")}</h1>
       <div className={card.body}>
-        {(done === "saved" || done === "default" || done === "deleted") && <p className={card.notice} role="status">{t(`done.${done}`)}</p>}
+        {(done === "saved" || done === "default" || done === "deleted") && <Toast key={randomUUID()} param="done" message={t(`done.${done}`)} />}
         <p className={card.line}>{rows.length ? t("defaultNote") : t("empty")}</p>
 
         {rows.map((row) => (

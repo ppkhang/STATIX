@@ -1,9 +1,11 @@
+import { randomUUID } from "node:crypto";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import { currentAccount } from "@/auth";
 import AuthForm from "@/components/AuthForm";
+import Toast from "@/components/Toast";
 import NextDrop from "@/components/NextDrop";
 import styles from "@/components/auth.module.css";
 import { db } from "@/db";
@@ -19,7 +21,7 @@ import { anyEntryId } from "@/lib/waitlist";
 export const metadata = { robots: { index: false, follow: false } };
 
 // Page 13, plus the email and phone checks. Collection (R2) and trade-in (R3) get tiles when they exist.
-export default async function AccountPage() {
+export default async function AccountPage({ searchParams }: PageProps<"/account">) {
   const me = await currentAccount();
   if (!me) redirect("/login?next=/account");
   const t = await getTranslations("auth");
@@ -35,8 +37,11 @@ export default async function AccountPage() {
   const early = drop && run && (drop.state === "scheduled" || drop.state === "early_access")
     ? level.code === "founder" || (await invitedTo(me.id, run.id)) : null;
 
+  const { phone } = await searchParams;
+
   return (
     <>
+      {phone === "1" && me.phoneVerified && <Toast key={randomUUID()} param="phone" message={t("phoneVerified")} />}
       <h1>{t("accountTitle")}</h1>
       <dl className={styles.facts}>
         <dt>{t("field.email")}</dt>

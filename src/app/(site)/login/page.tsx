@@ -1,8 +1,10 @@
+import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { currentAccount, googleEnabled } from "@/auth";
 import AuthForm from "@/components/AuthForm";
 import AuthStage from "@/components/AuthStage";
+import Toast from "@/components/Toast";
 import styles from "@/components/auth.module.css";
 import Link from "next/link";
 import { login, loginWithGoogle } from "@/lib/auth-actions";
@@ -34,7 +36,7 @@ export default async function Login({ searchParams }: PageProps<"/login">) {
         </>
       }
     >
-      {query.reset === "1" && <p role="status" className={styles.notice}>{t("passwordChanged")}</p>}
+      {query.reset === "1" && <Toast key={randomUUID()} param="reset" message={t("passwordChanged")} />}
       {query.error && <p role="alert" className={styles.error}>{t("error.generic")}</p>}
       <AuthForm
         action={login} fields={["email", "password"]} hidden={{ next }} submit={t("loginSubmit")}
