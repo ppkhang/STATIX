@@ -80,6 +80,7 @@ p.notice.notice { color: var(--ink); border-left: 4px solid var(--accent); paddi
 .stage .surface .form { gap: clamp(6px, calc(4dvh - 18px), 16px); }
 .stage .surface .form input, .stage .surface .form button, .stage .google { height: auto; min-height: clamp(44px, 6dvh, 54px); }
 .stage .surface .form input { height: clamp(44px, 6dvh, 54px); }
-.stage .surface .form .help { margin-top: calc(clamp(6px, calc(4dvh - 18px), 16px) * -.5); }
+/* 6px under the field, like the password rule inside its label: any other distance and the two tabs' boxes differ in height */
+.stage .surface .form .help { margin-top: calc(6px - clamp(6px, calc(4dvh - 18px), 16px)); }
 .stage .surface p.error:empty { margin-top: calc(clamp(6px, calc(4dvh - 18px), 16px) * -1); }
 .stage .surface .or { margin-block: clamp(0px, .9dvh, 8px); }
