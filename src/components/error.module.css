@@ -1,0 +1,21 @@
+/* The 404 and crash pages. Tokens come from globals.css (DESIGN.md): contour art, halftone, a tape, cel shadows. */
+.screen { position: relative; isolation: isolate; min-height: 100dvh; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(10px, 2.4dvh, 28px); padding: 76px 20px 16px; text-align: center; }
+.screen::before { content: ""; position: absolute; inset: 0; z-index: -2; background: url("/assets/static-waves.svg") center / cover; opacity: .55; }
+/* halftone in two opposite corners, never under the words */
+.screen::after { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(circle, var(--accent) 3px, transparent 3.5px) 0 0 / 12px 12px; mask-image: radial-gradient(circle at 100% 0, #000, transparent 32%), radial-gradient(circle at 0 100%, #000, transparent 32%); opacity: .5; }
+.logo { position: absolute; top: 24px; left: 50%; translate: -50% 0; min-height: 44px; display: inline-flex; align-items: center; font: 900 32px/1 var(--font-logo); letter-spacing: .08em; }
+
+.art { align-self: stretch; display: flex; flex-direction: column; align-items: center; }
+.code { font: 900 clamp(110px, min(34vw, 36dvh), 340px)/.95 var(--font-main); color: var(--ink); text-shadow: .045em .045em 0 var(--accent); rotate: -3deg; }
+/* wider than the window, so its tilted ends never show */
+.art .tape { align-self: center; width: 110vw; margin: 12px 0 14px; padding: 10px 0; overflow: hidden; white-space: nowrap; rotate: -3deg; background: var(--accent); color: var(--bg); font: 900 clamp(14px, 2vw, 20px)/1 var(--font-main); letter-spacing: .12em; text-transform: uppercase; box-shadow: 0 8px 0 var(--shade); }
+
+.title { margin: 0; font-size: clamp(30px, 6vw, 64px); text-transform: uppercase; }
+.aside { margin: 0; font: 400 clamp(18px, 2.4vw, 28px)/1.3 var(--font-hand); color: var(--accent); rotate: -2deg; }
+.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px 24px; margin-top: 8px; }
+/* square and level, as on the drop page: the slab and tape already do the leaning */
+.actions > * { min-width: 200px; min-height: 56px; display: inline-flex; align-items: center; justify-content: center; padding: 0 32px; border: 2px solid var(--ink); border-radius: 0; background: var(--bg); color: var(--ink); font: 900 15px/1 var(--font-main); letter-spacing: .08em; text-transform: uppercase; cursor: pointer; transition: translate .15s, box-shadow .15s, background .15s, color .15s; }
+.actions > :first-child { border-color: var(--accent); background: var(--accent); color: var(--bg); box-shadow: 6px 6px 0 var(--ink); }
+.actions > :first-child:hover { translate: -2px -2px; box-shadow: 8px 8px 0 var(--ink); }
+.actions > :not(:first-child):hover { background: var(--ink); color: var(--bg); }
+@media (prefers-reduced-motion: reduce) { .actions > * { transition: none; } }

@@ -1,4 +1,19 @@
 {
+  "errorPage": {
+    "404": {
+      "title": "No signal.",
+      "aside": "Nothing on this frequency.",
+      "tape": "No signal"
+    },
+    "500": {
+      "title": "Signal lost.",
+      "aside": "That one is on our side.",
+      "tape": "Signal lost"
+    },
+    "home": "Back home",
+    "drop": "Drop 001",
+    "retry": "Try again"
+  },
   "shell": {
     "home": "STATIX, home",
     "menu": "Main menu",
@@ -15,6 +30,7 @@
   "consent": {
     "label": "Cookies",
     "text": "We only load analytics cookies if you accept.",
+    "policy": "Privacy",
     "accept": "Accept",
     "decline": "Decline"
   },
@@ -117,6 +133,8 @@
     "loginTitle": "Log in",
     "loginSubmit": "Log in",
     "google": "Continue with Google",
+    "googlePreview": "Preview only. Add the Google keys to turn this on.",
+    "or": "or",
     "registerTitle": "Sign up",
     "registerSubmit": "Sign up",
     "verifyTitle": "Verify email",
@@ -126,7 +144,6 @@
     "resetSubmit": "Save new password",
     "sendLink": "Send reset link",
     "accountTitle": "Account",
-    "toRegister": "Sign up",
     "toLogin": "Log in",
     "toReset": "Forgot your password?",
     "toVerify": "Resend verification",

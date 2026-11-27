@@ -1,13 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { currentAccount, googleEnabled } from "@/auth";
+import { currentAccount } from "@/auth";
 import AuthForm from "@/components/AuthForm";
 import AuthStage from "@/components/AuthStage";
 import Toast from "@/components/Toast";
 import styles from "@/components/auth.module.css";
 import Link from "next/link";
-import { login, loginWithGoogle } from "@/lib/auth-actions";
+import { login } from "@/lib/auth-actions";
 import { safeNext } from "@/lib/auth-rules";
 
 // NFR-022: account and token pages stay out of search results
@@ -20,22 +20,7 @@ export default async function Login({ searchParams }: PageProps<"/login">) {
   const t = await getTranslations("auth");
 
   return (
-    <AuthStage
-      title={t("loginTitle")}
-      below={
-        <>
-          {googleEnabled && (
-            <form action={loginWithGoogle}>
-              <input type="hidden" name="next" value={next} />
-              <button type="submit" className="btn btn--secondary"><span>{t("google")}</span></button>
-            </form>
-          )}
-          <nav className={styles.links}>
-            <Link href="/register">{t("toRegister")}</Link>
-          </nav>
-        </>
-      }
-    >
+    <AuthStage next={next}>
       {query.reset === "1" && <Toast key={randomUUID()} param="reset" message={t("passwordChanged")} />}
       {query.error && <p role="alert" className={styles.error}>{t("error.generic")}</p>}
       <AuthForm

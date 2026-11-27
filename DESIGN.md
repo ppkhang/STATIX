@@ -191,7 +191,7 @@ Headings and product names are uppercase site-wide. The pause control sits in th
 
 The wordmark is a fixed link back to the top. At rest it looks like plain nav text at the top, and a lone **S** chip in the corner once scrolled. Mouse hover, keyboard focus or a first tap opens the menu (on touch a second tap on the logo goes to the top; a tap elsewhere or Escape closes it):
 
-- **One column, 168px wide:** STATIX on top, then LINEUP, VOTE, TUNE IN, DROP 001 and LOG IN, with 14px gaps. Level rectangles, each with its own 2px outline and 5px hard shadow. Only once the page is scrolled.
+- **One column:** the STATIX card on top, 168px wide, then LINEUP, VOTE, TUNE IN, DROP 001 and LOG IN as smaller cards (144×38px, 12px text), with 14px gaps. Drop 001 and Log in leave the landing, so each carries a → arrow, and a short 48×4px bar in a 36px gap sets them apart from the section cards. Level rectangles, each with its own 2px outline and 5px hard shadow. Only once the page is scrolled.
 - **Motion:** the cards fly in from the left edge one after another (.09s apart), then float 3px up and down (2.4s each way, out of step). No float when closed, paused or under reduced motion.
 - **Colours:** each card reads the surface behind it: off-white with black text over dark areas, black with off-white text over light or lavender areas. **Log in is always lavender.**
 - **Highlight** only on the hovered or focused card. No highlight for the section on screen (tried and removed). No gradients.
@@ -265,6 +265,23 @@ Under `prefers-reduced-motion` all keyframe animations stop. Hover transitions r
 **Do:** keep corners square, shadows hard, tilts small and alternating; counter-skew button text; put one accent colour on a near-black and off-white base; keep body copy level, calm and narrow.
 
 **Don't:** use soft blurred drop shadows, rounded cards or pill buttons, chromatic aberration, extra accent hues (lavender is the only highlight), a font family beyond the four roles in section 3, or the wordmark face for anything but the wordmark.
+
+## Log in and sign up (27/11/2026; overrides older notes for these pages)
+
+One level box (2px ink border, 14px accent shadow) over the contour art.
+
+- **Tabs:** Log in and Sign up are two equal halves of the header. A light bar with a 6px accent strip sits behind the current one, joins the form, and slides across on a switch (.25s; no slide under reduced motion). The other half is dark. The tabs and contour art stay mounted between the two pages.
+- **No page scroll:** both pages are one window tall and spacing tightens on short windows. Only the middle scrolls if it still cannot fit.
+- **One leading button:** the form's submit is solid. Continue with Google sits below an "or" divider as a square white button with a 2px dark border and no shadow. On hover, submit turns accent and Google turns dark.
+- **No jumping:** the 44px row under the box is kept on both tabs, even when empty.
+
+## 404 and crash pages
+
+One full-screen design (`components/ErrorScreen.tsx`) with only the wordmark and two ways out. The code is set very large and whole (no product art in it: tried and rejected), with a tilted accent tape below it, dimmed contour art and corner halftone. Then a title slab, one marker line and two square, level buttons of equal height (accent with a hard shadow, then outlined; skewed ones were rejected). Nothing moves on its own.
+
+## Cookie notice
+
+A slim strip fixed along the bottom edge: panel grey, a 4px accent rule on top, the label, one line with a Privacy link, then Accept and Decline. The two buttons are square, outlined and identical, so neither answer is favoured. It slides up once (not under reduced motion). A floating corner box was tried and rejected.
 
 ## Drop page (reworked 26/11/2026; overrides older notes for this page)
 
