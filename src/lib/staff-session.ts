@@ -1,8 +1,8 @@
 // The staff cookie, and the gate every admin page and action goes through.
 import { cache } from "react";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
-import { can, SESSION_HOURS, staffFor, type AdminPage, type Staff } from "./staff";
+import { can, firstOwner, SESSION_HOURS, staffFor, type AdminPage, type Staff } from "./staff";
 
 export const STAFF_COOKIE = "statix_staff";
 export const staffCookie = {
@@ -10,7 +10,14 @@ export const staffCookie = {
   maxAge: SESSION_HOURS * 3600,
 } as const;
 
+// ADMIN_NO_LOGIN=1 in .env.local skips signing in under `next dev` only. A production build ignores it. You act as the
+// first owner account, so the audit log still names someone. The address check stops another device browsing in; it
+// can be faked, so `next dev -H 127.0.0.1` is what really keeps the network out.
+const noLogin = process.env.NODE_ENV === "development" && process.env.ADMIN_NO_LOGIN === "1";
+const typedLocally = async () => /^(localhost|127\.0\.0\.1)(:\d+)?$/.test((await headers()).get("host") ?? "");
+
 export const currentStaff = cache(async (): Promise<Staff | null> => {
+  if (noLogin && (await typedLocally())) return firstOwner();
   const token = (await cookies()).get(STAFF_COOKIE)?.value;
   return token ? staffFor(token) : null;
 });

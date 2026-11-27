@@ -22,7 +22,7 @@ export default async function Drops() {
   return (
     <>
       <h1>{t("drops")}</h1>
-      <p>{t("vietnamTime")}</p>
+      <p className={styles.quiet}>{t("vietnamTime")}</p>
       <div className={styles.scroll} tabIndex={0} role="region" aria-label={t("drops")}>
         <table className={styles.table}>
           <thead>
@@ -33,7 +33,7 @@ export default async function Drops() {
               <tr key={drop.id}>
                 <td><Link href={`/admin/drops/${drop.number}`}>{String(drop.number).padStart(3, "0")}</Link></td>
                 <td>{drop.name}</td>
-                <td><span className={styles.chip}>{drop.live ? d(`state.${drop.live.state}`) : t("draft")}</span></td>
+                <td><span className={styles.chip} data-status={drop.live?.state ?? "draft"}>{drop.live ? d(`state.${drop.live.state}`) : t("draft")}</span></td>
                 <td>{time(drop.earlyAccessAt)}</td>
                 <td>{time(drop.publicAt)}</td>
                 <td>{time(drop.closeAt)}</td>
@@ -44,7 +44,7 @@ export default async function Drops() {
       </div>
 
       <h2>{t("newDrop")}</h2>
-      <AdminForm
+      <div className={styles.panel}><AdminForm
         action={createDropAction} hidden={{}} submit={t("create")} label={t("newDrop")}
         fields={[
           { name: "number", label: t("number"), type: "number" }, { name: "name", label: t("name") },
@@ -52,7 +52,7 @@ export default async function Drops() {
           { name: "publicAt", label: t("publicAt"), type: "datetime-local" },
           { name: "closeAt", label: t("closeAt"), type: "datetime-local" },
         ]}
-      />
+      /></div>
     </>
   );
 }

@@ -1,43 +1,147 @@
-/* Staff pages: plain and dense. Tokens come from globals.css (DESIGN.md). */
-.page { min-height: 100vh; }
-.header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px; padding: 12px var(--pad); border-bottom: 1px solid var(--rule); font-size: 14px; }
-.header nav { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-right: auto; }
-.header a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: underline; text-underline-offset: 4px; }
-.main { display: flex; flex-direction: column; gap: 20px; padding: 32px var(--pad) 64px; }
-.main h1 { margin: 0; font: 900 32px/1.2 var(--font-main); }
-.filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
-.filters label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
-.filters input { min-height: 44px; padding: 0 10px; border: 2px solid var(--ink); background: var(--input); color: var(--bg); font: inherit; font-size: 16px; }
-.filters button { min-height: 44px; padding: 0 22px; border: 0; background: var(--accent); color: var(--bg); font: 900 14px/1 var(--font-main); text-transform: uppercase; cursor: pointer; }
-.scroll { overflow-x: auto; }
-.table { width: 100%; border-collapse: collapse; font-size: 14px; }
-.table th, .table td { padding: 10px 14px 10px 0; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
-.table td code { display: block; max-width: 320px; overflow-wrap: anywhere; }
-.table small { color: var(--dim); }
-.filters select { min-height: 44px; padding: 0 10px; border: 2px solid var(--ink); background: var(--input); color: var(--bg); font: inherit; font-size: 16px; max-width: 100%; }
-.filters button:disabled { opacity: .6; }
+/* Staff pages: calm and dense, in the site's language (DESIGN.md): square corners, hard shadows, lavender as the
+   only highlight. The contour art behind the top of the page is the one decoration. Tokens come from globals.css. */
+.page { --card: #141318; --shadow: #25242b; position: relative; isolation: isolate; min-height: 100vh; }
+
+/* the same graphic as the drop page, still, faded out before the content gets busy */
+.art { position: absolute; top: 0; left: 0; right: 0; height: 420px; z-index: -1; opacity: .55; mask-image: linear-gradient(#000 35%, transparent); }
+
+/* the scrollbar's room is kept on every staff page: otherwise long pages sit a few pixels left of short ones */
+:global(html):has(.page) { scrollbar-gutter: stable; }
+/* globals.css hides sideways overflow on body as well as html, which stops anything inside from sticking */
+:global(html):has(.page) :global(body) { overflow-x: visible; }
+
+.header { position: sticky; top: 0; z-index: 20; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 32px; padding: 14px var(--pad); border-bottom: 1px solid var(--border); background: var(--bg); font-size: 13px; }
+/* on a narrow screen the menu wraps tall, so it scrolls away instead of covering the page */
+@media (max-width: 700px) { .header { position: static; } }
+.brand { display: flex; align-items: center; gap: 10px; }
+.logo { font: 900 24px/1 var(--font-logo); letter-spacing: .08em; }
+.tag { padding: 4px 7px 3px; background: var(--accent); color: var(--bg); font: 900 11px/1 var(--font-main); letter-spacing: .14em; text-transform: uppercase; }
+.header nav { display: flex; flex-wrap: wrap; gap: 4px 26px; margin-right: auto; letter-spacing: .1em; text-transform: uppercase; }
+.header nav a { display: inline-flex; align-items: center; min-height: 44px; border-bottom: 2px solid transparent; color: var(--muted); }
+.header nav a:hover { color: var(--accent); }
+.header nav a[aria-current] { border-bottom-color: var(--accent); color: var(--accent); font-weight: 900; }
+.who { color: var(--dim); }
+
+.main { display: flex; flex-direction: column; gap: 24px; padding: 40px var(--pad) 80px; }
+.main h1 { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin: 0; font: 900 clamp(34px, 5vw, 52px)/1.05 var(--font-main); text-transform: uppercase; }
+.main h2 { margin: 12px 0 0; font: 900 15px/1.3 var(--font-main); letter-spacing: .14em; text-transform: uppercase; }
+.main h3 { margin: 0; font: 900 19px/1.25 var(--font-main); text-transform: uppercase; }
+.main ul { margin: 0; padding: 0; list-style: none; }
+.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; }
+.quiet { color: var(--dim); font-size: 13px; }
+.back { display: inline-flex; align-self: flex-start; align-items: center; min-height: 44px; margin-bottom: -16px; color: var(--muted); font-size: 13px; letter-spacing: .1em; text-transform: uppercase; }
+.back:hover { color: var(--accent); }
+
+/* the box everything sits in */
+.panel { border: 1px solid var(--border); background: var(--card); box-shadow: 6px 6px 0 var(--shadow); padding: 20px; }
+.main .panel > h2:first-child { margin: 0 0 14px; }
+
+/* forms. .filters is also every edit form (AdminForm), so the box around it is added separately */
+.filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px; }
+.filters label { display: flex; flex: 1 1 170px; flex-direction: column; gap: 6px; max-width: 320px; color: var(--dim); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+.filters input, .filters select { width: 100%; min-height: 44px; padding: 0 12px; border: 2px solid var(--ink); border-radius: 0; background: var(--input); color: var(--bg); font: 400 16px/1.2 var(--font-sub); letter-spacing: 0; }
+.filters button { min-height: 44px; padding: 0 24px; border: 0; background: var(--accent); color: var(--bg); font: 900 13px/1 var(--font-main); letter-spacing: .1em; text-transform: uppercase; cursor: pointer; box-shadow: 4px 4px 0 var(--ink); }
+.filters button:hover { background: var(--ink); box-shadow: 4px 4px 0 var(--accent); }
+.filters button:disabled { opacity: .6; cursor: default; }
+.filters .check { flex: 0 0 auto; flex-direction: row; align-items: center; gap: 10px; min-height: 44px; }
+.filters .check input { width: 20px; min-height: 20px; accent-color: var(--accent); }
 /* its own line under the fields, and no gap while there is nothing to say */
 .error { flex-basis: 100%; margin: 0; color: #FF9B93; font-size: 14px; }
-.error:empty { margin-top: -12px; }
-.main h2 { margin: 12px 0 0; font: 900 20px/1.3 var(--font-main); }
-.chip { display: inline-block; padding: 3px 10px; border: 1px solid var(--accent); font: 400 13px/1.4 var(--font-sub); vertical-align: middle; }
-.table a { text-decoration: underline; text-underline-offset: 4px; }
-.note { padding: 12px 16px; border-left: 4px solid var(--accent); }
-.facts { display: grid; grid-template-columns: auto 1fr; gap: 8px 24px; margin: 0; }
+/* out of the flow, not hidden: a live region has to be there before it has anything to say */
+.error:empty { position: absolute; }
+
+/* tables */
+.scroll { overflow-x: auto; border: 1px solid var(--border); background: var(--card); box-shadow: 6px 6px 0 var(--shadow); }
+.table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+.table th, .table td { padding: 14px 16px; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: middle; }
+.table thead th { border-bottom: 1px solid var(--border); color: var(--dim); font: 400 11px/1.4 var(--font-sub); letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; }
+.table tbody th { font-weight: 900; }
+.table tbody tr:last-child > * { border-bottom: 0; }
+.table tbody tr:hover { background: #1b1a21; }
+.table .num { text-align: right; white-space: nowrap; }
+.table .big { font: 900 18px/1.2 var(--font-main); }
+.table a { font-weight: 900; text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 4px; }
+.table a:hover { color: var(--accent); }
+.table td code { display: block; max-width: 320px; overflow-wrap: anywhere; color: var(--muted); font-size: 12px; }
+.table small { color: var(--dim); }
+.table .nowrap { white-space: nowrap; }
+.table .wide { min-width: 180px; width: 32%; }
+
+/* states: always a word, and told apart by fill and outline as well as colour */
+.chip { display: inline-block; padding: 5px 10px 4px; border: 1px solid var(--accent); color: var(--accent); font: 900 11px/1.3 var(--font-main); letter-spacing: .1em; text-transform: uppercase; vertical-align: middle; white-space: nowrap; }
+.chip:is([data-status="paid"], [data-status="confirmed"], [data-status="delivered"], [data-status="completed"], [data-status="public"], [data-status="early_access"]) { background: var(--accent); color: var(--bg); }
+.chip[data-status="sold_out"] { border-color: var(--ink); background: var(--ink); color: var(--bg); }
+.chip:is([data-status="pending"], [data-status="draft"]) { border-style: dashed; border-color: var(--grey); color: var(--muted); }
+.chip:is([data-status="cancelled"], [data-status="refunded"], [data-status="closed"]) { border-color: var(--shade); background: var(--panel); color: var(--muted); }
+.alert { color: var(--accent); }
+
+/* dashboard: the four numbers that matter, then what they're made of */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 232px), 1fr)); gap: 20px; margin: 0; }
+.tile { container-type: inline-size; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.main .panel.tile > h2:first-child { margin-bottom: 0; }
+.tile dt { color: var(--dim); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
+.tile dd { margin: 0; }
+/* sized by its own card, so a long sum shrinks instead of spilling */
+.tile .figure { font: 900 clamp(24px, 11.5cqi, 52px)/1.05 var(--font-main); font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* a short count can stand much taller in the same card than a long sum */
+.tile .count { font-size: clamp(36px, 22cqi, 52px); }
+/* on a wide screen the money card is twice as wide, so its number leads */
+@media (min-width: 1000px) { .kpis { grid-template-columns: 1.9fr 1fr 1fr 1fr; } }
+.tile.minor .figure { font-size: clamp(24px, 10cqi, 34px); }
+.tile .note2 { margin-top: auto; color: var(--dim); font-size: 12px; line-height: 1.5; }
+.lead { border-color: var(--accent); box-shadow: 6px 6px 0 var(--accent); }
+.lead .figure { color: var(--accent); }
+.tile .figure.alert { color: var(--accent); }
+.split { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 20px; }
+.headline { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 0 0 14px; }
+.headline strong { font: 900 40px/1 var(--font-main); font-variant-numeric: tabular-nums; }
+.headline span { color: var(--dim); font-size: 13px; }
+.after { margin-top: 14px; }
+.link { display: inline-flex; align-self: flex-start; align-items: center; min-height: 44px; font-size: 13px; text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 4px; }
+
+/* a run of numbered units: sold is solid, held is striped, retired is grey, what's left is the bare track */
+.meter { display: flex; gap: 2px; height: 14px; overflow: hidden; border: 1px solid var(--border); background: var(--well); }
+.meter i { flex: none; min-width: 0; }
+.meter i[data-part="sold"], .legend [data-part="sold"]::before { background: var(--accent); }
+.meter i[data-part="held"], .legend [data-part="held"]::before { background: repeating-linear-gradient(135deg, var(--accent) 0 3px, #4a4168 3px 6px); }
+.meter i[data-part="retired"], .legend [data-part="retired"]::before { background: var(--grey); }
+.legend [data-part="left"]::before { border: 1px solid var(--grey); background: var(--well); }
+.main .legend { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 14px; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.legend li { display: flex; align-items: center; gap: 8px; }
+.legend li::before { content: ""; width: 12px; height: 12px; }
+.legend b { color: var(--ink); }
+.funnel { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px 14px; font-size: 13px; font-variant-numeric: tabular-nums; }
+.funnel b { font: 900 18px/1 var(--font-main); text-align: right; }
+
+/* choosing a drop */
+.picker { display: flex; flex-wrap: wrap; gap: 10px; }
+.picker a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border: 2px solid var(--border); background: var(--card); font: 900 12px/1 var(--font-main); letter-spacing: .1em; text-transform: uppercase; }
+.picker a:hover { border-color: var(--accent); }
+.picker a[aria-current] { border-color: var(--accent); background: var(--accent); color: var(--bg); }
+
+/* one drop, and one order */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr)); gap: 20px; }
+.edition { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.stats { display: flex; flex-wrap: wrap; gap: 12px 32px; margin: 0; }
+.stats dt { color: var(--dim); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
+.stats dd { margin: 4px 0 0; font: 900 18px/1.2 var(--font-main); font-variant-numeric: tabular-nums; }
+.edition .filters { padding-top: 14px; border-top: 1px solid var(--rule); }
+.edition .filters label { flex-basis: 110px; }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 10px 24px; margin: 0; font-size: 14px; }
 .facts dt { color: var(--dim); }
-.facts dd { margin: 0; }
-.edition { display: flex; flex-direction: column; gap: 10px; padding: 16px 0; border-top: 1px solid var(--rule); }
-.edition h3, .edition p { margin: 0; }
+.facts dd { margin: 0; overflow-wrap: anywhere; }
+.address { line-height: 1.7; font-size: 14px; overflow-wrap: anywhere; }
+.rows li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding: 12px 0; border-bottom: 1px solid var(--rule); font-size: 14px; line-height: 1.7; font-variant-numeric: tabular-nums; }
+.rows li:last-child { border-bottom: 0; padding-bottom: 0; }
+.rows strong { font: 900 16px/1.3 var(--font-main); }
+.rows span:not(.chip) { color: var(--dim); }
+.main .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; margin: 0; padding: 20px; list-style: none; }
+.steps li { padding-top: 10px; border-top: 4px solid var(--border); color: var(--dim); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+.steps li[data-state="done"] { border-top-color: var(--accent); color: var(--muted); }
+.steps li[data-state="now"] { border-top-color: var(--accent); color: var(--accent); font-weight: 900; }
+
+.note { padding: 14px 18px; border-left: 4px solid var(--accent); background: var(--card); line-height: 1.6; }
 .summary { min-height: 44px; align-content: center; cursor: pointer; }
-.filters .check { flex-direction: row; align-items: center; gap: 8px; min-height: 44px; }
-.filters .check input { width: 20px; min-height: 20px; }
-.main ul { margin: 0; padding-left: 20px; line-height: 1.8; }
-.picker { display: flex; flex-wrap: wrap; gap: 4px 20px; }
-.picker a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: underline; text-underline-offset: 4px; }
-.picker a[aria-current] { color: var(--accent); font-weight: 900; }
-.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin: 0; }
-.tiles div { padding: 14px 16px; border: 1px solid var(--rule); }
-.tiles dt { color: var(--dim); font-size: 13px; }
-.tiles dd { margin: 6px 0 0; font: 900 26px/1.2 var(--font-main); }
-.tiles small { display: block; margin-top: 4px; color: var(--dim); font: 400 13px/1.4 var(--font-sub); }
-.table tbody th { font-weight: 400; }
+.narrow { width: 100%; max-width: 460px; }
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+

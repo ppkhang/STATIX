@@ -98,6 +98,13 @@ export async function staffFor(token: string): Promise<Staff | null> {
   return row ?? null;
 }
 
+/** For the development-only login bypass (staff-session.ts). */
+export async function firstOwner(): Promise<Staff | null> {
+  const [row] = await db.select({ id: adminUser.id, email: adminUser.email, role: adminUser.role }).from(adminUser)
+    .where(eq(adminUser.role, "owner")).orderBy(adminUser.email).limit(1);
+  return row ?? null;
+}
+
 export async function signOutStaff(token: string) {
   await db.transaction(async (tx) => {
     const [ended] = await tx.delete(adminSession).where(eq(adminSession.tokenHash, sha256(token))).returning({ adminId: adminSession.adminId });
