@@ -1,11 +1,11 @@
 // Proves staff can't edit a drop into a bad state, against a real Postgres (CI has none).
 // Run: npm run check:drops
-// Makes two test drops, staff and buyers, and removes them, audit rows included (needs the local superuser). While it
-// runs, a scheduled test drop is the newest, so the local site shows it. Refuses to run against another machine.
+// Makes two test drops, staff and buyers, and removes them, audit rows included (needs the local superuser).
+// Refuses to run against another machine.
 import assert from "node:assert/strict";
 import { and, asc, eq, gt, inArray, like, sql } from "drizzle-orm";
 import { db } from "../src/db";
-import { account, adminUser, auditLog, dropRun, edition, editionUnit, hold, tier } from "../src/db/schema";
+import { account, adminUser, auditLog, dropRun, edition, editionUnit, hold, invite, tier, waitlistEntry } from "../src/db/schema";
 import { addEdition, allVariants, closeDrop, createDrop, findDrop, scheduleDrop, updateDrop, updateEdition } from "../src/lib/admin-drops";
 import { holdUnit } from "../src/lib/holds";
 import type { Staff } from "../src/lib/staff";
@@ -31,7 +31,10 @@ async function cleanUp() {
       await tx.delete(hold).where(inArray(hold.editionId, editions));
       await tx.delete(edition).where(inArray(edition.id, editions));
     }
-    if (drops.length) await tx.delete(dropRun).where(inArray(dropRun.id, drops));
+    if (drops.length) {
+      await tx.delete(waitlistEntry).where(inArray(waitlistEntry.dropId, drops));
+      await tx.delete(dropRun).where(inArray(dropRun.id, drops));
+    }
     await tx.delete(account).where(like(account.email, `%${MAIL}`));
   });
 }
@@ -100,6 +103,22 @@ async function main() {
   await expect(() => scheduleDrop(staff.owner, number), "notDraft");
   await expect(() => updateDrop(staff.owner, number, { ...soon, publicAt: null }), "noPublicTime");
   ok("a drop is scheduled only with ordered future times and whole runs, and stays that way");
+
+  // postponing moves the invites that haven't been used, and only those
+  const [draftDrop] = await db.select().from(dropRun).where(eq(dropRun.number, number));
+  const oldExpiry = new Date(soon.publicAt.getTime());
+  const entries = await db.insert(waitlistEntry).values(["waiting", "used"].map((name) => ({
+    email: name + MAIL, emailNorm: name + MAIL, dropId: draftDrop.id, status: "invited", consentAt: new Date(),
+  }))).returning({ id: waitlistEntry.id });
+  await db.insert(invite).values(entries.map((entry, i) => ({ entryId: entry.id, tokenHash: `drop-check-${i}`, expiresAt: oldExpiry, usedAt: i ? new Date() : null })));
+  const later = { ...soon, publicAt: new Date(soon.publicAt.getTime() + 24 * hour) };
+  await expect(() => updateDrop(staff.ops, number, later), null);
+  const expiries = (await db.select().from(invite).where(inArray(invite.entryId, entries.map((e) => e.id))).orderBy(asc(invite.tokenHash))).map((row) => row.expiresAt.getTime());
+  assert.deepEqual(expiries, [later.publicAt.getTime(), oldExpiry.getTime()]);
+  const [moved] = (await db.select().from(auditLog).where(and(eq(auditLog.entityId, draftDrop.id), eq(auditLog.action, "update")))).filter((row) => (row.newValue as { invitesMoved?: number }).invitesMoved);
+  assert.equal((moved.newValue as { invitesMoved: number }).invitesMoved, 1);
+  await db.delete(waitlistEntry).where(eq(waitlistEntry.dropId, draftDrop.id));
+  ok("postponing moves unused invites to the new public opening, leaves used ones, and logs how many");
 
   const [member] = await db.select().from(tier).where(eq(tier.code, "member"));
   const buyers = (await db.insert(account).values(Array.from({ length: BUYERS }, (_, i) => ({

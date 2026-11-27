@@ -1,6 +1,6 @@
 // Reading your own orders (page 14). Every query is scoped to the account: an order number alone shows nothing.
 // Relative imports, so scripts/check-account.ts can run this outside Next.
-import { and, asc, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "../db";
 import { customerOrder, dropRun, edition, editionUnit, orderLine, payment, product, refund, shipment, variant } from "../db/schema";
 
@@ -19,9 +19,16 @@ async function linesOf(orderIds: string[]) {
     .orderBy(asc(product.sort), asc(editionUnit.number));
 }
 
-/** Newest first. shortcut: no paging; add it when one account can have more than a screenful of orders. */
+/**
+ * Newest first, without payments that were started and left: those never became an order as far as the buyer is
+ * concerned. shortcut: no paging; add it when one account can have more than a screenful of orders.
+ */
 export async function listOrders(accountId: string) {
-  const orders = await db.select().from(customerOrder).where(eq(customerOrder.accountId, accountId)).orderBy(desc(customerOrder.createdAt));
+  const orders = await db.select().from(customerOrder).where(and(
+    eq(customerOrder.accountId, accountId),
+    sql`(${customerOrder.status} <> 'cancelled' or exists (
+      select 1 from ${payment} p where p.order_id = ${customerOrder.id} and p.status = 'succeeded'))`,
+  )).orderBy(desc(customerOrder.createdAt));
   const lines = await linesOf(orders.map((order) => order.id));
   return orders.map((order) => ({ ...order, lines: lines.filter((line) => line.orderId === order.id) }));
 }

@@ -1,7 +1,7 @@
-import { and, asc, desc, eq, ne, sql } from "drizzle-orm";
+import { and, asc, eq, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { dropRun, edition, editionUnit, product, variant } from "@/db/schema";
-import { dropStatus, type DropState } from "./drop-status";
+import { currentDrop, dropStatus, type DropState } from "./drop-status";
 
 export type Edition = {
   id: string; slug: string; name: string; colour: string;
@@ -14,12 +14,12 @@ export type DropSnapshot = {
   editions: Edition[];
 };
 
-/** One drop with its live counts, or the newest visible drop when no number is given. */
+/** One drop with its live counts, or the current one (drop-status.ts) when no number is given. */
 // shortcut: counts units on every poll; cache for 1-2 s (still inside NFR-004's 5 s) before drop-day traffic.
 export async function getDrop(number?: number): Promise<DropSnapshot | null> {
-  const [drop] = await db.select().from(dropRun)
-    .where(and(ne(dropRun.state, "draft"), number === undefined ? undefined : eq(dropRun.number, number)))
-    .orderBy(desc(dropRun.number)).limit(1);
+  const found = await db.select().from(dropRun)
+    .where(and(ne(dropRun.state, "draft"), number === undefined ? undefined : eq(dropRun.number, number)));
+  const drop = number === undefined ? currentDrop(found, new Date()) : found[0];
   if (!drop) return null;
 
   const editions = await db.select({

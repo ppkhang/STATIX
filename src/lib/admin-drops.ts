@@ -1,9 +1,9 @@
 // A3 and A4: making, scheduling and filling drops (FR-007 to FR-009, FR-097).
 // The role check and the audit row live here, with the change, so no route to a change can skip either.
 // Relative imports, so scripts/check-drops.ts can run this outside Next.
-import { and, asc, desc, eq, gt, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "../db";
-import { dropRun, edition, editionUnit, hold, product, variant } from "../db/schema";
+import { dropRun, edition, editionUnit, hold, invite, product, variant, waitlistEntry } from "../db/schema";
 import { detailsProblem, editionProblem, salesStarted, scheduleProblem, type DropDetails, type EditionTerms } from "./drop-admin-rules";
 import { audit, can, type Staff } from "./staff";
 
@@ -69,7 +69,17 @@ export async function updateDrop(actor: Staff, number: number, input: DropDetail
     const [before, after] = [details(drop), details(input)];
     if (JSON.stringify(before) === JSON.stringify(after)) return;
     await tx.update(dropRun).set(after).where(eq(dropRun.id, drop.id));
-    await audit({ adminId: actor.id, entity: "drop", entityId: drop.id, action: "update", oldValue: before, newValue: after }, tx);
+    // an invite lasts until the public opening, so the ones not used yet move with it
+    let invitesMoved = 0;
+    if (after.publicAt && after.publicAt.getTime() !== before.publicAt?.getTime()) {
+      const entries = tx.select({ id: waitlistEntry.id }).from(waitlistEntry).where(eq(waitlistEntry.dropId, drop.id));
+      invitesMoved = (await tx.update(invite).set({ expiresAt: after.publicAt })
+        .where(and(inArray(invite.entryId, entries), isNull(invite.usedAt))).returning({ id: invite.id })).length;
+    }
+    await audit({
+      adminId: actor.id, entity: "drop", entityId: drop.id, action: "update", oldValue: before,
+      newValue: invitesMoved ? { ...after, invitesMoved } : after,
+    }, tx);
   });
 }
 

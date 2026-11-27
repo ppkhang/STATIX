@@ -1,7 +1,7 @@
 // Run: npm test
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { dropStatus, editionState } from "./drop-status";
+import { currentDrop, dropStatus, editionState } from "./drop-status";
 
 const at = (time: string) => new Date(`2026-12-20T${time}:00+07:00`);
 const drop = { state: "scheduled", earlyAccessAt: at("19:30"), publicAt: at("20:00"), closeAt: at("23:00") };
@@ -26,6 +26,18 @@ test("no early-access window goes straight to public", () => {
   const plain = { ...drop, earlyAccessAt: null };
   assert.deepEqual(dropStatus(plain, at("19:45"), 5), { state: "scheduled", nextAt: drop.publicAt });
   assert.equal(dropStatus(plain, at("20:00"), 5)?.state, "public");
+});
+
+test("the current drop is the earliest one still open", () => {
+  const one = { ...drop, number: 1 };
+  const two = { ...drop, number: 2 };
+  const pick = (drops: (Omit<typeof one, "closeAt"> & { closeAt: Date | null })[], time = "19:45") => currentDrop(drops, at(time))?.number;
+  assert.equal(pick([two, one]), 1);
+  assert.equal(pick([{ ...one, state: "closed" }, two]), 2);
+  assert.equal(pick([one, { ...two, closeAt: null }], "23:30"), 2, "past its closing time");
+  assert.equal(pick([{ ...one, state: "closed" }, { ...two, state: "closed" }]), 2, "all closed: the newest");
+  assert.equal(pick([{ ...one, state: "draft" }, two]), 2);
+  assert.equal(pick([{ ...one, state: "draft" }]), undefined);
 });
 
 test("the column can hide or close a drop", () => {
