@@ -29,14 +29,14 @@ export default async function Audit({ searchParams }: PageProps<"/admin/audit">)
   return (
     <>
       <h1>{t("audit")}</h1>
-      <form className={styles.filters}>
+      <form className={`${styles.panel} ${styles.filters}`}>
         <label><span>{t("who")}</span><input name="who" defaultValue={who} /></label>
         <label><span>{t("what")}</span><input name="what" defaultValue={what} /></label>
         <label><span>{t("from")}</span><input name="from" type="date" defaultValue={from} /></label>
         <label><span>{t("to")}</span><input name="to" type="date" defaultValue={to} /></label>
         <button type="submit">{t("filter")}</button>
       </form>
-      {rows.length === 0 ? <p>{t("noEntries")}</p> : (
+      {rows.length === 0 ? <p className={styles.note}>{t("noEntries")}</p> : (
         <div className={styles.scroll} tabIndex={0} role="region" aria-label={t("audit")}>
           <table className={styles.table}>
             <thead>
@@ -45,7 +45,7 @@ export default async function Audit({ searchParams }: PageProps<"/admin/audit">)
             <tbody>
               {rows.map((row) => (
                 <tr key={row.id}>
-                  <td>{formatDateTime(row.at.toISOString())}</td>
+                  <td className={styles.nowrap}>{formatDateTime(row.at.toISOString())}</td>
                   <td>{row.who ?? t("commandLine")}</td>
                   <td>{row.entity} · {row.action}<br /><small>{row.entityId}</small></td>
                   <td><code>{show(row.oldValue)}</code></td>

@@ -1,5 +1,6 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import NavLink from "@/components/NavLink";
+import SignalBackdrop from "@/components/SignalBackdrop";
 import authStyles from "@/components/auth.module.css";
 import styles from "@/components/admin.module.css";
 import { staffLogout } from "@/lib/staff-actions";
@@ -15,18 +16,19 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
   const me = await currentStaff();
   return (
     <div className={styles.page}>
+      {/* still: only the pointer lights it, as there's nothing here to pause it with */}
+      <div className={styles.art}><SignalBackdrop still /></div>
       <header className={styles.header}>
-        <strong>{t("title")}</strong>
+        <span className={styles.brand}><span className={styles.logo}>STATIX</span><span className={styles.tag}>{t("tag")}</span></span>
         {me && (
           <>
             <nav aria-label={t("menu")}>
-              <Link href="/admin">{t("home")}</Link>
-              {can(me.role, "dashboard") && <Link href="/admin/dashboard">{t("dashboard")}</Link>}
-              {can(me.role, "drops") && <Link href="/admin/drops">{t("drops")}</Link>}
-              {can(me.role, "orders") && <Link href="/admin/orders">{t("orders")}</Link>}
-              {can(me.role, "audit") && <Link href="/admin/audit">{t("audit")}</Link>}
+              {can(me.role, "dashboard") && <NavLink href="/admin/dashboard" within={["/admin/dashboard"]}>{t("dashboard")}</NavLink>}
+              {can(me.role, "drops") && <NavLink href="/admin/drops" within={["/admin/drops"]}>{t("drops")}</NavLink>}
+              {can(me.role, "orders") && <NavLink href="/admin/orders" within={["/admin/orders"]}>{t("orders")}</NavLink>}
+              {can(me.role, "audit") && <NavLink href="/admin/audit" within={["/admin/audit"]}>{t("audit")}</NavLink>}
             </nav>
-            <span>{me.email} · {t(`roles.${me.role}`)}</span>
+            <span className={styles.who}>{me.email} · {t(`roles.${me.role}`)}</span>
             <form action={staffLogout}><button type="submit" className={authStyles.signOut}>{t("logOut")}</button></form>
           </>
         )}

@@ -5,6 +5,8 @@ const dateTime = new Intl.DateTimeFormat("en-GB", {
   hourCycle: "h23", timeZone: "Asia/Ho_Chi_Minh",
 });
 
+const count = new Intl.NumberFormat("en-GB"); // thousands separated as on the shop pages
+export const formatCount = (n: number) => count.format(n);
 export const formatVnd = (amount: number) => vnd.format(amount);
 export const formatDateTime = (iso: string) => dateTime.format(new Date(iso));
 export const unitNumber = (n: number) => String(n).padStart(3, "0");
